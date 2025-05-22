@@ -24,12 +24,39 @@ interface UIState {
   isMainFilterOpen: boolean;
 }
 
+// interface BookingStore {
+//   bookings: IBooking[];
+//   filters: FilterState;
+//   pagination: PaginationState;
+//   ui: UIState;
+  
+//   setSearchTerm: (term: string) => void;
+//   setStatusFilter: (statuses: string[]) => void;
+//   setVendor: (vendor: string) => void;
+//   setDateRange: (dateRange: string) => void;
+//   setStatus: (status: string) => void;
+//   clearFilters: () => void;
+//   applyMainFilter: (filters: { vendor: string; dateRange: string; status: string }) => void;
+  
+//   setCurrentPage: (page: number) => void;
+//   setItemsPerPage: (items: number) => void;
+  
+//   setActiveTab: (tab: string) => void;
+//   toggleStatusModal: () => void;
+//   setStatusModalOpen: (open: boolean) => void;
+//   toggleMainFilter: () => void;
+//   setMainFilterOpen: (open: boolean) => void;
+  
+//   refreshBookings: () => void;
+//   getStatusBadge: (status: string) => string;
+// }
+
 interface BookingStore {
   bookings: IBooking[];
   filters: FilterState;
   pagination: PaginationState;
   ui: UIState;
-  
+
   setSearchTerm: (term: string) => void;
   setStatusFilter: (statuses: string[]) => void;
   setVendor: (vendor: string) => void;
@@ -37,19 +64,25 @@ interface BookingStore {
   setStatus: (status: string) => void;
   clearFilters: () => void;
   applyMainFilter: (filters: { vendor: string; dateRange: string; status: string }) => void;
-  
+
   setCurrentPage: (page: number) => void;
   setItemsPerPage: (items: number) => void;
-  
+
   setActiveTab: (tab: string) => void;
   toggleStatusModal: () => void;
   setStatusModalOpen: (open: boolean) => void;
   toggleMainFilter: () => void;
   setMainFilterOpen: (open: boolean) => void;
-  
+
   refreshBookings: () => void;
   getStatusBadge: (status: string) => string;
+
+  // 🆕 BookingDetailsModal
+  isOpenBookingDetails: boolean;
+  openBookingDetailsModal: () => void;
+  closeBookingDetailsModal: () => void;
 }
+
 
 const initialFilters: FilterState = {
   searchTerm: '',
@@ -70,6 +103,8 @@ const initialUI: UIState = {
   isMainFilterOpen: false,
 };
 
+
+
 export const useBookingStore = create<BookingStore>()(
   devtools(
     (set) => ({
@@ -77,6 +112,9 @@ export const useBookingStore = create<BookingStore>()(
       filters: initialFilters,
       pagination: initialPagination,
       ui: initialUI,
+      isOpenBookingDetails: true, // Or false if you want it initially closed
+  openBookingDetailsModal: () => set({  isOpenBookingDetails: true }),
+  closeBookingDetailsModal: () => set({  isOpenBookingDetails: false }),
       
       setSearchTerm: (term) =>
         set((state) => ({

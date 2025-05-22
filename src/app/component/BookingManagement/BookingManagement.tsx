@@ -9,6 +9,7 @@ import {
 } from "@/stores/useBookingStore";
 import StatusFilterModal from "./StatusFilterModal";
 import MainBookingFilter from "./MainBookingFilter";
+import BookingDetailsModal from "./BookingDetailsModal";
 
 const BookingManagement: React.FC = () => {
   const paginatedBookings = usePaginatedBookings();
@@ -68,6 +69,8 @@ const BookingManagement: React.FC = () => {
           bookings={paginatedBookings}
           getStatusBadge={getStatusBadge}
         />
+
+        <BookingDetailsModal/>
       </div>
       <div className="px-6 py-4 border-t border-gray-200">
         <PaginationComponent
