@@ -1,7 +1,9 @@
 import ReportIcon from "@/assets/svg/ReportIcon.svg";
+import ConfirmIcon from "@/assets/svg/ConfirmIcon.svg"
 
 const SVGAssets = {
-    ReportIcon
+    ReportIcon,
+    ConfirmIcon
 };
 
 export default SVGAssets;

@@ -20,7 +20,7 @@ const BookingPage = () => {
           </aside>
         </section>
         <button
-          className="rounded-[12px] py-[12px] px-[16px] bg-[#2853A6] flex items-center gap-[10px]"
+          className="rounded-[12px] py-[12px] px-[16px] bg-[#2853A6] flex items-center gap-[10px] cursor-pointer"
           type="button"
         >
           <Image

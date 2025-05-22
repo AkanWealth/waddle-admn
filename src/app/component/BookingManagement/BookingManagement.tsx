@@ -7,18 +7,22 @@ import PaginationComponent from "../Element/PaginationComponent";
 const BookingManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+
   const [activeTab, setActiveTab] = useState("Bookings");
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+    const baseClasses = "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
     switch (status) {
       case "Confirmed":
-        return `${baseClasses} bg-green-100 text-green-800`;
+        return `${baseClasses} bg-[#E0F5E6] text-[#28A745]`;
       case "Pending":
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
+        return `${baseClasses} bg-[#E5E5E5] text-[#272727]`;
+        case "closed":
+    case "cancelled":
+    case "canceled":
       case "Canceled":
-        return `${baseClasses} bg-red-100 text-red-800`;
+        return `${baseClasses} bg-[#FFDEDE] text-[#CB1A14]`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
@@ -28,12 +32,13 @@ const BookingManagement: React.FC = () => {
     const matchesSearch =
       booking.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.organiser.toLowerCase().includes(searchTerm.toLowerCase());
-
+  
     const matchesStatus =
-      statusFilter === "All" || booking.status === statusFilter;
-
+      statusFilter.length === 0 || statusFilter.includes(booking.status);
+  
     return matchesSearch && matchesStatus;
   });
+  
 
   const itemsPerPage = 8;
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
@@ -48,8 +53,8 @@ const BookingManagement: React.FC = () => {
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <section className="w-full">
           <h1 className="text-xl font-semibold text-gray-900">All Bookings</h1>
-          <section className="flex  justify-between items-center">
-            <div className="font-inter flex items-center space-x-6 border-[#D0D0D0] border-[1px] rounded-[12px] p-2">
+          <section className="flex relative  justify-between items-center mt-4">
+            <div className="font-inter flex items-center  border-[#D0D0D0] border-[1px] rounded-[12px] px-2">
               {["Bookings", "Revenue"].map((tab) => (
                 <button
                   key={tab}
