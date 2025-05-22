@@ -1,6 +1,7 @@
 import React from "react";
 import { IBooking } from "./IBooking";
 import { CircleCheck, Clock, CircleX } from "lucide-react";
+import { useBookingStore } from "@/stores/useBookingStore";
 
 interface BookingTableProps {
   bookings: IBooking[];
@@ -25,8 +26,12 @@ const renderStatusIcon = (status: string) => {
 const BookingTable: React.FC<BookingTableProps> = ({
   bookings,
   getStatusBadge,
-}) => (
-  <div className="overflow-x-auto w-full">
+}) => {
+  const {
+    openBookingDetailsModal,
+  } = useBookingStore();
+  return(
+<div className="overflow-x-auto w-full">
     <table className="w-full table-auto border-collapse">
       <thead className="bg-[#F7F7F7] hidden md:table-header-group">
         <tr>
@@ -72,8 +77,10 @@ const BookingTable: React.FC<BookingTableProps> = ({
               </div>
             </td>
             <td className="px-4 py-2 md:py-4 text-base font-medium text-[#2853A6] md:table-cell block">
-              <span className="font-semibold block md:hidden">Actions:</span>
-              <button className="hover:text-blue-800 text-nowrap">View Details</button>
+              <button 
+              onClick={openBookingDetailsModal}
+              
+              className="hover:text-blue-800 text-nowrap">View Details</button>
             </td>
           </tr>
         ))}
@@ -81,5 +88,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
     </table>
   </div>
 );
+}
+  
 
 export default BookingTable;

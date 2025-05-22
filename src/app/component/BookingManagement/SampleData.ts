@@ -84,3 +84,28 @@ const BookingsData: IBooking[] = [
 ];
 
 export default BookingsData;
+
+
+export const GuardianDetailsData=[
+  {
+    name: "Jessica Brown",
+    email: "jessica.b@email.com",
+    phone: "01-98347775",
+    child: "Lily Doe",
+    count: "1",
+  },
+  {
+    name: "Jessica Brown",
+    email: "jessica.b@email.com",
+    phone: "01-98347775",
+    children: "Lily Doe, Max Doe",
+    count: "2",
+  },
+  {
+    name: "Jessica Brown",
+    email: "jessica.b@email.com",
+    phone: "01-98347775",
+    children: "Lily Doe, Max Doe, John Laurel",
+    count: "3",
+  },
+]
