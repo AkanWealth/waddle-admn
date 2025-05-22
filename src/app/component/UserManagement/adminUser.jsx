@@ -21,91 +21,91 @@ export default function AdminUsersTable({ currentPage, searchTerm, statusFilter,
             mobile: "(323) 555-5678",
             email: "emily.j@email.com",
             date: "2024-06-20",
-            status: "Rejected"
+            status: "Inactive"
         },
         {
             name: "Happy Kids",
             mobile: "(312) 555-8765",
             email: "mwilliams@email.com",
             date: "2024-07-02",
-            status: "Approved"
+            status: "Active"
         },
         {
             name: "Elite Dancer School",
             mobile: "(713) 555-2345",
             email: "jessica.b@email.com",
             date: "2024-08-10",
-            status: "Rejected"
+            status: "Inactive"
         },
         {
             name: "ABC Events",
             mobile: "(305) 555-6789",
             email: "david.a@email.com",
             date: "2024-09-12",
-            status: "Approved"
+            status: "Active"
         },
         {
             name: "XYZ Events",
             mobile: "(206) 555-1357",
             email: "sarah.m@email.com",
             date: "2024-10-05",
-            status: "Rejected"
+            status: "Inactive"
         },
         {
             name: "Kane Events",
             mobile: "(720) 555-2468",
             email: "daniel.t@email.com",
             date: "2024-11-18",
-            status: "Deactivated"
+            status: "Inactive"
         },
         {
             name: "Zoo Park",
             mobile: "(617) 555-9753",
             email: "laura.w@email.com",
             date: "2024-12-25",
-            status: "Approved"
+            status: "Active"
         },
         {
             name: "Happy Kids",
             mobile: "(312) 555-8765",
             email: "mwilliams@email.com",
             date: "2024-07-02",
-            status: "Approved"
+            status: "Active"
         },
         {
             name: "Elite Dancer School",
             mobile: "(713) 555-2345",
             email: "jessica.b@email.com",
             date: "2024-08-10",
-            status: "Rejected"
+            status: "Inactive"
         },
         {
             name: "ABC Events",
             mobile: "(305) 555-6789",
             email: "david.a@email.com",
             date: "2024-09-12",
-            status: "Approved"
+            status: "Active"
         },
         {
             name: "XYZ Events",
             mobile: "(206) 555-1357",
             email: "sarah.m@email.com",
             date: "2024-10-05",
-            status: "Rejected"
+            status: "Inactive"
         },
         {
             name: "Kane Events",
             mobile: "(720) 555-2468",
             email: "daniel.t@email.com",
             date: "2024-11-18",
-            status: "Deactivated"
+            status: "Inactive"
         },
         {
             name: "Zoo Park",
             mobile: "(617) 555-9753",
             email: "laura.w@email.com",
             date: "2024-12-25",
-            status: "Approved"
+            status: "Active"
         }
     ]);
 
@@ -223,7 +223,7 @@ export default function AdminUsersTable({ currentPage, searchTerm, statusFilter,
                     </thead>
                     <tbody>
                         {paginatedAdmin.map((admin, index) => (
-                            <tr key={index} className="text-gray-500 text-sm hover:bg-gray-50">
+                            <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
                                 <td className="py-4 px-4">{admin.name}</td>
                                 <td className="py-4 px-4">{admin.mobile}</td>
                                 <td className="py-4 px-4">{admin.email}</td>

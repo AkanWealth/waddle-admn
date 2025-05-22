@@ -263,7 +263,7 @@ export default function EventTable({ currentPage, searchTerm, statusFilter, date
                         </thead>
                         <tbody>
                             {paginatedevents.map((event, index) => (
-                                <tr key={index} className="text-gray-500 text-sm hover:bg-gray-50">
+                                <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
                                     <td className="py-4 px-4">{event.name}</td>
                                     <td className="py-4 px-4">{event.mobile}</td>
                                     <td className="py-4 px-4">{event.email}</td>

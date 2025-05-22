@@ -1,209 +1,117 @@
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import StatusBadge from "./StatusBadge";
-
-// export default function GuardiansTable({ currentPage }) {
-//     // Sample data for guardians
-//     const [guardians, setGuardians] = useState([
-//         {
-//             name: "Jane Doe",
-//             mobile: "(415) 555-1234",
-//             email: "jane.doe@email.com",
-//             date: "2024-05-10",
-//             status: "Approved"
-//         },
-//         {
-//             name: "Robert Johnson",
-//             mobile: "(510) 555-4321",
-//             email: "robert.j@email.com",
-//             date: "2024-05-15",
-//             status: "Pending"
-//         },
-//         {
-//             name: "Maria Garcia",
-//             mobile: "(628) 555-8765",
-//             email: "maria.g@email.com",
-//             date: "2024-05-20",
-//             status: "Approved"
-//         },
-//         {
-//             name: "Alex Wong",
-//             mobile: "(925) 555-3456",
-//             email: "alex.w@email.com",
-//             date: "2024-06-01",
-//             status: "Rejected"
-//         },
-//         {
-//             name: "Samantha Lee",
-//             mobile: "(707) 555-7890",
-//             email: "samantha.l@email.com",
-//             date: "2024-06-10",
-//             status: "Approved"
-//         },
-//         {
-//             name: "David Kim",
-//             mobile: "(408) 555-6543",
-//             email: "david.k@email.com",
-//             date: "2024-06-15",
-//             status: "Deactivated"
-//         }
-//     ]);
-
-//     // Pagination logic
-//     const itemsPerPage = 7;
-//     const [paginatedGuardians, setPaginatedGuardians] = useState([]);
-
-//     useEffect(() => {
-//         const startIndex = (currentPage - 1) * itemsPerPage;
-//         const endIndex = startIndex + itemsPerPage;
-//         setPaginatedGuardians(guardians.slice(startIndex, endIndex));
-//     }, [currentPage, guardians]);
-
-//     return (
-//         <table className="min-w-full">
-//             <thead>
-//                 <tr className="text-left text-gray-500 text-sm">
-//                     <th className="pb-3 px-4 font-medium">Guardian Name</th>
-//                     <th className="pb-3 px-4 font-medium">Mobile Number</th>
-//                     <th className="pb-3 px-4 font-medium">Email Address</th>
-//                     <th className="pb-3 px-4 font-medium">Registration Date</th>
-//                     <th className="pb-3 px-4 font-medium">Status</th>
-//                     <th className="pb-3 px-4 font-medium">Actions</th>
-//                 </tr>
-//             </thead>
-//             <tbody>
-//                 {paginatedGuardians.map((guardian, index) => (
-//                     <tr key={index} className="text-gray-500 text-sm hover:bg-gray-50">
-//                         <td className="py-4 px-4">{guardian.name}</td>
-//                         <td className="py-4 px-4">{guardian.mobile}</td>
-//                         <td className="py-4 px-4">{guardian.email}</td>
-//                         <td className="py-4 px-4">{guardian.date}</td>
-//                         <td className="py-4 px-4"><StatusBadge status={guardian.status} /></td>
-//                         <td className="py-4 px-4">
-//                             <a href="#" className="text-blue-600 hover:underline">View Profile</a>
-//                         </td>
-//                     </tr>
-//                 ))}
-//             </tbody>
-//         </table>
-//     );
-// }
-
-
-
-
 "use client";
 
 import { useState, useEffect } from "react";
 import StatusBadge from "./StatusBadge";
-import { ChevronRight } from "lucide-react";
+import GuardianDetailsModal from "../ModalPages/Users/Guardian/viewPendingDetail";
+
 
 export default function GuardiansTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
-    // Sample data for vendors
+    // Sample data for guardians with the specific status types
     const [allGuardians, setAllGuardians] = useState([
         {
             name: "XYZ Events",
             mobile: "(212) 555-1234",
             email: "john.smith@email.com",
             date: "2024-05-15",
-            status: "Pending"
+            status: "Registered"
         },
         {
             name: "ABC Org",
             mobile: "(323) 555-5678",
             email: "emily.j@email.com",
             date: "2024-06-20",
-            status: "Rejected"
+            status: "Active"
         },
         {
             name: "Happy Kids",
             mobile: "(312) 555-8765",
             email: "mwilliams@email.com",
             date: "2024-07-02",
-            status: "Approved"
+            status: "Registered"
         },
         {
             name: "Elite Dancer School",
             mobile: "(713) 555-2345",
             email: "jessica.b@email.com",
             date: "2024-08-10",
-            status: "Rejected"
+            status: "Active"
         },
         {
             name: "ABC Events",
             mobile: "(305) 555-6789",
             email: "david.a@email.com",
             date: "2024-09-12",
-            status: "Approved"
+            status: "Spam"
         },
         {
             name: "XYZ Events",
             mobile: "(206) 555-1357",
             email: "sarah.m@email.com",
             date: "2024-10-05",
-            status: "Rejected"
+            status: "Active"
         },
         {
             name: "Kane Events",
             mobile: "(720) 555-2468",
             email: "daniel.t@email.com",
             date: "2024-11-18",
-            status: "Deactivated"
+            status: "Inactive"
         },
         {
             name: "Zoo Park",
             mobile: "(617) 555-9753",
             email: "laura.w@email.com",
             date: "2024-12-25",
-            status: "Approved"
+            status: "Spam"
         },
         {
             name: "Happy Kids",
             mobile: "(312) 555-8765",
             email: "mwilliams@email.com",
             date: "2024-07-02",
-            status: "Approved"
+            status: "Spam"
         },
         {
             name: "Elite Dancer School",
             mobile: "(713) 555-2345",
             email: "jessica.b@email.com",
             date: "2024-08-10",
-            status: "Rejected"
+            status: "Active"
         },
         {
             name: "ABC Events",
             mobile: "(305) 555-6789",
             email: "david.a@email.com",
             date: "2024-09-12",
-            status: "Approved"
+            status: "Inactive"
         },
         {
             name: "XYZ Events",
             mobile: "(206) 555-1357",
             email: "sarah.m@email.com",
             date: "2024-10-05",
-            status: "Rejected"
+            status: "Active"
         },
         {
             name: "Kane Events",
             mobile: "(720) 555-2468",
             email: "daniel.t@email.com",
             date: "2024-11-18",
-            status: "Deactivated"
+            status: "Inactive"
         },
         {
             name: "Zoo Park",
             mobile: "(617) 555-9753",
             email: "laura.w@email.com",
             date: "2024-12-25",
-            status: "Approved"
+            status: "Inactive"
         }
     ]);
 
     const [filteredGuardians, setFilteredGuardians] = useState([]);
     const [paginatedGuardians, setPaginatedGuardians] = useState([]);
+    const [selectedGuardian, setSelectedGuardian] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Apply search and filters
     useEffect(() => {
@@ -213,24 +121,24 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             results = results.filter(
-                guardians =>
-                    guardians.name.toLowerCase().includes(term) ||
-                    guardians.email.toLowerCase().includes(term) ||
-                    guardians.mobile.includes(term)
+                guardian =>
+                    guardian.name.toLowerCase().includes(term) ||
+                    guardian.email.toLowerCase().includes(term) ||
+                    guardian.mobile.includes(term)
             );
         }
 
-        // Apply status filter
+        // Apply status filter - only filter if status filters are selected
         if (statusFilter && statusFilter.length > 0) {
-            results = results.filter(guardians => statusFilter.includes(guardians.status));
+            results = results.filter(guardian => statusFilter.includes(guardian.status));
         }
 
         // Apply date filter
         if (dateFilter.from) {
-            results = results.filter(guardians => guardians.date >= dateFilter.from);
+            results = results.filter(guardian => guardian.date >= dateFilter.from);
         }
         if (dateFilter.to) {
-            results = results.filter(guardians => guardians.date <= dateFilter.to);
+            results = results.filter(guardian => guardian.date <= dateFilter.to);
         }
 
         setFilteredGuardians(results);
@@ -248,62 +156,39 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
     // Render mobile view as a simplified table
     if (mobileView) {
         return (
-            // <div className="overflow-x-auto">
-            //     <table className="min-w-full">
-            //         <thead>
-            //             <tr className="text-left text-gray-500 text-sm border-b">
-            //                 <th className="pb-3 pr-2 font-medium">Vendor</th>
-            //                 <th className="pb-3 px-2 font-medium text-center">Status</th>
-            //                 <th className="pb-3 pl-2 font-medium text-center">-</th>
-            //             </tr>
-            //         </thead>
-            //         <tbody>
-            //             {paginatedGuardians.map((guardians, index) => (
-            //                 <tr key={index} className="text-gray-800 text-sm border-b">
-            //                     <td className="py-4 pr-2">{guardians.name}</td>
-            //                     <td className="py-4 px-2 text-center">
-            //                         <StatusBadge status={guardians.status} />
-            //                     </td>
-            //                     <td className="py-4 pl-2 text-center">
-            //                         <a href="#" className="text-blue-600 hover:underline">Details</a>
-            //                     </td>
-            //                 </tr>
-            //             ))}
-
-            //             {paginatedGuardians.length === 0 && (
-            //                 <tr>
-            //                     <td colSpan="3" className="text-center py-8 text-gray-500">
-            //                         No vendors found matching your criteria
-            //                     </td>
-            //                 </tr>
-            //             )}
-            //         </tbody>
-            //     </table>
-            // </div>
-
-
             <div className="overflow-x-auto">
                 <table className="min-w-full">
                     {paginatedGuardians.length > 0 ? (
                         <>
                             <thead>
                                 <tr className="text-left text-gray-500 text-sm border-b">
-                                    <th className="pb-3 pr-2 font-medium">Vendor</th>
+                                    <th className="pb-3 pr-2 font-medium">User</th>
                                     <th className="pb-3 px-2 font-medium text-center">Status</th>
                                     <th className="pb-3 pl-2 font-medium text-center">-</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedGuardians.map((guardians, index) => (
+                                {paginatedGuardians.map((guardian, index) => (
                                     <tr key={index} className="text-gray-800 text-sm border-b">
-                                        <td className="py-4 pr-2">{guardians.name}</td>
+                                        <td className="py-4 pr-2">{guardian.name}</td>
                                         <td className="py-4 px-2 text-center">
-                                            <StatusBadge status={guardians.status} />
+                                            <StatusBadge status={guardian.status} />
                                         </td>
                                         <td className="py-4 pl-2 text-center">
-                                            <a href="#" className="text-blue-600 hover:underline">Details</a>
+                                            <a
+                                                href="#"
+                                                className="text-blue-600 hover:underline"
+                                                onClick={e => {
+                                                    e.preventDefault();
+                                                    setSelectedGuardian(guardian);
+                                                    setIsModalOpen(true);
+                                                }}
+                                            >
+                                                Details
+                                            </a>
                                         </td>
                                     </tr>
+
                                 ))}
                             </tbody>
                         </>
@@ -311,39 +196,39 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                         <tbody>
                             <tr>
                                 <td colSpan="3" className="text-center py-4 text-gray-500">
-                                    <img src="/emptyFrame.png" alt="No Vendors" className="w-auto h-auto mx-auto mb-4" />
+                                    <img src="/emptyFrame.png" alt="No Guardians" className="w-auto h-auto mx-auto mb-4" />
                                 </td>
                             </tr>
                             <tr>
                                 <td colSpan="3" className="text-center py-2 text-gray-800 text-bold">
-                                    No Vendors Yet
+                                    No Guardians Found
                                 </td>
                             </tr>
                             <tr>
-                                <td colSpan="2" className="text-center text-gray-500">
-                                    It looks like no vendors have joined the platform yet. Once vendors sign up, their details will appear here.
+                                <td colSpan="3" className="text-center text-gray-500">
+                                    No guardians match your current filter criteria. Try adjusting your filters or search terms.
                                 </td>
                             </tr>
                         </tbody>
                     )}
                 </table>
+                <GuardianDetailsModal
+  vendor={selectedGuardian}
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+/>
             </div>
         );
-
     }
 
-    // Desktop view remains unchanged
+    // Desktop view
     return (
-
-
-
-
-        <table className="min-w-full">
+        <><table className="min-w-full">
             {paginatedGuardians.length > 0 ? (
                 <>
                     <thead>
                         <tr className="text-left text-gray-500 text-sm">
-                            <th className="pb-3 px-4 font-medium">User Name</th>
+                            <th className="pb-3 px-4 font-medium">Guardian Name</th>
                             <th className="pb-3 px-4 font-medium">Mobile Number</th>
                             <th className="pb-3 px-4 font-medium">Email Address</th>
                             <th className="pb-3 px-4 font-medium">Registration Date</th>
@@ -352,15 +237,25 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                         </tr>
                     </thead>
                     <tbody>
-                        {paginatedGuardians.map((guardians, index) => (
-                            <tr key={index} className="text-gray-500 text-sm hover:bg-gray-50">
-                                <td className="py-4 px-4">{guardians.name}</td>
-                                <td className="py-4 px-4">{guardians.mobile}</td>
-                                <td className="py-4 px-4">{guardians.email}</td>
-                                <td className="py-4 px-4">{guardians.date}</td>
-                                <td className="py-4 px-4"><StatusBadge status={guardians.status} /></td>
+                        {paginatedGuardians.map((guardian, index) => (
+                            <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
+                                <td className="py-4 px-4">{guardian.name}</td>
+                                <td className="py-4 px-4">{guardian.mobile}</td>
+                                <td className="py-4 px-4">{guardian.email}</td>
+                                <td className="py-4 px-4">{guardian.date}</td>
+                                <td className="py-4 px-4"><StatusBadge status={guardian.status} /></td>
                                 <td className="py-4 px-4">
-                                    <a href="#" className="text-blue-600 hover:underline">View Profile</a>
+                                    <a
+                                        href="#"
+                                        className="text-blue-600 hover:underline"
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            setSelectedGuardian(guardian);
+                                            setIsModalOpen(true);
+                                        } }
+                                    >
+                                        View Profile
+                                    </a>
                                 </td>
                             </tr>
                         ))}
@@ -370,21 +265,24 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                 <tbody>
                     <tr>
                         <td colSpan="6" className="text-center py-4 text-gray-500">
-                            <img src="/emptyFrame.png" alt="No Vendors" className="w-auto h-auto mx-auto mb-4" />
+                            <img src="/emptyFrame.png" alt="No Guardians" className="w-auto h-auto mx-auto mb-4" />
                         </td>
                     </tr>
                     <tr>
                         <td colSpan="6" className="text-center py-2 text-gray-800 text-bold">
-                            No Vendors Yet
+                            No Guardians Found
                         </td>
                     </tr>
                     <tr>
-                        <td colSpan="2" className="text-center text-gray-500">
-                            It looks like no vendors have joined the platform yet. Once vendors sign up, their details will appear here.
+                        <td colSpan="6" className="text-center text-gray-500">
+                            No guardians match your current filter criteria. Try adjusting your filters or search terms.
                         </td>
                     </tr>
                 </tbody>
             )}
-        </table>
+        </table><GuardianDetailsModal
+                vendor={selectedGuardian}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)} /></>
     );
 }

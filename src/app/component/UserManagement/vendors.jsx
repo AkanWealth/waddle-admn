@@ -255,7 +255,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                         </thead>
                         <tbody>
                             {paginatedVendors.map((vendor, index) => (
-                                <tr key={index} className="text-gray-500 text-sm hover:bg-gray-50">
+                                <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
                                     <td className="py-4 px-4">{vendor.name}</td>
                                     <td className="py-4 px-4">{vendor.mobile}</td>
                                     <td className="py-4 px-4">{vendor.email}</td>

@@ -18,6 +18,20 @@ export default function StatusBadge({ status }) {
                     <span className="text-red-600 text-xs px-3 py-2">Rejected</span>
                 </div>
             );
+        case "Active":
+            return (
+                 <div className="flex items-center bg-green-100 rounded-lg px-2">
+                    <CircleCheck className="w-4 h-4 text-green-500 mr-1" />
+                    <span className="text-green-600 text-xs px-3 py-2">Active</span>
+                </div>
+            );
+        case "Registered":
+            return (
+                 <div className="flex items-center bg-green-100 rounded-lg px-2">
+                    <CircleCheck className="w-4 h-4 text-green-500 mr-1" />
+                    <span className="text-green-600 text-xs px-3 py-2">Registered</span>
+                </div>
+            );
         case "Pending":
             return (
                 <div className="flex items-center bg-gray-100 rounded-lg px-2">
@@ -27,9 +41,16 @@ export default function StatusBadge({ status }) {
             );
         case "Inactive":
             return (
+                <div className="flex items-center bg-red-100 rounded-lg px-2">
+                    <CircleXIcon className="w-4 h-4 text-red-500 mr-1" />
+                    <span className="text-red-600 text-xs px-3 py-2">Inactive</span>
+                </div>
+            );
+        case "Spam":
+            return (
                 <div className="flex items-center bg-orange-100 rounded-lg px-2">
                     <TriangleAlert className="w-4 h-4 text-orange-500 mr-1" />
-                    <span className="text-orange-600 text-xs px-3 py-2">Inactive</span>
+                    <span className="text-orange-600 text-xs px-3 py-2">Spam</span>
                 </div>
             );
         case "Deactivated":

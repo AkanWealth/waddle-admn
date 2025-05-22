@@ -1,12 +1,16 @@
+
+
+
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { Search, Plus, Trash2, Filter, ChevronDown, Menu, X } from "lucide-react";
-
 import VendorsTable from "./vendors";
 import GuardiansTable from "./guardian";
 import AdminUsersTable from "./adminUser";
 import PaginationComponent from "../Element/PaginationComponent";
+import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
 
 export default function UserManagement() {
     // State for active tab
@@ -21,9 +25,29 @@ export default function UserManagement() {
     const [filterOpen, setFilterOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
+    const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
     
     // Mobile responsive states
     const [mobileView, setMobileView] = useState(false);
+
+    // Define status options for each tab
+    const statusOptions = {
+        "Vendors": ["Approved", "Pending", "Rejected", "Deactivated", "Inactive"],
+        "Guardians": ["Active", "Inactive", "Registered", "Spam"],
+        "Admin Users": ["Active", "Inactive", "Pending"]
+    };
+
+    // Get current status options based on active tab
+    const getCurrentStatusOptions = () => {
+        return statusOptions[activeTab] || [];
+    };
+
+    // Handle tab change
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        setCurrentPage(1);
+        setStatusFilter([]); // Reset status filter when changing tabs
+    };
 
     // Handle page change
     const handlePageChange = (pageNumber) => {
@@ -81,14 +105,17 @@ export default function UserManagement() {
     }, []);
 
     return (
-        <div>
+        <><div>
             <div className="font-inter flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
                 <div className="gap-4 grid grid-cols-1 items-center justify-between mb-6">
                     <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
                     <p className="text-gray-500">View and manage your registered users here</p>
                 </div>
                 <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
-                    <button className="flex items-center bg-blue-800 text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+                    <button
+                        className="flex items-center bg-blue-800 text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+                        onClick={() => setIsCreateAdminModalOpen(true)}
+                    >
                         <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Add New User
                     </button>
@@ -98,7 +125,7 @@ export default function UserManagement() {
                     </button>
                 </div>
             </div>
-            
+
             {/* Main content */}
             <div className="bg-white rounded-lg shadow-sm">
                 <div className="p-6">
@@ -111,15 +138,10 @@ export default function UserManagement() {
                             {["Vendors", "Guardians", "Admin Users"].map((tab) => (
                                 <button
                                     key={tab}
-                                    className={`mr-4 md:mr-8 py-2 text-xs md:text-sm whitespace-nowrap ${
-                                        activeTab === tab
+                                    className={`mr-4 md:mr-8 py-2 text-xs md:text-sm whitespace-nowrap ${activeTab === tab
                                             ? "border-b-2 border-blue-500 text-blue-600 font-medium"
-                                            : "text-gray-500"
-                                    }`}
-                                    onClick={() => {
-                                        setActiveTab(tab);
-                                        setCurrentPage(1);
-                                    }}
+                                            : "text-gray-500"}`}
+                                    onClick={() => handleTabChange(tab)}
                                 >
                                     {tab}
                                 </button>
@@ -131,15 +153,14 @@ export default function UserManagement() {
                             <div className="relative w-full md:w-64">
                                 <input
                                     type="text"
-                                    placeholder="Search for user..."
+                                    placeholder={`Search for ${activeTab.toLowerCase()}...`}
                                     value={searchTerm}
                                     onChange={handleSearchChange}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                 <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                             </div>
                             <div className="relative w-full md:w-auto">
-                                <button 
+                                <button
                                     className="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 w-full md:w-auto"
                                     onClick={() => setFilterOpen(!filterOpen)}
                                 >
@@ -147,25 +168,24 @@ export default function UserManagement() {
                                     <span className="text-gray-600">Filter</span>
                                     <ChevronDown className="h-4 w-4 text-gray-600 ml-2" />
                                 </button>
-                                
+
                                 {/* Filter dropdown */}
                                 {filterOpen && (
                                     <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
                                         <h3 className="font-medium text-gray-700 mb-3">Filter by Status</h3>
                                         <div className="space-y-2 mb-4">
-                                            {["Approved", "Pending", "Rejected", "Deactivated", "Inactive"].map((status) => (
+                                            {getCurrentStatusOptions().map((status) => (
                                                 <label key={status} className="flex items-center">
                                                     <input
                                                         type="checkbox"
                                                         checked={statusFilter.includes(status)}
                                                         onChange={() => handleStatusChange(status)}
-                                                        className="rounded text-blue-600 mr-2"
-                                                    />
+                                                        className="rounded text-blue-600 mr-2" />
                                                     <span className="text-gray-700">{status}</span>
                                                 </label>
                                             ))}
                                         </div>
-                                        
+
                                         <h3 className="font-medium text-gray-700 mb-3">Filter by Date</h3>
                                         <div className="space-y-2 mb-4">
                                             <div>
@@ -174,8 +194,7 @@ export default function UserManagement() {
                                                     type="date"
                                                     value={dateFilter.from}
                                                     onChange={(e) => handleDateChange("from", e.target.value)}
-                                                    className="w-full p-2 border border-gray-300 rounded"
-                                                />
+                                                    className="w-full p-2 border border-gray-300 rounded" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm text-gray-600 mb-1">To</label>
@@ -183,11 +202,10 @@ export default function UserManagement() {
                                                     type="date"
                                                     value={dateFilter.to}
                                                     onChange={(e) => handleDateChange("to", e.target.value)}
-                                                    className="w-full p-2 border border-gray-300 rounded"
-                                                />
+                                                    className="w-full p-2 border border-gray-300 rounded" />
                                             </div>
                                         </div>
-                                        
+
                                         <div className="flex justify-between">
                                             <button
                                                 onClick={resetFilters}
@@ -207,46 +225,46 @@ export default function UserManagement() {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Render the appropriate table based on active tab */}
                     <div className="overflow-x-auto">
                         {activeTab === "Vendors" && (
-                            <VendorsTable 
-                                currentPage={currentPage} 
+                            <VendorsTable
+                                currentPage={currentPage}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
-                                mobileView={mobileView}
-                            />
+                                mobileView={mobileView} />
                         )}
                         {activeTab === "Guardians" && (
-                            <GuardiansTable 
-                                currentPage={currentPage} 
+                            <GuardiansTable
+                                currentPage={currentPage}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
-                                mobileView={mobileView}
-                            />
+                                mobileView={mobileView} />
                         )}
                         {activeTab === "Admin Users" && (
-                            <AdminUsersTable 
-                                currentPage={currentPage} 
+                            <AdminUsersTable
+                                currentPage={currentPage}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
-                                mobileView={mobileView}
-                            />
+                                mobileView={mobileView} />
                         )}
                     </div>
 
                     {/* Pagination */}
-                    <PaginationComponent 
+                    <PaginationComponent
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
+                        onPageChange={handlePageChange} />
                 </div>
             </div>
         </div>
+        <CreateAdminUserModal
+                isOpen={isCreateAdminModalOpen}
+                onClose={() => setIsCreateAdminModalOpen(false)} />
+        </>
     );
 }
