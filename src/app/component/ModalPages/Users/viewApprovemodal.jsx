@@ -5,7 +5,7 @@ import BaseModal from "../../Element/BaseModal";
 import StatusBadge from "../../UserManagement/StatusBadge";
 import SuspendVendorModal from "./suspendVendor";
 import ActivateVendorModal from "./activateVendor";
-import EnableVendorModal from "./enableVendor";
+import EnableVendorModal from "./EnableVendor";
 import { InfoIcon } from "lucide-react";
 /**
  * VendorApproveDetailsModal - Component for displaying vendor details in a modal

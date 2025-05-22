@@ -1,0 +1,8 @@
+
+const RecommendationsPage = () => {
+  return (
+    <div>RecommendationsPage</div>
+  )
+}
+
+export default RecommendationsPage
