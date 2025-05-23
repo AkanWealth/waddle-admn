@@ -20,7 +20,7 @@ export default function RevenueChart() {
             <p className="text-[32px] font-bold text-[#303237]">£{totalRevenue.toLocaleString()}</p>
             <p className="text-[#28A745] text-sm">↑ {percentGrowth}%</p>
           </div>
-          <button className="bg-blue-100 text-blue-700 px-4 py-2 rounded">LAST YEAR ▾</button>
+          <button className="bg-blue-100 text-blue-700 px-4 py-2 rounded-[12px]">LAST YEAR ▾</button>
         </div>
   
         <ResponsiveContainer width="100%" height={250}>
