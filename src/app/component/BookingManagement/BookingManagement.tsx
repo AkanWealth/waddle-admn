@@ -10,6 +10,7 @@ import {
 import StatusFilterModal from "./StatusFilterModal";
 import MainBookingFilter from "./MainBookingFilter";
 import BookingDetailsModal from "./BookingDetailsModal";
+import RevenueChart from "./RevenueChart";
 
 const BookingManagement: React.FC = () => {
   const paginatedBookings = usePaginatedBookings();
@@ -28,6 +29,7 @@ const BookingManagement: React.FC = () => {
     setStatusModalOpen,
     setStatusFilter,
   } = useBookingStore();
+  console.log(activeTab);
 
   return (
     <div className="">
@@ -68,22 +70,25 @@ const BookingManagement: React.FC = () => {
           isOpen={isMainFilterOpen}
           onClose={toggleMainFilter}
         />
+        {activeTab == "Bookings" && (
+          <BookingTable
+            bookings={paginatedBookings}
+            getStatusBadge={getStatusBadge}
+          />
+        )}
 
-        <BookingTable
-          bookings={paginatedBookings}
-          getStatusBadge={getStatusBadge}
-        />
+        {activeTab == "Revenue" && <RevenueChart />}
+
         {isOpenBookingDetails && <BookingDetailsModal />}
       </div>
       <div className="px-6 py-4 border-t border-gray-200">
-        {
-          paginatedBookings.length >= 1 &&  <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-        }
-       
+        {paginatedBookings.length >= 1 && (
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

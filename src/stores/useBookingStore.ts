@@ -4,6 +4,18 @@ import { IBooking } from "@/app/component/BookingManagement/IBooking";
 import BookingsData from "@/app/component/BookingManagement/SampleData";
 import React from "react";
 
+
+
+interface RevenueData {
+  date: string;
+  amount: number;
+}
+
+interface StoreState {
+  data: RevenueData[];
+  fetchData: () => void;
+}
+
 interface FilterState {
   searchTerm: string;
   statusFilter: string[];
@@ -317,3 +329,24 @@ export const useTotalPages = () => {
     return Math.ceil(filteredBookings.length / itemsPerPage);
   }, [filteredBookings.length, itemsPerPage]);
 };
+
+export const useRevenueStore = create<StoreState>((set) => ({
+  data: [],
+  fetchData: () => {
+    const mockData = [
+      { date: "Jan", amount: 42000 },
+      { date: "Feb", amount: 60000 },
+      { date: "Mar", amount: 28000 },
+      { date: "Apr", amount: 45000 },
+      { date: "May", amount: 27000 },
+      { date: "Jun", amount: 28735 },
+      { date: "Jul", amount: 68000 },
+      { date: "Aug", amount: 23000 },
+      { date: "Sep", amount: 45000 },
+      { date: "Oct", amount: 69000 },
+      { date: "Nov", amount: 31000 },
+      { date: "Dec", amount: 70000 },
+    ];
+    set({ data: mockData });
+  },
+}));
