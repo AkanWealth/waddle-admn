@@ -80,7 +80,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
               <button 
               onClick={openBookingDetailsModal}
               
-              className="hover:text-blue-800 text-nowrap">View Details</button>
+              className="hover:text-blue-800 text-nowrap cursor-pointer">View Details</button>
             </td>
           </tr>
         ))}

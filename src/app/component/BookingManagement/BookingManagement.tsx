@@ -16,10 +16,11 @@ const BookingManagement: React.FC = () => {
   const totalPages = useTotalPages();
 
   const {
-    filters: {  statusFilter },
+    isOpenBookingDetails,
+    filters: { statusFilter },
     ui: { activeTab },
     pagination: { currentPage },
-    ui: { isStatusModalOpen, isMainFilterOpen},
+    ui: { isStatusModalOpen, isMainFilterOpen },
     toggleMainFilter,
     setActiveTab,
     setCurrentPage,
@@ -58,19 +59,21 @@ const BookingManagement: React.FC = () => {
         </div>
 
         <StatusFilterModal
-        isOpen={isStatusModalOpen}
-        onClose={() => setStatusModalOpen(false)}
-        onApply={setStatusFilter}
-        initialSelected={statusFilter}
-      />
-      <MainBookingFilter isOpen={isMainFilterOpen} onClose={toggleMainFilter} />
+          isOpen={isStatusModalOpen}
+          onClose={() => setStatusModalOpen(false)}
+          onApply={setStatusFilter}
+          initialSelected={statusFilter}
+        />
+        <MainBookingFilter
+          isOpen={isMainFilterOpen}
+          onClose={toggleMainFilter}
+        />
 
         <BookingTable
           bookings={paginatedBookings}
           getStatusBadge={getStatusBadge}
         />
-
-        <BookingDetailsModal/>
+        {isOpenBookingDetails && <BookingDetailsModal />}
       </div>
       <div className="px-6 py-4 border-t border-gray-200">
         <PaginationComponent
