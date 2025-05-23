@@ -105,7 +105,7 @@ export const GuardianDetailsData=[
     name: "Jessica Brown",
     email: "jessica.b@email.com",
     phone: "01-98347775",
-    children: ["Lily Doe", "Max Doe", "John Laurel"],
+    children: ["Lily Doe", "Max Doe", "John Laurel",  "Max Doe"],
     count: "3",
   },
 ]

@@ -11,7 +11,6 @@ export default function GuardianDetailsModal() {
   return (
     <div className="fixed inset-0 bg-white/30 backdrop-blur-xs flex items-center justify-center p-4  z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-        {/* Header */}
         <div className="flex items-center p-4 border-b border-gray-200">
           <button
             onClick={closeGuardianDetailsModal}
@@ -28,7 +27,7 @@ export default function GuardianDetailsModal() {
           </h2>
 
           <div className="w-full">
-            <div className="grid grid-cols-5 gap-2 text-sm font-semibold text-gray-800 py-3 px-3 bg-gray-200 rounded-t border-b">
+            <div className="grid grid-cols-5 gap-2 text-sm font-semibold text-gray-800 py-3 px-3 bg-[#F7F7F7] border-b border-b-[#E5E5E5] rounded-">
               <div>Guardian Name</div>
               <div>Email</div>
               <div>Phone</div>
@@ -40,18 +39,32 @@ export default function GuardianDetailsModal() {
               {GuardianDetailsData.map((guardian, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-5 gap-2 text-sm text-gray-700 py-3 px-3 bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors"
+                  className={`grid grid-cols-5 gap-2 text-sm text-gray-700 py-3 px-3 ${
+                    index % 2 === 0 ? "" : "bg-gray-50"
+                  } hover:bg-gray-50  border-gray-100 transition-colors`}
                 >
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-[#303237]">
                     {guardian.name}
                   </div>
                   <div className="text-gray-600 break-all">
                     {guardian.email}
                   </div>
                   <div className="text-gray-600">{guardian.phone}</div>
-                  <div className="text-gray-600">
-                    {guardian.children || "N/A"}
+                  <div className="text-gray-600 flex flex-wrap gap-1">
+                    {guardian.children.length > 0 ? (
+                      guardian.children.map((child, index) => (
+                        <span
+                          key={index}
+                          className="bg-[#E5E7EF] whitespace-nowrap rounded-[8px] py-1 px-2"
+                        >
+                          {child}
+                        </span>
+                      ))
+                    ) : (
+                      <span>N/A</span>
+                    )}
                   </div>
+
                   <div className="text-center font-medium">
                     {guardian.count}
                   </div>
