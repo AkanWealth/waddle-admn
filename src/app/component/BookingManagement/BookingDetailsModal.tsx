@@ -1,22 +1,35 @@
 import React from "react";
-import { X, Calendar, Clock, MapPin, Users, Phone, Mail } from "lucide-react";
+import {
+  X,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Phone,
+  Mail,
+  CircleCheck,
+} from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
 import { GuardianDetailsData } from "./SampleData";
+import GuardianDetailsModal from "./GuardianDetailsModal";
+import Image from "next/image";
+import SVGAssets from "@/assets/svg";
 
 const BookingDetailsModal = () => {
   const {
     isOpenBookingDetails,
     closeBookingDetailsModal,
+    openGuardianDetailsModal,
+    isOpenGuardianDetails,
   } = useBookingStore();
 
-  if (!isOpenBookingDetails)  return;
+  if (!isOpenBookingDetails) return;
 
   return (
     <div className="fixed inset-0 bg-white/30 backdrop-blur-xs flex items-center justify-center p-4  z-50">
       <div className="bg-white rounded-lg shadow-xl my-4 max-w-md w-full max-h-screen overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900"></h2>
           <button
             onClick={closeBookingDetailsModal}
             className="text-gray-400 hover:text-gray-600"
@@ -30,9 +43,10 @@ const BookingDetailsModal = () => {
             <h3 className="text-xl font-semibold text-gray-900">
               Kid Timeout with Jane
             </h3>
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-              Paid
-            </span>
+            <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center gap-1.5">
+              <CircleCheck className="w-4 h-4" />
+              <span className="">Paid</span>
+            </div>
           </div>
 
           <h3 className="text-sm text-gray-600">XYZ Events</h3>
@@ -63,12 +77,19 @@ const BookingDetailsModal = () => {
               <Users size={16} className="text-gray-400" />
               <span>2-10 years old</span>
             </div>
+            <div className="flex items-center text-sm gap-2">
+              <Image
+                src={SVGAssets.PricePerIcon}
+                className=""
+                alt="Price per icon"
+                width={20}
+                height={20}
+              />
+              <span className="text-gray-600">£20/person</span>
+            </div>
           </div>
 
           <div className="bg-gray-50 p-3 rounded-lg space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">£20/person</span>
-            </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Tickets booked</span>
               <span className="font-semibold">340</span>
@@ -113,39 +134,59 @@ const BookingDetailsModal = () => {
               <h4 className="text-sm font-semibold text-gray-900">
                 Guardian details
               </h4>
-              <button className="text-blue-600 text-sm hover:text-blue-800">
+              <button
+                onClick={openGuardianDetailsModal}
+                className="text-blue-600 text-sm hover:text-blue-800"
+              >
                 See all
               </button>
             </div>
 
-            <div className="grid grid-cols-5 gap-2 text-xs font-medium text-gray-500 mb-2 px-2">
-              <span>Guardian Name</span>
-              <span>Email</span>
-              <span>Children Name</span>
-              <span>Children</span>
-              <span></span>
-            </div>
+            <div className="w-full">
+              {/* Table Header */}
+              <div className="grid grid-cols-5 gap-2 text-sm font-semibold text-gray-800 py-3 px-3 bg-gray-200 rounded-t border-b">
+                <div>Guardian Name</div>
+                <div>Email</div>
+                <div>Phone</div>
+                <div>Children</div>
+                <div className="text-center">Count</div>
+              </div>
 
-            <div className="space-y-2">
-              {GuardianDetailsData.map((guardian, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-5 gap-2 text-xs text-gray-700 py-2 px-2 bg-gray-50 rounded"
-                >
-                  
-                    
-                  <div className="font-medium">{guardian.name}</div>
-                  <div className="text-gray-500">{guardian.email}</div>
-                  <div className="text-gray-500">{guardian.phone}</div>
-                  <div>{guardian.children || guardian.child}</div>
-                  <div className="text-center">{guardian.count}</div>
-                  
+              {/* Table Body */}
+              <div className="space-y-1">
+                {GuardianDetailsData.map((guardian, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-5 gap-2 text-sm text-gray-700 py-3 px-3 bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors"
+                  >
+                    <div className="font-medium text-gray-900">
+                      {guardian.name}
+                    </div>
+                    <div className="text-gray-600 break-all">
+                      {guardian.email}
+                    </div>
+                    <div className="text-gray-600">{guardian.phone}</div>
+                    <div className="text-gray-600">
+                      {guardian.children || "N/A"}
+                    </div>
+                    <div className="text-center font-medium">
+                      {guardian.count}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Empty state */}
+              {GuardianDetailsData.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No guardian data available
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </div>
+      {isOpenGuardianDetails && <GuardianDetailsModal />}
     </div>
   );
 };

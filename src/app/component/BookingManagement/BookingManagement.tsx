@@ -10,16 +10,18 @@ import {
 import StatusFilterModal from "./StatusFilterModal";
 import MainBookingFilter from "./MainBookingFilter";
 import BookingDetailsModal from "./BookingDetailsModal";
+import RevenueChart from "./RevenueChart";
 
 const BookingManagement: React.FC = () => {
   const paginatedBookings = usePaginatedBookings();
   const totalPages = useTotalPages();
 
   const {
-    filters: {  statusFilter },
+    isOpenBookingDetails,
+    filters: { statusFilter },
     ui: { activeTab },
     pagination: { currentPage },
-    ui: { isStatusModalOpen, isMainFilterOpen},
+    ui: { isStatusModalOpen, isMainFilterOpen },
     toggleMainFilter,
     setActiveTab,
     setCurrentPage,
@@ -27,6 +29,7 @@ const BookingManagement: React.FC = () => {
     setStatusModalOpen,
     setStatusFilter,
   } = useBookingStore();
+  console.log(activeTab);
 
   return (
     <div className="">
@@ -58,26 +61,34 @@ const BookingManagement: React.FC = () => {
         </div>
 
         <StatusFilterModal
-        isOpen={isStatusModalOpen}
-        onClose={() => setStatusModalOpen(false)}
-        onApply={setStatusFilter}
-        initialSelected={statusFilter}
-      />
-      <MainBookingFilter isOpen={isMainFilterOpen} onClose={toggleMainFilter} />
-
-        <BookingTable
-          bookings={paginatedBookings}
-          getStatusBadge={getStatusBadge}
+          isOpen={isStatusModalOpen}
+          onClose={() => setStatusModalOpen(false)}
+          onApply={setStatusFilter}
+          initialSelected={statusFilter}
         />
+        <MainBookingFilter
+          isOpen={isMainFilterOpen}
+          onClose={toggleMainFilter}
+        />
+        {activeTab == "Bookings" && (
+          <BookingTable
+            bookings={paginatedBookings}
+            getStatusBadge={getStatusBadge}
+          />
+        )}
 
-        <BookingDetailsModal/>
+        {activeTab == "Revenue" && <RevenueChart />}
+
+        {isOpenBookingDetails && <BookingDetailsModal />}
       </div>
       <div className="px-6 py-4 border-t border-gray-200">
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {paginatedBookings.length >= 1 && (
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

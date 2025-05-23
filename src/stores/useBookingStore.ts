@@ -1,9 +1,20 @@
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { IBooking } from '@/app/component/BookingManagement/IBooking';
-import BookingsData from '@/app/component/BookingManagement/SampleData';
-import React from 'react';
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { IBooking } from "@/app/component/BookingManagement/IBooking";
+import BookingsData from "@/app/component/BookingManagement/SampleData";
+import React from "react";
 
+
+
+interface RevenueData {
+  date: string;
+  amount: number;
+}
+
+interface StoreState {
+  data: RevenueData[];
+  fetchData: () => void;
+}
 
 interface FilterState {
   searchTerm: string;
@@ -24,33 +35,6 @@ interface UIState {
   isMainFilterOpen: boolean;
 }
 
-// interface BookingStore {
-//   bookings: IBooking[];
-//   filters: FilterState;
-//   pagination: PaginationState;
-//   ui: UIState;
-  
-//   setSearchTerm: (term: string) => void;
-//   setStatusFilter: (statuses: string[]) => void;
-//   setVendor: (vendor: string) => void;
-//   setDateRange: (dateRange: string) => void;
-//   setStatus: (status: string) => void;
-//   clearFilters: () => void;
-//   applyMainFilter: (filters: { vendor: string; dateRange: string; status: string }) => void;
-  
-//   setCurrentPage: (page: number) => void;
-//   setItemsPerPage: (items: number) => void;
-  
-//   setActiveTab: (tab: string) => void;
-//   toggleStatusModal: () => void;
-//   setStatusModalOpen: (open: boolean) => void;
-//   toggleMainFilter: () => void;
-//   setMainFilterOpen: (open: boolean) => void;
-  
-//   refreshBookings: () => void;
-//   getStatusBadge: (status: string) => string;
-// }
-
 interface BookingStore {
   bookings: IBooking[];
   filters: FilterState;
@@ -63,7 +47,11 @@ interface BookingStore {
   setDateRange: (dateRange: string) => void;
   setStatus: (status: string) => void;
   clearFilters: () => void;
-  applyMainFilter: (filters: { vendor: string; dateRange: string; status: string }) => void;
+  applyMainFilter: (filters: {
+    vendor: string;
+    dateRange: string;
+    status: string;
+  }) => void;
 
   setCurrentPage: (page: number) => void;
   setItemsPerPage: (items: number) => void;
@@ -77,19 +65,22 @@ interface BookingStore {
   refreshBookings: () => void;
   getStatusBadge: (status: string) => string;
 
-  // 🆕 BookingDetailsModal
+
   isOpenBookingDetails: boolean;
   openBookingDetailsModal: () => void;
   closeBookingDetailsModal: () => void;
+
+  isOpenGuardianDetails: boolean;
+  openGuardianDetailsModal: () => void;
+  closeGuardianDetailsModal: () => void;
 }
 
-
 const initialFilters: FilterState = {
-  searchTerm: '',
+  searchTerm: "",
   statusFilter: [],
-  vendor: '',
-  dateRange: '',
-  status: '',
+  vendor: "",
+  dateRange: "",
+  status: "",
 };
 
 const initialPagination: PaginationState = {
@@ -98,12 +89,10 @@ const initialPagination: PaginationState = {
 };
 
 const initialUI: UIState = {
-  activeTab: 'Bookings',
+  activeTab: "Bookings",
   isStatusModalOpen: false,
   isMainFilterOpen: false,
 };
-
-
 
 export const useBookingStore = create<BookingStore>()(
   devtools(
@@ -112,100 +101,163 @@ export const useBookingStore = create<BookingStore>()(
       filters: initialFilters,
       pagination: initialPagination,
       ui: initialUI,
-      isOpenBookingDetails: true, // Or false if you want it initially closed
-  openBookingDetailsModal: () => set({  isOpenBookingDetails: true }),
-  closeBookingDetailsModal: () => set({  isOpenBookingDetails: false }),
-      
+      isOpenBookingDetails: false,
+      openBookingDetailsModal: () => set({ isOpenBookingDetails: true }),
+      closeBookingDetailsModal: () => set({ isOpenBookingDetails: false }),
+      isOpenGuardianDetails: false,
+      openGuardianDetailsModal: () => set({  isOpenGuardianDetails: true }),
+      closeGuardianDetailsModal:()=> set({isOpenGuardianDetails: false }),
       setSearchTerm: (term) =>
-        set((state) => ({
-          filters: { ...state.filters, searchTerm: term },
-          pagination: { ...state.pagination, currentPage: 1 },
-        }), false, 'setSearchTerm'),
-      
+        set(
+          (state) => ({
+            filters: { ...state.filters, searchTerm: term },
+            pagination: { ...state.pagination, currentPage: 1 },
+          }),
+          false,
+          "setSearchTerm"
+        ),
+
       setStatusFilter: (statuses) =>
-        set((state) => ({
-          filters: { ...state.filters, statusFilter: statuses },
-          pagination: { ...state.pagination, currentPage: 1 },
-        }), false, 'setStatusFilter'),
-      
+        set(
+          (state) => ({
+            filters: { ...state.filters, statusFilter: statuses },
+            pagination: { ...state.pagination, currentPage: 1 },
+          }),
+          false,
+          "setStatusFilter"
+        ),
+
       setVendor: (vendor) =>
-        set((state) => ({
-          filters: { ...state.filters, vendor },
-        }), false, 'setVendor'),
-      
+        set(
+          (state) => ({
+            filters: { ...state.filters, vendor },
+          }),
+          false,
+          "setVendor"
+        ),
+
       setDateRange: (dateRange) =>
-        set((state) => ({
-          filters: { ...state.filters, dateRange },
-        }), false, 'setDateRange'),
-      
+        set(
+          (state) => ({
+            filters: { ...state.filters, dateRange },
+          }),
+          false,
+          "setDateRange"
+        ),
+
       setStatus: (status) =>
-        set((state) => ({
-          filters: { ...state.filters, status },
-        }), false, 'setStatus'),
-      
+        set(
+          (state) => ({
+            filters: { ...state.filters, status },
+          }),
+          false,
+          "setStatus"
+        ),
+
       clearFilters: () =>
-        set(() => ({
-          filters: initialFilters,
-          pagination: { ...initialPagination },
-        }), false, 'clearFilters'),
-      
+        set(
+          () => ({
+            filters: initialFilters,
+            pagination: { ...initialPagination },
+          }),
+          false,
+          "clearFilters"
+        ),
+
       applyMainFilter: (filters) =>
-        set((state) => ({
-          filters: { 
-            ...state.filters, 
-            vendor: filters.vendor,
-            dateRange: filters.dateRange,
-            status: filters.status,
-          },
-          pagination: { ...state.pagination, currentPage: 1 },
-        }), false, 'applyMainFilter'),
-      
+        set(
+          (state) => ({
+            filters: {
+              ...state.filters,
+              vendor: filters.vendor,
+              dateRange: filters.dateRange,
+              status: filters.status,
+            },
+            pagination: { ...state.pagination, currentPage: 1 },
+          }),
+          false,
+          "applyMainFilter"
+        ),
+
       setCurrentPage: (page) =>
-        set((state) => ({
-          pagination: { ...state.pagination, currentPage: page },
-        }), false, 'setCurrentPage'),
-      
+        set(
+          (state) => ({
+            pagination: { ...state.pagination, currentPage: page },
+          }),
+          false,
+          "setCurrentPage"
+        ),
+
       setItemsPerPage: (items) =>
-        set((state) => ({
-          pagination: { 
-            ...state.pagination, 
-            itemsPerPage: items,
-            currentPage: 1,
-          },
-        }), false, 'setItemsPerPage'),
-      
+        set(
+          (state) => ({
+            pagination: {
+              ...state.pagination,
+              itemsPerPage: items,
+              currentPage: 1,
+            },
+          }),
+          false,
+          "setItemsPerPage"
+        ),
+
       setActiveTab: (tab) =>
-        set((state) => ({
-          ui: { ...state.ui, activeTab: tab },
-        }), false, 'setActiveTab'),
-      
+        set(
+          (state) => ({
+            ui: { ...state.ui, activeTab: tab },
+          }),
+          false,
+          "setActiveTab"
+        ),
+
       toggleStatusModal: () =>
-        set((state) => ({
-          ui: { ...state.ui, isStatusModalOpen: !state.ui.isStatusModalOpen },
-        }), false, 'toggleStatusModal'),
-      
+        set(
+          (state) => ({
+            ui: { ...state.ui, isStatusModalOpen: !state.ui.isStatusModalOpen },
+          }),
+          false,
+          "toggleStatusModal"
+        ),
+
       setStatusModalOpen: (open) =>
-        set((state) => ({
-          ui: { ...state.ui, isStatusModalOpen: open },
-        }), false, 'setStatusModalOpen'),
-      
+        set(
+          (state) => ({
+            ui: { ...state.ui, isStatusModalOpen: open },
+          }),
+          false,
+          "setStatusModalOpen"
+        ),
+
       toggleMainFilter: () =>
-        set((state) => ({
-          ui: { ...state.ui, isMainFilterOpen: !state.ui.isMainFilterOpen },
-        }), false, 'toggleMainFilter'),
-      
+        set(
+          (state) => ({
+            ui: { ...state.ui, isMainFilterOpen: !state.ui.isMainFilterOpen },
+          }),
+          false,
+          "toggleMainFilter"
+        ),
+
       setMainFilterOpen: (open) =>
-        set((state) => ({
-          ui: { ...state.ui, isMainFilterOpen: open },
-        }), false, 'setMainFilterOpen'),
-      
+        set(
+          (state) => ({
+            ui: { ...state.ui, isMainFilterOpen: open },
+          }),
+          false,
+          "setMainFilterOpen"
+        ),
+
       refreshBookings: () =>
-        set(() => ({
-          bookings: BookingsData, 
-        }), false, 'refreshBookings'),
-      
+        set(
+          () => ({
+            bookings: BookingsData,
+          }),
+          false,
+          "refreshBookings"
+        ),
+
       getStatusBadge: (status: string) => {
-        const baseClasses = "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
+        const baseClasses =
+          "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
         switch (status) {
           case "Confirmed":
             return `${baseClasses} bg-[#E0F5E6] text-[#28A745]`;
@@ -222,7 +274,7 @@ export const useBookingStore = create<BookingStore>()(
       },
     }),
     {
-      name: 'booking-store', 
+      name: "booking-store",
     }
   )
 );
@@ -230,20 +282,25 @@ export const useBookingStore = create<BookingStore>()(
 export const useFilteredBookings = () => {
   const bookings = useBookingStore((state) => state.bookings);
   const filters = useBookingStore((state) => state.filters);
-  
+
   return React.useMemo(() => {
     return bookings.filter((booking) => {
       const matchesSearch =
-        booking.eventName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        booking.organiser.toLowerCase().includes(filters.searchTerm.toLowerCase());
-      
+        booking.eventName
+          .toLowerCase()
+          .includes(filters.searchTerm.toLowerCase()) ||
+        booking.organiser
+          .toLowerCase()
+          .includes(filters.searchTerm.toLowerCase());
+
       const matchesStatus =
-        filters.statusFilter.length === 0 || filters.statusFilter.includes(booking.status);
-      
-      const matchesVendor = 
-        !filters.vendor || booking.organiser.toLowerCase().includes(filters.vendor.toLowerCase());
-      
-      
+        filters.statusFilter.length === 0 ||
+        filters.statusFilter.includes(booking.status);
+
+      const matchesVendor =
+        !filters.vendor ||
+        booking.organiser.toLowerCase().includes(filters.vendor.toLowerCase());
+
       return matchesSearch && matchesStatus && matchesVendor;
     });
   }, [bookings, filters.searchTerm, filters.statusFilter, filters.vendor]);
@@ -252,18 +309,44 @@ export const useFilteredBookings = () => {
 export const usePaginatedBookings = () => {
   const filteredBookings = useFilteredBookings();
   const pagination = useBookingStore((state) => state.pagination);
-  
+
   return React.useMemo(() => {
     const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
-    return filteredBookings.slice(startIndex, startIndex + pagination.itemsPerPage);
+    return filteredBookings.slice(
+      startIndex,
+      startIndex + pagination.itemsPerPage
+    );
   }, [filteredBookings, pagination.currentPage, pagination.itemsPerPage]);
 };
 
 export const useTotalPages = () => {
   const filteredBookings = useFilteredBookings();
-  const itemsPerPage = useBookingStore((state) => state.pagination.itemsPerPage);
-  
+  const itemsPerPage = useBookingStore(
+    (state) => state.pagination.itemsPerPage
+  );
+
   return React.useMemo(() => {
     return Math.ceil(filteredBookings.length / itemsPerPage);
   }, [filteredBookings.length, itemsPerPage]);
 };
+
+export const useRevenueStore = create<StoreState>((set) => ({
+  data: [],
+  fetchData: () => {
+    const mockData = [
+      { date: "Jan", amount: 42000 },
+      { date: "Feb", amount: 60000 },
+      { date: "Mar", amount: 28000 },
+      { date: "Apr", amount: 45000 },
+      { date: "May", amount: 27000 },
+      { date: "Jun", amount: 28735 },
+      { date: "Jul", amount: 68000 },
+      { date: "Aug", amount: 23000 },
+      { date: "Sep", amount: 45000 },
+      { date: "Oct", amount: 69000 },
+      { date: "Nov", amount: 31000 },
+      { date: "Dec", amount: 70000 },
+    ];
+    set({ data: mockData });
+  },
+}));
