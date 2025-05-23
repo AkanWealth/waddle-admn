@@ -76,11 +76,14 @@ const BookingManagement: React.FC = () => {
         {isOpenBookingDetails && <BookingDetailsModal />}
       </div>
       <div className="px-6 py-4 border-t border-gray-200">
-        <PaginationComponent
+        {
+          paginatedBookings.length >= 1 &&  <PaginationComponent
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
         />
+        }
+       
       </div>
     </div>
   );
