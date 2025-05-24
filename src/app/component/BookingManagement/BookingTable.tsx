@@ -56,7 +56,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
             <tbody className="bg-white divide-y divide-gray-200">
               {bookings.map((booking, index) => (
                 <tr
-                  key={booking.id}
+                  key={`${booking.id}-${index}`}
                   className={`${
                     index % 2 !== 0 ? "bg-[#F7F7F7]" : ""
                   } hover:bg-gray-100 transition-colors md:table-row block w-full mb-4 md:mb-0`}

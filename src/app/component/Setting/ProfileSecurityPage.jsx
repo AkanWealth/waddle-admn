@@ -185,7 +185,7 @@ export default function ProfileSecurityPage({
                     className={`w-full py-3 rounded-lg font-medium transition-colors ${
                         hasProfileChanges 
                             ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            : 'bg-blue-50 text-gray-500 cursor-not-allowed'
                     }`}
                 >
                     Save Profile Changes
@@ -282,7 +282,7 @@ export default function ProfileSecurityPage({
                     className={`w-full py-3 rounded-lg font-medium transition-colors ${
                         hasPasswordChanges 
                             ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            : 'bg-blue-50 text-gray-500 cursor-not-allowed'
                     }`}
                 >
                     Save Password Changes
