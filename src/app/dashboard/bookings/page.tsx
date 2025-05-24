@@ -1,13 +1,15 @@
 "use client";
 import BookingManagement from "@/app/component/BookingManagement/BookingManagement";
 import BookingsReportsModal from "@/app/component/BookingManagement/BookingsReportsModal";
+import DownloadReportModal from "@/app/component/BookingManagement/DownloadReportModal";
 import SVGAssets from "@/assets/svg";
 import { useBookingStore } from "@/stores/useBookingStore";
 import Image from "next/image";
 import React from "react";
 
 const BookingPage = () => {
-  const { openReportModalModal, isReportModalOpen } = useBookingStore();
+  const { openReportModalModal, isReportModalOpen, isDownloadReportModalOpen } =
+    useBookingStore();
   return (
     <section className="font-inter relative">
       <section className="font-inter flex justify-between items-center">
@@ -39,6 +41,7 @@ const BookingPage = () => {
       </section>
       <BookingManagement />
       {isReportModalOpen && <BookingsReportsModal />}
+      {isDownloadReportModalOpen && <DownloadReportModal />}
     </section>
   );
 };

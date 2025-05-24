@@ -70,6 +70,10 @@ interface BookingStore {
   openReportModalModal: () => void;
   closeReportModalModal: () => void;
 
+  isDownloadReportModalOpen: boolean;
+  openDownloadReportModal: () => void;
+  closeDownloadReportModal: () => void;
+
   isOpenGuardianDetails: boolean;
   openGuardianDetailsModal: () => void;
   closeGuardianDetailsModal: () => void;
@@ -110,6 +114,10 @@ export const useBookingStore = create<BookingStore>()(
       isOpenGuardianDetails: false,
       openGuardianDetailsModal: () => set({ isOpenGuardianDetails: true }),
       closeGuardianDetailsModal: () => set({ isOpenGuardianDetails: false }),
+
+      isDownloadReportModalOpen:false,
+      openDownloadReportModal: () => set({ isDownloadReportModalOpen: true }),
+      closeDownloadReportModal: () => set({ isDownloadReportModalOpen: false }),
 
       setSearchTerm: (term) =>
         set(

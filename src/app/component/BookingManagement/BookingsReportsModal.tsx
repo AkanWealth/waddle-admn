@@ -53,7 +53,9 @@ const bookingsData = [
 ];
 
 const BookingsReportsModal: React.FC = () => {
-  const { closeReportModalModal, isReportModalOpen } = useBookingStore();
+  const { closeReportModalModal, isReportModalOpen, openDownloadReportModal } = useBookingStore();
+
+  
 
   const totalBookings = bookingsData.length;
   const totalRevenue = bookingsData.reduce(
@@ -249,7 +251,7 @@ const BookingsReportsModal: React.FC = () => {
 
           <div className="border-t border-gray-200 px-4 py-4 bg-gray-50 flex-shrink-0">
             <div className="flex justify-end">
-              <button className="flex items-center rounded-[12px] gap-2 px-4 py-2 bg-[#2853A6] text-white text-sm font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+              <button  onClick={openDownloadReportModal} className="flex items-center rounded-[12px] gap-2 px-4 py-2 bg-[#2853A6] text-white text-sm font-medium cursor-pointer hover:bg-blue-700 transition-colors">
                 <Image
                   src={SVGAssets.ReportIcon}
                   width={19}
