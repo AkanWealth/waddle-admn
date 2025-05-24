@@ -143,7 +143,6 @@ const BookingDetailsModal = () => {
             </div>
 
             <div className="w-full">
-              {/* Table Header */}
               <div className="grid grid-cols-5 gap-2 text-sm font-semibold text-gray-800 py-3 px-3 bg-gray-200 rounded-t border-b">
                 <div>Guardian Name</div>
                 <div>Email</div>
@@ -152,7 +151,6 @@ const BookingDetailsModal = () => {
                 <div className="text-center">Count</div>
               </div>
 
-              {/* Table Body */}
               <div className="space-y-1">
                 {GuardianDetailsData.map((guardian, index) => (
                   <div
@@ -176,7 +174,6 @@ const BookingDetailsModal = () => {
                 ))}
               </div>
 
-              {/* Empty state */}
               {GuardianDetailsData.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No guardian data available

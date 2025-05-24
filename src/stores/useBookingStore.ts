@@ -1,10 +1,8 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { IBooking } from "@/app/component/BookingManagement/IBooking";
+import { IBooking, IVendor } from "@/app/component/BookingManagement/IBooking";
 import BookingsData from "@/app/component/BookingManagement/SampleData";
 import React from "react";
-
-
 
 interface RevenueData {
   date: string;
@@ -65,10 +63,16 @@ interface BookingStore {
   refreshBookings: () => void;
   getStatusBadge: (status: string) => string;
 
-
   isOpenBookingDetails: boolean;
   openBookingDetailsModal: () => void;
   closeBookingDetailsModal: () => void;
+  isReportModalOpen: boolean;
+  openReportModalModal: () => void;
+  closeReportModalModal: () => void;
+
+  isDownloadReportModalOpen: boolean;
+  openDownloadReportModal: () => void;
+  closeDownloadReportModal: () => void;
 
   isOpenGuardianDetails: boolean;
   openGuardianDetailsModal: () => void;
@@ -101,12 +105,20 @@ export const useBookingStore = create<BookingStore>()(
       filters: initialFilters,
       pagination: initialPagination,
       ui: initialUI,
+      isReportModalOpen: false,
+      openReportModalModal: () => set({ isReportModalOpen: true }),
+      closeReportModalModal: () => set({ isReportModalOpen: false }),
       isOpenBookingDetails: false,
       openBookingDetailsModal: () => set({ isOpenBookingDetails: true }),
       closeBookingDetailsModal: () => set({ isOpenBookingDetails: false }),
       isOpenGuardianDetails: false,
-      openGuardianDetailsModal: () => set({  isOpenGuardianDetails: true }),
-      closeGuardianDetailsModal:()=> set({isOpenGuardianDetails: false }),
+      openGuardianDetailsModal: () => set({ isOpenGuardianDetails: true }),
+      closeGuardianDetailsModal: () => set({ isOpenGuardianDetails: false }),
+
+      isDownloadReportModalOpen:false,
+      openDownloadReportModal: () => set({ isDownloadReportModalOpen: true }),
+      closeDownloadReportModal: () => set({ isDownloadReportModalOpen: false }),
+
       setSearchTerm: (term) =>
         set(
           (state) => ({
@@ -205,6 +217,7 @@ export const useBookingStore = create<BookingStore>()(
         set(
           (state) => ({
             ui: { ...state.ui, activeTab: tab },
+            pagination: { ...state.pagination, currentPage: 1 },
           }),
           false,
           "setActiveTab"
@@ -328,6 +341,53 @@ export const useTotalPages = () => {
   return React.useMemo(() => {
     return Math.ceil(filteredBookings.length / itemsPerPage);
   }, [filteredBookings.length, itemsPerPage]);
+};
+
+export const useFilteredVendors = (vendors: IVendor[]) => {
+  const filters = useBookingStore((state) => state.filters);
+
+  return React.useMemo(() => {
+    let filtered = vendors;
+
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (vendor) =>
+          vendor.name.toLowerCase().includes(searchLower) ||
+          vendor.representative.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (filters.vendor) {
+      const vendorLower = filters.vendor.toLowerCase();
+      filtered = filtered.filter((vendor) =>
+        vendor.name.toLowerCase().includes(vendorLower)
+      );
+    }
+
+    return filtered;
+  }, [vendors, filters.searchTerm, filters.vendor]);
+};
+
+export const usePaginatedVendors = (vendors: IVendor[]) => {
+  const filteredVendors = useFilteredVendors(vendors);
+  const pagination = useBookingStore((state) => state.pagination);
+
+  const totalPages = Math.ceil(
+    filteredVendors.length / pagination.itemsPerPage
+  );
+  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+  const paginatedVendors = filteredVendors.slice(
+    startIndex,
+    startIndex + pagination.itemsPerPage
+  );
+
+  return {
+    filteredVendors,
+    paginatedVendors,
+    totalPages,
+    startIndex,
+  };
 };
 
 export const useRevenueStore = create<StoreState>((set) => ({
