@@ -1,12 +1,15 @@
-"use client"
+"use client";
 import BookingManagement from "@/app/component/BookingManagement/BookingManagement";
+import BookingsReportsModal from "@/app/component/BookingManagement/BookingsReportsModal";
 import SVGAssets from "@/assets/svg";
+import { useBookingStore } from "@/stores/useBookingStore";
 import Image from "next/image";
 import React from "react";
 
 const BookingPage = () => {
+  const { openReportModalModal, isReportModalOpen } = useBookingStore();
   return (
-    <section className="font-inter">
+    <section className="font-inter relative">
       <section className="font-inter flex justify-between items-center">
         {/* Dashboard header */}
         <section className="grid grid-cols-1 lg:grid-cols-2 items-center justify-between mb-6 gap-4">
@@ -20,6 +23,7 @@ const BookingPage = () => {
           </aside>
         </section>
         <button
+          onClick={openReportModalModal}
           className="rounded-[12px] py-[12px] px-[16px] bg-[#2853A6] flex items-center gap-[10px] cursor-pointer"
           type="button"
         >
@@ -33,10 +37,10 @@ const BookingPage = () => {
           <span className="text-[#FFFFFF] font-semibold">Report</span>
         </button>
       </section>
-      <BookingManagement/>
+      <BookingManagement />
+      {isReportModalOpen && <BookingsReportsModal />}
     </section>
   );
 };
 
 export default BookingPage;
-
