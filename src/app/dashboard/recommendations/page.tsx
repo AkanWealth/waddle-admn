@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import TabNavigation from "@/app/component/Recommendations/TabNavigation";
 import PaginationComponent from "@/app/component/Element/PaginationComponent";
-
+import RecommendationActionModal from "@/app/component/Recommendations/RecommendationActionModal";
 
 interface Recommendation {
   id: string;
@@ -179,11 +179,15 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 interface TableRowProps {
   recommendation: Recommendation;
   onActionClick: (id: string) => void;
+  showModal: boolean;
+  onCloseModal: () => void;
 }
 
 const TableRow: React.FC<TableRowProps> = ({
   recommendation,
   onActionClick,
+  showModal,
+  onCloseModal,
 }) => {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
@@ -205,13 +209,14 @@ const TableRow: React.FC<TableRowProps> = ({
       <td className="py-3 px-4">
         <StatusBadge status={recommendation.status} />
       </td>
-      <td className="py-3 px-4">
+      <td className="py-3 px-4 relative">
         <button
           onClick={() => onActionClick(recommendation.id)}
           className="text-gray-400 hover:text-gray-600"
         >
           <MoreVertical className="w-4 h-4" />
         </button>
+        
       </td>
     </tr>
   );
@@ -220,12 +225,16 @@ const TableRow: React.FC<TableRowProps> = ({
 // Table Component
 interface RecommendationsTableProps {
   data: Recommendation[];
+  activeModalId: string | null;
   onActionClick: (id: string) => void;
+  onCloseModal: () => void;
 }
 
 const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
   data,
+  activeModalId,
   onActionClick,
+  onCloseModal,
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -261,6 +270,8 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
               key={item.id}
               recommendation={item}
               onActionClick={onActionClick}
+              showModal={activeModalId === item.id}
+              onCloseModal={onCloseModal}
             />
           ))}
         </tbody>
@@ -269,13 +280,11 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
   );
 };
 
-
-
-
 const ParentRecommendations: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"Places" | "Events">("Places");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeModalId, setActiveModalId] = useState<string | null>(null);
   const itemsPerPage = 7;
 
   const filteredData = mockData.filter(
@@ -294,7 +303,11 @@ const ParentRecommendations: React.FC = () => {
 
   const handleActionClick = (id: string) => {
     console.log("Action clicked for item:", id);
-    // Handle action menu logic here
+    setActiveModalId(id);
+  };
+
+  const handleCloseModal = () => {
+    setActiveModalId(null);
   };
 
   const handleFilterClick = () => {
@@ -329,11 +342,18 @@ const ParentRecommendations: React.FC = () => {
               onFilterClick={handleFilterClick}
             />
           </div>
-          <div className="bg-white">
+          <div className="bg-white relative">
             <RecommendationsTable
               data={paginatedData}
+              activeModalId={activeModalId}
               onActionClick={handleActionClick}
+              onCloseModal={handleCloseModal}
             />
+            {activeModalId && (
+          
+            <RecommendationActionModal  />
+          
+        )}
           </div>
         </div>
       </div>
