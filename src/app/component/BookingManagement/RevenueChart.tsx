@@ -1,3 +1,4 @@
+"use client"
 import { useRevenueStore } from "@/stores/useBookingStore";
 import { useEffect } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
