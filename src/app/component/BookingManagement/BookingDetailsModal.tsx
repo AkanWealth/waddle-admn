@@ -26,8 +26,8 @@ const BookingDetailsModal = () => {
   if (!isOpenBookingDetails) return;
 
   return (
-    <div className="fixed inset-0 bg-white/30 backdrop-blur-xs flex items-center justify-center p-4  z-50">
-      <div className="bg-white rounded-lg shadow-xl my-4 max-w-md w-full max-h-screen overflow-y-auto">
+  <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
+      <div className="bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900"></h2>
           <button

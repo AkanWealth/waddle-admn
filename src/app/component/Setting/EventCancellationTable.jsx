@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Calendar, CircleCheck, XCircle, Clock } from "lucide-react";
+import NotificationModal from "../ModalPages/Setting/NotificationModal";
 
 export default function NotificationTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, onTotalPagesUpdate }) {
     // Sample data with updated status values
@@ -73,6 +74,8 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
 
     const [filteredNotifications, setFilteredNotifications] = useState([]);
     const [paginatedNotifications, setPaginatedNotifications] = useState([]);
+    const [selectedNotification, setSelectedNotification] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Apply search and filters
     useEffect(() => {
@@ -160,10 +163,41 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
         }
     };
 
+
+    const handleViewProfile = (notification) => {
+        setSelectedNotification(notification);
+        setIsModalOpen(true);
+    };
+
+    // Handle closing modal
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedNotification(null);
+    };
+
+    // Handle updating notification status
+    const handleUpdateNotification = (notificationId, newStatus) => {
+        setAllNotifications(prevNotifications =>
+            prevNotifications.map(notification =>
+                notification.id === notificationId
+                    ? { ...notification, status: newStatus }
+                    : notification
+            )
+        );
+        
+        // Update selected notification if it matches
+        if (selectedNotification && selectedNotification.id === notificationId) {
+            setSelectedNotification(prev => ({ ...prev, status: newStatus }));
+        }
+    };
+
+
+
+
     // Render mobile view
     if (mobileView) {
         return (
-            <div className="space-y-4">
+            <><div className="space-y-4">
                 {/* Mobile Table */}
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
@@ -194,7 +228,9 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
                                                 </div>
                                             </td>
                                             <td className="py-3 pl-2 text-center">
-                                                <button className="text-blue-600 hover:underline text-xs">
+                                                <button 
+                                                className="text-blue-600 hover:underline text-xs"
+                                                 onClick={() => handleViewProfile(notification)}>
                                                     {notification.actions}
                                                 </button>
                                             </td>
@@ -217,13 +253,17 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
                         )}
                     </table>
                 </div>
-            </div>
+            </div><NotificationModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    notification={selectedNotification}
+                    onUpdateNotification={handleUpdateNotification} /></>
         );
     }
 
     // Desktop view
     return (
-        <div className="space-y-4">
+        <><div className="space-y-4">
             {/* Desktop Table */}
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -255,7 +295,9 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button className="text-blue-600 hover:underline">
+                                            <button 
+                                            className="text-blue-600 hover:underline"
+                                            onClick={() => handleViewProfile(notification)}>
                                                 {notification.actions}
                                             </button>
                                         </td>
@@ -267,17 +309,21 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
                         <tbody>
                             <tr>
                                 <td colSpan="6" className="text-center py-12">
-                                    <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <Calendar className="w-8 h-8 text-blue-600" />
+                                    <div className="w-30 h-30 mx-auto mb-3 flex items-center justify-center">
+                                        <img src="/notification-circle.png" alt="Notification" className="w-24 h-24" />
                                     </div>
-                                    <h4 className="text-lg font-medium text-gray-800 mb-1">No Results Found</h4>
-                                    <p className="text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+                                    <h4 className="text-lg font-medium text-gray-800 mb-1">No Canceled Events Yet</h4>
+                                    <p className="text-sm text-gray-500"> Great news! No events have been canceled yet.</p>
                                 </td>
                             </tr>
                         </tbody>
                     )}
                 </table>
             </div>
-        </div>
+        </div><NotificationModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                notification={selectedNotification}
+                onUpdateNotification={handleUpdateNotification} /></>
     );
 }

@@ -94,12 +94,14 @@ export default function NotificationsPage({
     return (
         <div className="space-y-8">
             {/* Notification Settings */}
-            <div className="max-w-lg bg-white shadow-md rounded-lg p-6">
+            <div className="max-w-xl bg-white shadow-md rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">Notification Settings</h3>
                 <div className="space-y-6">
                     <div className="flex items-center justify-between py-4 border-b border-gray-100">
                         <div className="flex items-center">
-                            <Bell className="w-5 h-5 text-blue-600 mr-3" />
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 mr-2">
+    <Bell className="w-5 h-5 text-blue-600" />
+  </div>
                             <div>
                                 <h4 className="text-base font-medium text-gray-800">Automatically Notify Parents</h4>
                             </div>
@@ -117,7 +119,9 @@ export default function NotificationsPage({
 
                     <div className="flex items-center justify-between py-4 border-b border-gray-100">
                         <div className="flex items-center">
-                            <AlertTriangle className="w-5 h-5 text-blue-600 mr-3" />
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 mr-2">
+    <Bell className="w-5 h-5 text-blue-600" />
+  </div>
                             <div>
                                 <h4 className="text-base font-medium text-gray-800">Include Refund Policy in Notifications</h4>
                             </div>
@@ -135,7 +139,9 @@ export default function NotificationsPage({
 
                     <div className="flex items-center justify-between py-4">
                         <div className="flex items-center">
-                            <MessageSquare className="w-5 h-5 text-blue-600 mr-3" />
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 mr-2">
+    <Bell className="w-5 h-5 text-blue-600" />
+  </div>
                             <div>
                                 <h4 className="text-base font-medium text-gray-800">Allow Admin to Customize Messages Before Sending</h4>
                             </div>
