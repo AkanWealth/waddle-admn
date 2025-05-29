@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { authService } from "@/utils/authService";
 import { 
   User,
   Settings, 
@@ -21,9 +22,68 @@ import {
 function Layout({ children }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // For responsive design - use server-side rendering compatible approach
   const [isMobile, setIsMobile] = useState(false);
+  
+  // User profile state
+  const [userProfile, setUserProfile] = useState({
+    name: "Loading...",
+    role: "Loading...",
+    initials: "L"
+  });
+  const [profileLoading, setProfileLoading] = useState(true);
+  
+  // Fetch user profile on component mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setProfileLoading(true);
+        const profileData = await authService.getUserProfile();
+        // console.log('User Profile Data:', profileData);
+        
+        // Extract user information from the response
+        // Adjust these field names based on your API response structure
+        const name = profileData.admin.first_name + " " + profileData.admin.last_name || profileData.full_name || profileData.firstName + ' ' + profileData.lastName || "User";
+        const role = profileData.admin.role || profileData.user_type || "Admin";
+        
+        // Generate initials from the name
+        const initials = name
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase())
+          .join('')
+          .substring(0, 2);
+        
+        setUserProfile({
+          name,
+          role,
+          initials
+        });
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+        // Keep default values or handle error appropriately
+        setUserProfile({
+          name: "User",
+          role: "Admin",
+          initials: "U"
+        });
+        
+        // If authentication fails, you might want to redirect to login
+        if (error.message.includes('Authentication expired')) {
+          // The authService.logout() will handle the redirect
+          return;
+        }
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    // Only fetch if user is authenticated
+    if (authService.isAuthenticated()) {
+      fetchUserProfile();
+    } else {
+      // Redirect to login if not authenticated
+      authService.logout();
+    }
+  }, []);
   
   // Check if mobile on mount and on resize
   useEffect(() => {
@@ -31,13 +91,9 @@ function Layout({ children }) {
       setIsMobile(window.innerWidth < 768);
     };
     
-    // Initial check
     checkIfMobile();
-    
-    // Add event listener
     window.addEventListener('resize', checkIfMobile);
     
-    // Cleanup
     return () => {
       window.removeEventListener('resize', checkIfMobile);
     };
@@ -84,11 +140,10 @@ function Layout({ children }) {
           scrollbar-hide
         `}
         style={{ 
-          msOverflowStyle: 'none',  /* IE and Edge */
-          scrollbarWidth: 'none',   /* Firefox */
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
         }}
       >
-        {/* CSS to hide scrollbar for Webkit browsers (Chrome, Safari) */}
         <style jsx>{`
           nav::-webkit-scrollbar {
             display: none;
@@ -115,7 +170,7 @@ function Layout({ children }) {
           />
         </div>
         
-        {/* Navigation items - flex-grow to push logout to bottom */}
+        {/* Navigation items */}
         <div className="flex-grow flex flex-col py-6 px-6">
           {navItems.map((item, index) => {
             const isActive = pathname && pathname.startsWith(item.path);
@@ -139,13 +194,13 @@ function Layout({ children }) {
         
         {/* Logout button at bottom of sidebar */}
         <div className="mt-auto px-4 pb-8">
-          <Link
-            href="/logout"
-            className="flex items-center px-5 py-3 rounded-md text-red-600 hover:bg-gray-50 transition-colors text-sm font-medium"
+          <button
+            onClick={() => authService.logout()}
+            className="flex items-center px-5 py-3 rounded-md text-red-600 hover:bg-gray-50 transition-colors text-sm font-medium w-full text-left"
           >
             <LogOut className="w-5 h-5 mr-3 text-red-500" />
             <span>LogOut</span>
-          </Link>
+          </button>
         </div>
       </nav>
       
@@ -176,13 +231,17 @@ function Layout({ children }) {
             {/* User profile */}
             <div className="flex items-center">
               <div className="w-10 h-10 bg-[#F8F2EC] rounded-full flex text-sm items-center justify-center text-black font-medium">
-                TD
+                {userProfile.initials}
               </div>
               <div className="hidden md:block ml-2">
                 <div className="flex items-center">
-                  <span className="font-inter text-sm font-semibold">Tomi Dosunmu</span>
+                  <span className="font-inter text-sm font-semibold">
+                    {profileLoading ? "Loading..." : userProfile.name}
+                  </span>
                 </div>
-                <span className="text-xs text-gray-500 block">Admin</span>
+                <span className="text-xs text-gray-500 block">
+                  {profileLoading ? "Loading..." : userProfile.role}
+                </span>
               </div>
             </div>
           </div>

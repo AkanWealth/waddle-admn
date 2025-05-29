@@ -3,7 +3,7 @@
 
 
 "use client";
-
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { Search, Plus, Trash2, Filter, ChevronDown, Menu, X } from "lucide-react";
 import VendorsTable from "./vendors";
@@ -33,7 +33,7 @@ export default function UserManagement() {
     // Define status options for each tab
     const statusOptions = {
         "Vendors": ["Approved", "Pending", "Rejected", "Deactivated", "Inactive"],
-        "Guardians": ["Active", "Inactive", "Registered", "Spam"],
+        "Guardians": ["Active", "Inactive"],
         "Admin Users": ["Active", "Inactive", "Pending"]
     };
 
@@ -87,7 +87,18 @@ export default function UserManagement() {
         setStatusFilter([]);
         setDateFilter({ from: "", to: "" });
     };
-
+// useEffect(() => {
+//         // Call the API when the component mounts
+//         axios.get("http://16.171.113.84/api/v1/users/all")
+//             .then(response => {
+//                 console.log("API response:", response.data); // See the response in your browser console
+//                 // You can also set it to state if you want to display it
+//                 // setUsers(response.data);
+//             })
+//             .catch(error => {
+//                 console.error("API error:", error);
+//             });
+//     }, []);
     // Check window size for responsive design
     useEffect(() => {
         const handleResize = () => {

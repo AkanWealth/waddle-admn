@@ -74,9 +74,9 @@ function AuthLayout({ children }) {
           </div>
         </div>
         
-        <div className="w-full md:w-1/2 h-full overflow-auto">
+        <div className="w-full md:w-2/3 h-full overflow-auto">
           <div className="w-full h-full flex items-center justify-center p-6">
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-xl">
               {/* Logo for mobile view - shown only on mobile */}
               <div className="flex justify-center mb-8 md:hidden">
                 <Image

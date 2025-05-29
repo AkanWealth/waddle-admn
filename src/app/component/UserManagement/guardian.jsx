@@ -1,117 +1,65 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import StatusBadge from "./StatusBadge";
 import GuardianDetailsModal from "../ModalPages/Users/Guardian/viewPendingDetail";
+import { authService } from "@/utils/authService";
+
+
 
 
 export default function GuardiansTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
-    // Sample data for guardians with the specific status types
-    const [allGuardians, setAllGuardians] = useState([
-        {
-            name: "XYZ Events",
-            mobile: "(212) 555-1234",
-            email: "john.smith@email.com",
-            date: "2024-05-15",
-            status: "Registered"
-        },
-        {
-            name: "ABC Org",
-            mobile: "(323) 555-5678",
-            email: "emily.j@email.com",
-            date: "2024-06-20",
-            status: "Active"
-        },
-        {
-            name: "Happy Kids",
-            mobile: "(312) 555-8765",
-            email: "mwilliams@email.com",
-            date: "2024-07-02",
-            status: "Registered"
-        },
-        {
-            name: "Elite Dancer School",
-            mobile: "(713) 555-2345",
-            email: "jessica.b@email.com",
-            date: "2024-08-10",
-            status: "Active"
-        },
-        {
-            name: "ABC Events",
-            mobile: "(305) 555-6789",
-            email: "david.a@email.com",
-            date: "2024-09-12",
-            status: "Spam"
-        },
-        {
-            name: "XYZ Events",
-            mobile: "(206) 555-1357",
-            email: "sarah.m@email.com",
-            date: "2024-10-05",
-            status: "Active"
-        },
-        {
-            name: "Kane Events",
-            mobile: "(720) 555-2468",
-            email: "daniel.t@email.com",
-            date: "2024-11-18",
-            status: "Inactive"
-        },
-        {
-            name: "Zoo Park",
-            mobile: "(617) 555-9753",
-            email: "laura.w@email.com",
-            date: "2024-12-25",
-            status: "Spam"
-        },
-        {
-            name: "Happy Kids",
-            mobile: "(312) 555-8765",
-            email: "mwilliams@email.com",
-            date: "2024-07-02",
-            status: "Spam"
-        },
-        {
-            name: "Elite Dancer School",
-            mobile: "(713) 555-2345",
-            email: "jessica.b@email.com",
-            date: "2024-08-10",
-            status: "Active"
-        },
-        {
-            name: "ABC Events",
-            mobile: "(305) 555-6789",
-            email: "david.a@email.com",
-            date: "2024-09-12",
-            status: "Inactive"
-        },
-        {
-            name: "XYZ Events",
-            mobile: "(206) 555-1357",
-            email: "sarah.m@email.com",
-            date: "2024-10-05",
-            status: "Active"
-        },
-        {
-            name: "Kane Events",
-            mobile: "(720) 555-2468",
-            email: "daniel.t@email.com",
-            date: "2024-11-18",
-            status: "Inactive"
-        },
-        {
-            name: "Zoo Park",
-            mobile: "(617) 555-9753",
-            email: "laura.w@email.com",
-            date: "2024-12-25",
-            status: "Inactive"
-        }
-    ]);
-
+    const [allGuardians, setAllGuardians] = useState([]);
     const [filteredGuardians, setFilteredGuardians] = useState([]);
     const [paginatedGuardians, setPaginatedGuardians] = useState([]);
     const [selectedGuardian, setSelectedGuardian] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Fetch guardians from API
+    const fetchGuardians = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await authService.makeAuthenticatedRequest('/api/v1/users/all');
+
+            // Filter only guardians and map the data
+            const guardiansData = response.filter(user => user.role === 'GUARDIAN').map(guardian => ({
+                id: guardian.id,
+                name: guardian.name || 'N/A',
+                mobile: guardian.phone_number || 'N/A',
+                email: guardian.email || 'N/A',
+                address: guardian.address || 'N/A',
+                date: guardian.createdAt ? new Date(guardian.createdAt).toISOString().split('T')[0] : 'N/A',
+                status: guardian.email_verify ? 'Active' : 'Inactive',
+                profile_picture: guardian.profile_picture,
+                guardian_type: guardian.guardian_type,
+                isLocked: guardian.isLocked,
+                isDeleted: guardian.isDeleted,
+                fcmIsOn: guardian.fcmIsOn,
+                createdAt: guardian.createdAt,
+                updatedAt: guardian.updatedAt
+            }));
+
+            setAllGuardians(guardiansData);
+        } catch (err) {
+            console.error('Error fetching guardians:', err);
+            setError(err.message || 'Failed to fetch guardians');
+
+            // Fallback to sample data if API fails (optional)
+            setAllGuardians([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch data on component mount
+    useEffect(() => {
+        fetchGuardians();
+    }, []);
 
     // Apply search and filters
     useEffect(() => {
@@ -130,9 +78,10 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
 
         // Apply status filter - only filter if status filters are selected
         if (statusFilter && statusFilter.length > 0) {
-            results = results.filter(guardian => statusFilter.includes(guardian.status));
+            results = results.filter(guardian =>
+                statusFilter.map(s => s.toLowerCase()).includes(guardian.status.toLowerCase())
+            );
         }
-
         // Apply date filter
         if (dateFilter.from) {
             results = results.filter(guardian => guardian.date >= dateFilter.from);
@@ -153,6 +102,50 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
         setPaginatedGuardians(filteredGuardians.slice(startIndex, endIndex));
     }, [currentPage, filteredGuardians]);
 
+    const handleDeleteGuardian = async (guardianId) => {
+        try {
+            // You can implement the delete API call here
+            // await authService.makeAuthenticatedRequest(`/api/v1/users/${guardianId}`, {
+            //     method: 'DELETE'
+            // });
+
+            // Remove from local state
+            setAllGuardians(prevGuardians =>
+                prevGuardians.filter(guardian => guardian.id !== guardianId)
+            );
+
+            console.log('Guardian deleted:', guardianId);
+        } catch (error) {
+            console.error('Error deleting guardian:', error);
+            // You might want to show an error message to the user
+        }
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-gray-600">Loading guardians...</span>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="text-center py-8">
+                <div className="text-red-600 mb-2">Error: {error}</div>
+                <button
+                    onClick={fetchGuardians}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     // Render mobile view as a simplified table
     if (mobileView) {
         return (
@@ -169,7 +162,7 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                             </thead>
                             <tbody>
                                 {paginatedGuardians.map((guardian, index) => (
-                                    <tr key={index} className="text-gray-800 text-sm border-b">
+                                    <tr key={guardian.id || index} className="text-gray-800 text-sm border-b">
                                         <td className="py-4 pr-2">{guardian.name}</td>
                                         <td className="py-4 px-2 text-center">
                                             <StatusBadge status={guardian.status} />
@@ -188,7 +181,6 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                                             </a>
                                         </td>
                                     </tr>
-
                                 ))}
                             </tbody>
                         </>
@@ -213,76 +205,81 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                     )}
                 </table>
                 <GuardianDetailsModal
-  vendor={selectedGuardian}
-  isOpen={isModalOpen}
-  onClose={() => setIsModalOpen(false)}
-/>
+                    vendor={selectedGuardian}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onDelete={handleDeleteGuardian}
+                />
             </div>
         );
     }
 
     // Desktop view
     return (
-        <><table className="min-w-full">
-            {paginatedGuardians.length > 0 ? (
-                <>
-                    <thead>
-                        <tr className="text-left text-gray-500 text-sm">
-                            <th className="pb-3 px-4 font-medium">Guardian Name</th>
-                            <th className="pb-3 px-4 font-medium">Mobile Number</th>
-                            <th className="pb-3 px-4 font-medium">Email Address</th>
-                            <th className="pb-3 px-4 font-medium">Registration Date</th>
-                            <th className="pb-3 px-4 font-medium">Status</th>
-                            <th className="pb-3 px-4 font-medium">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {paginatedGuardians.map((guardian, index) => (
-                            <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
-                                <td className="py-4 px-4">{guardian.name}</td>
-                                <td className="py-4 px-4">{guardian.mobile}</td>
-                                <td className="py-4 px-4">{guardian.email}</td>
-                                <td className="py-4 px-4">{guardian.date}</td>
-                                <td className="py-4 px-4"><StatusBadge status={guardian.status} /></td>
-                                <td className="py-4 px-4">
-                                    <a
-                                        href="#"
-                                        className="text-blue-600 hover:underline"
-                                        onClick={e => {
-                                            e.preventDefault();
-                                            setSelectedGuardian(guardian);
-                                            setIsModalOpen(true);
-                                        } }
-                                    >
-                                        View Profile
-                                    </a>
-                                </td>
+        <>
+            <table className="min-w-full">
+                {paginatedGuardians.length > 0 ? (
+                    <>
+                        <thead>
+                            <tr className="text-left text-gray-500 text-sm">
+                                <th className="pb-3 px-4 font-medium">Guardian Name</th>
+                                <th className="pb-3 px-4 font-medium">Mobile Number</th>
+                                <th className="pb-3 px-4 font-medium">Email Address</th>
+                                <th className="pb-3 px-4 font-medium">Registration Date</th>
+                                <th className="pb-3 px-4 font-medium">Status</th>
+                                <th className="pb-3 px-4 font-medium">Actions</th>
                             </tr>
-                        ))}
+                        </thead>
+                        <tbody>
+                            {paginatedGuardians.map((guardian, index) => (
+                                <tr key={guardian.id || index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
+                                    <td className="py-4 px-4">{guardian.name}</td>
+                                    <td className="py-4 px-4">{guardian.mobile}</td>
+                                    <td className="py-4 px-4">{guardian.email}</td>
+                                    <td className="py-4 px-4">{guardian.date}</td>
+                                    <td className="py-4 px-4"><StatusBadge status={guardian.status} /></td>
+                                    <td className="py-4 px-4">
+                                        <a
+                                            href="#"
+                                            className="text-blue-600 hover:underline"
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                setSelectedGuardian(guardian);
+                                                setIsModalOpen(true);
+                                            }}
+                                        >
+                                            View Profile
+                                        </a>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </>
+                ) : (
+                    <tbody>
+                        <tr>
+                            <td colSpan="6" className="text-center py-4 text-gray-500">
+                                <img src="/emptyFrame.png" alt="No Guardians" className="w-auto h-auto mx-auto mb-4" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan="6" className="text-center py-2 text-gray-800 text-bold">
+                                No Guardians Found
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colSpan="6" className="text-center text-gray-500">
+                                No guardians match your current filter criteria. Try adjusting your filters or search terms.
+                            </td>
+                        </tr>
                     </tbody>
-                </>
-            ) : (
-                <tbody>
-                    <tr>
-                        <td colSpan="6" className="text-center py-4 text-gray-500">
-                            <img src="/emptyFrame.png" alt="No Guardians" className="w-auto h-auto mx-auto mb-4" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colSpan="6" className="text-center py-2 text-gray-800 text-bold">
-                            No Guardians Found
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colSpan="6" className="text-center text-gray-500">
-                            No guardians match your current filter criteria. Try adjusting your filters or search terms.
-                        </td>
-                    </tr>
-                </tbody>
-            )}
-        </table><GuardianDetailsModal
+                )}
+            </table>
+            <GuardianDetailsModal
                 vendor={selectedGuardian}
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)} /></>
+                onClose={() => setIsModalOpen(false)}
+            />
+        </>
     );
 }
