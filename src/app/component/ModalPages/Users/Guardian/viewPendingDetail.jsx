@@ -1,57 +1,25 @@
 import React, { useState, useEffect } from 'react';
-// import BaseModal from '../../Element/BaseModal';
 import BaseModal from '@/app/component/Element/BaseModal';
 import DeleteGuardianModal from './DeleteGuardian';
-// import ApproveVendorModal from './approveVendorModal';
-// import RejectVendorModal from './RejectVendorModal';
+import { Home,Phone,Mail, User, Calendar } from 'lucide-react';
 
 /**
  * GuardianDetailsModal Component
  * 
  * @param {Object} props
- * @param {Object} props.vendor - Guardian data
+ * @param {Object} props.vendor - Guardian data from API
  * @param {boolean} props.isOpen - Controls modal visibility
  * @param {function} props.onClose - Function to call when modal closes
- * @param {function} props.onApprove - Function to handle guardian approval
- * @param {function} props.onReject - Function to handle guardian rejection
+ * @param {function} props.onDelete - Function to handle guardian deletion (optional callback after successful delete)
  */
 const GuardianDetailsModal = ({ 
   vendor = null, 
   isOpen, 
   onClose, 
-  onApprove, 
-  onReject 
+  onDelete
 }) => {
-  // State for modals
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  
-  // Mock data for demonstration
-  const mockVendorData = {
-    name: "Elite Dancer School",
-    contactName: "John Smith",
-    description: "Designed to teach and train family both parents and children. this is very nice this rich and enjoyable. Bring your kids let us train them to be professional from foundation.",
-    contactDetails: {
-      phone: "+4498274774",
-      email: "aurajean@cheffood.com",
-      address: "362 Sycamore St, Detroit, MI",
-      website: "www.elitedancers.com"
-    },
-    taxId: "123456789",
-    businessLicense: "Elite Dancer Business Licence.PDF",
-    status: "Pending"
-  };
-  
-  // If no vendor is passed, use the mock data
-  const vendorData = vendor || mockVendorData;
-  
-  // Ensure contactDetails exists to prevent errors
-  const contactDetails = vendorData?.contactDetails || {
-    phone: "+4498274774",
-      email: "aurajean@cheffood.com",
-      address: "362 Sycamore St, Detroit, MI",
-      website: "www.elitedancers.com"
-  };
+  // State for delete modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   
   // Check if the viewport is mobile
   const [isMobile, setIsMobile] = useState(false);
@@ -69,60 +37,67 @@ const GuardianDetailsModal = ({
     };
   }, []);
   
-  // Handle approve button click - opens approval modal
-  const handleApproveClick = () => {
-    // Close details modal
+  // Handle delete button click - opens delete modal
+  const handleDeleteClick = () => {
     onClose();
-    // Open approve modal
-    setIsApproveModalOpen(true);
+    setIsDeleteModalOpen(true);
   };
   
-  // Handle reject button click - opens reject modal
-  const handleRejectClick = () => {
-    // Close details modal
+  // Handle cancel button click
+  const handleCancelClick = () => {
     onClose();
-    // Open reject modal
-    setIsRejectModalOpen(true);
   };
   
-  // Handle final approval from the approve modal
-  const handleFinalApprove = () => {
-    if (onApprove) onApprove(vendorData.id);
-    setIsApproveModalOpen(false);
+  // Handle successful deletion from the delete modal
+  const handleDeleteSuccess = () => {
+    setIsDeleteModalOpen(false);
+    // Call the optional onDelete callback if provided
+    if (onDelete) onDelete(vendor?.id);
   };
   
-  // Handle final rejection from the reject modal
-  const handleFinalReject = (id, reason) => {
-    if (onReject) onReject(id, reason);
-    setIsRejectModalOpen(false);
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
   };
   
   // Action buttons configuration
   const modalActions = {
     reject: {
       label: "Delete",
-      onClick: handleApproveClick,
+      onClick: handleDeleteClick,
       className: isMobile ? 
         "w-full border border-red-500 text-white py-2 px-6 rounded-lg bg-red-500 font-medium text-center" :
         "w-full md:w-auto border border-red-500 text-white bg-red-500 py-2 px-6 rounded-lg font-medium text-center"
     },
     approve: {
       label: "Cancel",
-      onClick: handleRejectClick,
+      onClick: handleCancelClick,
       className: isMobile ?
-        "w-full text-blue-600  border border-blue-600 py-2 px-6 rounded-lg font-medium text-center" :
-        "w-full md:w-auto text-blue-600  border border-blue-600  py-2 px-6 rounded-lg font-medium text-center"
+        "w-full text-blue-600 border border-blue-600 py-2 px-6 rounded-lg font-medium text-center" :
+        "w-full md:w-auto text-blue-600 border border-blue-600 py-2 px-6 rounded-lg font-medium text-center"
     }
   };
 
   // Render contact details item
-  const renderContactItem = (icon, value) => {
-    if (!value) return null;
+  const renderContactItem = (icon, label, value) => {
+    if (!value || value === 'N/A') return null;
     
     return (
       <div className="bg-amber-100 rounded-full px-3 py-2 flex items-center">
         {icon}
-        {value}
+        <div className="flex flex-col">
+          <span className="text-xs text-gray-600">{label}</span>
+          <span className="text-sm">{value}</span>
+        </div>
       </div>
     );
   };
@@ -130,26 +105,38 @@ const GuardianDetailsModal = ({
   // Contact detail icons
   const icons = {
     phone: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-      </svg>
+      <Phone  className="h-5 w-5 mr-2" />
+        
     ),
     email: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
+      <Mail className="h-5 w-5 mr-2" />
+        
+    ),
+    calendar: (
+      <Calendar className="h-5 w-5 mr-2"/>
+        
+    ),
+    user: (
+      <User  className="h-5 w-5 mr-2" />
+        
     ),
     address: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    website: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-      </svg>
+      <Home className="h-5 w-5 mr-2" />
+        
     )
+
+  };
+
+  // Get status badge color
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'inactive':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   // Common content for both mobile and desktop
@@ -157,26 +144,56 @@ const GuardianDetailsModal = ({
     <>
       <hr className="border-gray-200 mb-6" />
     
-      {/* Guardian Name and Related Info */}
-      <div className="s-3">
-        <h3 className="text-lg font-medium">{vendorData?.name || 'Guardian Name'}</h3>
-        <p>Guardian to Sarah Harris.</p>
+      {/* Guardian Profile Picture and Basic Info */}
+      <div className="flex items-center mb-6">
+        {vendor?.profile_picture && vendor.profile_picture !== "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/users/null" ? (
+          <img 
+            src={vendor.profile_picture} 
+            alt={vendor?.name || 'Guardian'} 
+            className="w-16 h-16 rounded-full mr-4 object-cover"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+            <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+          </div>
+        )}
+        <div className='w-full flex items-center justify-between'>
+          <h3 className="text-lg font-medium">{vendor?.name || 'Guardian Name'}</h3>
+          <div className="flex items-center mt-1">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor?.status)}`}>
+              {vendor?.status || 'Unknown'}
+            </span>
+            {vendor?.guardian_type && (
+              <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                {vendor.guardian_type}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
       
       <hr className="border-gray-200 mb-6" />
       
-      {/* Contact Details */}
-      <div className="flexmb-6">
-        <h4 className="text-gray-700 mb-3">Contact Details</h4>
+      {/* Guardian Details */}
+      <div className="space-y-4 mb-6">
+        <h4 className="text-gray-700 font-medium">Guardian Information</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-  {renderContactItem(icons.phone, contactDetails.phone)}
-  {renderContactItem(icons.email, contactDetails.email)}
-  {renderContactItem(icons.address, contactDetails.address)}
-  {renderContactItem(icons.website, contactDetails.website)}
-</div>
+          {renderContactItem(icons.user, "Guardian ID", vendor?.id)}
+          {renderContactItem(icons.phone, "Phone", vendor?.mobile)}
+          {renderContactItem(icons.email, "Email", vendor?.email)}
+          {renderContactItem(icons.address, "Address", vendor?.address)}
+          {renderContactItem(icons.calendar, "Registration Date", formatDate(vendor?.date))}
+        </div>
       </div>
     </>
   );
+
+  // Don't render if no vendor data
+  if (!vendor) {
+    return null;
+  }
 
   // Mobile view layout
   if (isMobile) {
@@ -192,9 +209,10 @@ const GuardianDetailsModal = ({
           showDividers={false}
         >
           <div className="flex flex-col h-full">
-               {/* Guardian Content */}
+            {/* Guardian Content */}
             {renderGuardianContent()}
-            {/* Buttons at the top for mobile */}
+            
+            {/* Buttons at the bottom for mobile */}
             <div className="flex flex-col w-full space-y-3 mb-6 mt-6">
               <button
                 onClick={modalActions.reject.onClick}
@@ -209,19 +227,15 @@ const GuardianDetailsModal = ({
                 {modalActions.approve.label}
               </button>
             </div>
-            
-            <hr className="border-gray-200 mb-6" />
-            
-         
           </div>
         </BaseModal>
         
         {/* Delete Guardian Modal */}
         <DeleteGuardianModal 
-          vendor={vendorData}
-          isOpen={isApproveModalOpen}
-          onClose={() => setIsApproveModalOpen(false)}
-          onConfirm={handleFinalApprove}
+          guardian={vendor}
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDeleteSuccess}
         />
       </>
     );
@@ -247,10 +261,10 @@ const GuardianDetailsModal = ({
       
       {/* Delete Guardian Modal */}
       <DeleteGuardianModal 
-        vendor={vendorData}
-        isOpen={isApproveModalOpen}
-        onClose={() => setIsApproveModalOpen(false)}
-        onConfirm={handleFinalApprove}
+        guardian={vendor}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteSuccess}
       />
     </>
   );

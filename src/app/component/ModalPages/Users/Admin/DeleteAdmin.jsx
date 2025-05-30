@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import BaseModal from '@/app/component/Element/BaseModal';
-import { XCircle } from 'lucide-react';
+
+import { XCircle,LucideInfo } from 'lucide-react';
 import { useToastContext } from '@/context/toast';
 import { authService } from '@/utils/authService';
 /**
- * DeleteGuardianModal Component
+ * DeleteadminModal Component
  * 
  * @param {Object} props
- * @param {Object} props.guardian - Guardian data with id
+ * @param {Object} props.admin - admin data with id
  * @param {boolean} props.isOpen - Controls modal visibility
  * @param {function} props.onClose - Function to call when modal closes
  * @param {function} props.onConfirm - Function to handle successful deletion
  */
-const DeleteGuardianModal = ({ 
-  guardian = null, 
+const DeleteAdminModal = ({ 
+  admin = null, 
   isOpen, 
   onClose, 
   onConfirm 
@@ -47,26 +48,26 @@ const DeleteGuardianModal = ({
   
   // Handle delete confirmation with API call
   const handleConfirm = async () => {
-    if (!guardian?.id) {
-      showMessage("Error", "Guardian ID is missing", "error");
+    if (!admin?.id) {
+      showMessage("Error", "admin ID is missing", "error");
       return;
     }
 
     setIsDeleting(true);
     
     try {
-      // Make API call to delete guardian
-      await authService.makeAuthenticatedRequest(
-        `/api/v1/users/${guardian.id}`, 
-        {
-          method: 'DELETE'
-        }
-      );
+      // Make API call to delete admin
+    //   await authService.makeAuthenticatedRequest(
+    //     `/api/v1/users/${admin.id}`, 
+    //     {
+    //       method: 'DELETE'
+    //     }
+    //   );
       
       // Show success message
       showMessage(
         "Account Deleted", 
-        "The guardian account was deleted successfully.", 
+        "The admin account was deleted successfully.", 
         "success"
       );
       
@@ -75,12 +76,12 @@ const DeleteGuardianModal = ({
       if (onConfirm) onConfirm();
       
     } catch (error) {
-      console.error('Delete guardian error:', error);
+      console.error('Delete admin error:', error);
       
       // Show error message
       showMessage(
         "Delete Failed", 
-        error.message || "Failed to delete guardian account. Please try again.", 
+        error.message || "Failed to delete admin account. Please try again.", 
         "error"
       );
     } finally {
@@ -97,7 +98,7 @@ const DeleteGuardianModal = ({
 
   const modalActions = {
     approve: {
-      label: isDeleting ? "Deleting..." : "Delete Account",
+      label: isDeleting ? "Deleting..." : "Delete Admin",
       onClick: handleConfirm,
       className: `${
         isDeleting 
@@ -139,23 +140,32 @@ const DeleteGuardianModal = ({
 
           {/* Message text */}
           <div className="text-left">
-            <h3 className='text-gray-800 font-bold text-xl'>Delete Account</h3>
+            <h3 className='text-gray-800 font-bold text-xl'>Delete Admin</h3>
             <p className="text-gray-700 text-lg">
-              You are about to delete this guardian account. 
+              Are you sure you want to permanently delete 
+              admin This action cannot be undone, and all their access will be revoked. 
             </p>
-            {guardian?.name && (
+            
               <p className="text-gray-600 text-sm mt-2">
-                Guardian: <span className="font-medium">{guardian.name}</span>
+                
               </p>
-            )}
             <p className="text-gray-500 text-sm mt-2">
-              This action cannot be undone.
+              
             </p>
           </div>
+
+
         </div>
+        <div className="flex items-center justify-between flex-cols-2 text-center gap-2">
+            
+           <LucideInfo className="h-6 w-6 text-red-500 mb-2" />
+            <p className="text-gray-500  text-left text-sm mt-2">
+              Deleting an admin will remove their access completely. If they need access again, they will need to be reinvited
+            </p>
+          </div>
       </div>
     </BaseModal>
   );
 };
 
-export default DeleteGuardianModal;
+export default DeleteAdminModal;
