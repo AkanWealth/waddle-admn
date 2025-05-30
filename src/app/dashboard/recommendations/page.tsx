@@ -11,6 +11,9 @@ import {
 import TabNavigation from "@/app/component/Recommendations/TabNavigation";
 import PaginationComponent from "@/app/component/Element/PaginationComponent";
 import RecommendationActionModal from "@/app/component/Recommendations/RecommendationActionModal";
+import { useRecommendationsStore } from "@/stores/useRecommendationStore";
+import PlacesDetailsModal from "@/app/component/Recommendations/PlacesDetailsModal";
+import ApprovePlaceModal from "@/app/component/Recommendations/ApprovePlaceModal";
 
 interface Recommendation {
   id: string;
@@ -281,6 +284,7 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
 };
 
 const ParentRecommendations: React.FC = () => {
+  const {showPlaceDetailsModal, showApproveDetailsModal} = useRecommendationsStore()
   const [activeTab, setActiveTab] = useState<"Places" | "Events">("Places");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -316,7 +320,7 @@ const ParentRecommendations: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-none ">
+    <div className="w-full max-w-none relative">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Parent-Recommendations
@@ -362,6 +366,9 @@ const ParentRecommendations: React.FC = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
+      {showPlaceDetailsModal && <PlacesDetailsModal/>}
+      {showApproveDetailsModal && <ApprovePlaceModal/>}
+
     </div>
   );
 };

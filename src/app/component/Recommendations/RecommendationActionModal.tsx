@@ -1,50 +1,4 @@
-// import { MessageSquareX, Quote, ThumbsUp, Route } from "lucide-react";
-// const RecommendationActionModalItems = [
-//   {
-//     id: 1,
-//     icon: <Route />,
-//     text: "View Details",
-//   },
-//   {
-//     id: 2,
-//     icon: <Quote />,
-//     text: "Parent Reviews",
-//   },
-//   {
-//     id: 3,
-//     icon: <ThumbsUp />,
-//     text: "Approve Place",
-//   },
-//   {
-//     id: 4,
-//     icon: <MessageSquareX />,
-//     text: "Reject Place",
-//   },
-// ];
-
-// const RecommendationActionModal = () => {
-//   return (
-//     <section className="absolute top-0 right-0 ">
-//       <div className="border-b-[#E5E7EF]  bg-white shadow-2xl z-50 w-[290px] rounded-[20px]">
-//         {RecommendationActionModalItems.map((item) => (
-//           <div
-//             key={item.id}
-//             className="py-2 text-[#303237]  hover:bg-amber-400 cursor-pointer"
-//           >
-//             <div className="flex items-center pl-2 gap-2.5">
-//               {item.icon}
-//               <h3 className="text-base font-normal">{item.text}</h3>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default RecommendationActionModal;
-
-
+import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import { MessageSquareX, Quote, ThumbsUp, Route } from "lucide-react";
 
 const RecommendationActionModalItems = [
@@ -71,6 +25,12 @@ const RecommendationActionModalItems = [
 ];
 
 const RecommendationActionModal = () => {
+  const { openShowPlaceDetailsModal } = useRecommendationsStore();
+  const handleClick = (tab: number) => {
+    if (tab === 1) {
+      openShowPlaceDetailsModal();
+    }
+  };
   return (
     <section className="absolute top-0 right-0">
       <div className="border-b-[#E5E7EF] bg-white shadow-2xl z-50  rounded-[20px]">
@@ -79,12 +39,13 @@ const RecommendationActionModal = () => {
             key={id}
             role="button"
             tabIndex={0}
+            onClick={() => handleClick(id)}
             className="py-2 text-[#303237] hover:bg-[#EAEEF6] cursor-pointer w-[290px]"
           >
-            <div className="flex items-center pl-5 gap-2.5">
+            <button type="button" className="flex items-center pl-5 gap-2.5">
               <Icon />
               <h3 className="text-base font-normal">{text}</h3>
-            </div>
+            </button>
           </div>
         ))}
       </div>
