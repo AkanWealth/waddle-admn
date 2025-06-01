@@ -5,6 +5,7 @@
 "use client";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useToastContext } from "@/context/toast";
 import { Search, Plus, Trash2, Filter, ChevronDown, Menu, X } from "lucide-react";
 import VendorsTable from "./vendors";
 import GuardiansTable from "./guardian";
@@ -18,7 +19,7 @@ export default function UserManagement() {
     
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(4);
+    const [totalPages, setTotalPages] = useState(2);
     
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +27,7 @@ export default function UserManagement() {
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
+    const { showMessage } = useToastContext();
     
     // Mobile responsive states
     const [mobileView, setMobileView] = useState(false);
@@ -81,6 +83,14 @@ export default function UserManagement() {
         setFilterOpen(false);
         // Logic for applying filters would update the data in the respective tables
     };
+    const handleAdminUserSuccess = (userData) => {
+    console.log('Admin user created/updated successfully:', userData);
+    showMessage("Success", "Admin user created/updated successfully", "success");
+    setIsCreateAdminModalOpen(false);
+
+    
+};
+
 
     // Reset filters
     const resetFilters = () => {
@@ -275,7 +285,9 @@ export default function UserManagement() {
         </div>
         <CreateAdminUserModal
                 isOpen={isCreateAdminModalOpen}
-                onClose={() => setIsCreateAdminModalOpen(false)} />
+                onClose={() => setIsCreateAdminModalOpen(false)}
+                onSuccess={handleAdminUserSuccess}
+                 />
         </>
     );
 }

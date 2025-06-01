@@ -2,100 +2,81 @@
 
 import { useState, useEffect } from "react";
 import StatusBadge from "./StatusBadge";
-
+import { authService } from "@/utils/authService";
 import VendorDetailsModal from "../ModalPages/Users/viewPendingDetail";
 import VendorApproveDetailsModal from "../ModalPages/Users/viewApprovemodal";
 
 export default function VendorsTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
-    // Sample data for vendors
-    const [allVendors, setAllVendors] = useState([
-        {
-            id: 1,
-            name: "XYZ Events",
-            mobile: "(212) 555-1234",
-            email: "john.smith@email.com",
-            date: "2024-05-15",
-            status: "Pending",
-            contactName: "John Smith",
-            description: "Professional event management services for corporate and private clients.",
-            contactDetails: {
-                phone: "(212) 555-1234",
-                email: "john.smith@email.com",
-                address: "123 Broadway, New York, NY",
-                website: "www.xyzevents.com"
-            },
-            taxId: "123-45-6789",
-            businessLicense: "XYZ Events License.PDF"
-        },
-        {
-            id: 2,
-            name: "ABC Org",
-            mobile: "(323) 555-5678",
-            email: "emily.j@email.com",
-            date: "2024-06-20",
-            status: "Rejected"
-        },
-        {
-            id: 3,
-            name: "Happy Kids",
-            mobile: "(312) 555-8765",
-            email: "mwilliams@email.com",
-            date: "2024-07-02",
-            status: "Approved"
-        },
-        {
-            id: 4,
-            name: "Elite Dancer School",
-            mobile: "(713) 555-2345",
-            email: "jessica.b@email.com",
-            date: "2024-08-10",
-            status: "Pending",
-            contactName: "Jessica Brown",
-            description: "Designed to teach and train family both parents and children. this is very nice this rich and enjoyable. Bring your kids let us train them to be professional from foundation.",
-            contactDetails: {
-                phone: "(713) 555-2345",
-                email: "jessica.b@email.com",
-                address: "362 Sycamore St, Detroit, MI",
-                website: "www.elitedancers.com"
-            },
-            taxId: "987-65-4321",
-            businessLicense: "Elite Dancer Business Licence.PDF"
-        },
-        {
-            id: 5,
-            name: "ABC Events",
-            mobile: "(305) 555-6789",
-            email: "david.a@email.com",
-            date: "2024-09-12",
-            status: "Approved"
-        },
-        {
-            id: 6,
-            name: "XYZ Events",
-            mobile: "(206) 555-1357",
-            email: "sarah.m@email.com",
-            date: "2024-10-05",
-            status: "Inactive"
-        },
-        {
-            id: 7,
-            name: "Kane Events",
-            mobile: "(720) 555-2468",
-            email: "daniel.t@email.com",
-            date: "2024-11-18",
-            status: "Deactivated"
-        },
-        // Rest of data...
-    ]);
-
+    const [allVendors, setAllVendors] = useState([]);
     const [filteredVendors, setFilteredVendors] = useState([]);
     const [paginatedVendors, setPaginatedVendors] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Modal state management
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVendor, setSelectedVendor] = useState(null);
+    
+    // Loading states for individual vendors
+    const [approvingVendors, setApprovingVendors] = useState(new Set());
+    const [rejectingVendors, setRejectingVendors] = useState(new Set());
 
-    // Removed the auto-popup for pending vendors
+    // Function to transform API data to match your component structure
+    const transformVendorData = (organiser) => {
+        return {
+            id: organiser.id,
+            name: organiser.business_name || organiser.name,
+            mobile: organiser.phone_number,
+            email: organiser.email,
+            date: new Date(organiser.createdAt).toISOString().split('T')[0], // Format: YYYY-MM-DD
+            status: organiser.isApproved ? "Approved" : "Pending",
+            contactName: organiser.name,
+            description: `Business: ${organiser.business_name || 'N/A'}, Category: ${organiser.business_category}`,
+            contactDetails: {
+                phone: organiser.phone_number,
+                email: organiser.email,
+                address: organiser.address,
+                website: organiser.website_url || 'N/A'
+            },
+            taxId: organiser.registration_number,
+            businessLicense: organiser.business_logo,
+            // Additional fields from API
+            businessLogo: organiser.business_logo,
+            businessCategory: organiser.business_category,
+            registrationNumber: organiser.registration_number,
+            facebookUrl: organiser.facebook_url,
+            isLocked: organiser.isLocked,
+            isDeleted: organiser.isDeleted,
+            emailVerified: organiser.email_verify
+        };
+    };
+
+    // Fetch vendors from API
+    const fetchVendors = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const response = await authService.makeAuthenticatedRequest('/api/v1/organisers/all');
+            
+            if (response && response.organiser) {
+                const transformedVendors = response.organiser.map(transformVendorData);
+                setAllVendors(transformedVendors);
+            } else {
+                setError('No vendors data received');
+            }
+        } catch (error) {
+            console.error('Error fetching vendors:', error);
+            setError(error.message || 'Failed to fetch vendors');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch vendors on component mount
+    useEffect(() => {
+        fetchVendors();
+    }, []);
 
     // Apply search and filters
     useEffect(() => {
@@ -108,7 +89,8 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                 vendor =>
                     vendor.name.toLowerCase().includes(term) ||
                     vendor.email.toLowerCase().includes(term) ||
-                    vendor.mobile.includes(term)
+                    vendor.mobile.includes(term) ||
+                    vendor.contactName.toLowerCase().includes(term)
             );
         }
 
@@ -144,22 +126,121 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
     };
 
     // Function to handle vendor approval
-    const handleApprove = (vendorId) => {
-        setAllVendors(allVendors.map(vendor =>
-            vendor.id === vendorId ? { ...vendor, status: "Approved" } : vendor
-        ));
-        // You would typically make an API call here to update the status in your backend
-        console.log(`Vendor ${vendorId} approved`);
+    const handleApprove = async (vendorId) => {
+        try {
+            // Add vendor to approving set
+            setApprovingVendors(prev => new Set([...prev, vendorId]));
+            
+            // Make API call to approve vendor
+            await authService.makeAuthenticatedRequest(`/api/v1/organisers/${vendorId}/approve`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    isApproved: true
+                })
+            });
+
+            // Update local state
+            setAllVendors(allVendors.map(vendor =>
+                vendor.id === vendorId ? { ...vendor, status: "Approved" } : vendor
+            ));
+            
+            console.log(`Vendor ${vendorId} approved successfully`);
+            
+            // Show success message (you can implement a toast notification here)
+            setError(null);
+            
+        } catch (error) {
+            console.error('Error approving vendor:', error);
+            setError(`Failed to approve vendor: ${error.message}`);
+        } finally {
+            // Remove vendor from approving set
+            setApprovingVendors(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(vendorId);
+                return newSet;
+            });
+        }
     };
 
     // Function to handle vendor rejection
-    const handleReject = (vendorId) => {
-        setAllVendors(allVendors.map(vendor =>
-            vendor.id === vendorId ? { ...vendor, status: "Rejected" } : vendor
-        ));
-        // You would typically make an API call here to update the status in your backend
-        console.log(`Vendor ${vendorId} rejected`);
+    const handleReject = async (vendorId, reason = null) => {
+        try {
+            // Add vendor to rejecting set
+            setRejectingVendors(prev => new Set([...prev, vendorId]));
+            
+            // Prepare request body
+            const requestBody = {
+                isApproved: false
+            };
+            
+            // // Add reason if provided
+            // if (reason) {
+            //     requestBody.rejectionReason = reason;
+            // }
+            
+            // Make API call to reject vendor
+            await authService.makeAuthenticatedRequest(`/api/v1/organisers/${vendorId}/approve`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            // Update local state
+            setAllVendors(allVendors.map(vendor =>
+                vendor.id === vendorId ? { ...vendor, status: "Rejected" } : vendor
+            ));
+            
+            console.log(`Vendor ${vendorId} rejected successfully`);
+            
+            // Show success message (you can implement a toast notification here)
+            setError(null);
+            
+        } catch (error) {
+            console.error('Error rejecting vendor:', error);
+            setError(`Failed to reject vendor: ${error.message}`);
+        } finally {
+            // Remove vendor from rejecting set
+            setRejectingVendors(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(vendorId);
+                return newSet;
+            });
+        }
     };
+
+    // Function to refresh vendors list after approval/rejection
+    const refreshVendors = async () => {
+        await fetchVendors();
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-8">
+                <div className="text-gray-500">Loading vendors...</div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="flex flex-col justify-center items-center py-8">
+                <div className="text-red-500 mb-4">Error: {error}</div>
+                <button 
+                    onClick={fetchVendors}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
 
     // Render mobile view as a simplified table
     if (mobileView) {
@@ -177,7 +258,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                             </thead>
                             <tbody>
                                 {paginatedVendors.map((vendor, index) => (
-                                    <tr key={index} className="text-gray-800 text-sm border-b">
+                                    <tr key={vendor.id} className="text-gray-800 text-sm border-b">
                                         <td className="py-4 pr-2">{vendor.name}</td>
                                         <td className="py-4 px-2 text-center">
                                             <StatusBadge status={vendor.status} />
@@ -186,8 +267,12 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                                             <button
                                                 onClick={() => openVendorDetails(vendor)}
                                                 className="text-blue-600 hover:underline"
+                                                disabled={approvingVendors.has(vendor.id) || rejectingVendors.has(vendor.id)}
                                             >
-                                                Details
+                                                {approvingVendors.has(vendor.id) || rejectingVendors.has(vendor.id) 
+                                                    ? 'Processing...' 
+                                                    : 'Details'
+                                                }
                                             </button>
                                         </td>
                                     </tr>
@@ -223,6 +308,9 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                         onClose={() => setIsModalOpen(false)}
                         onApprove={handleApprove}
                         onReject={handleReject}
+                        onRefresh={refreshVendors}
+                        isApproving={approvingVendors.has(selectedVendor.id)}
+                        isRejecting={rejectingVendors.has(selectedVendor.id)}
                     />
                 ) : (
                     <VendorApproveDetailsModal
@@ -231,6 +319,9 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                         onClose={() => setIsModalOpen(false)}
                         onApprove={handleApprove}
                         onReject={handleReject}
+                        onRefresh={refreshVendors}
+                        isApproving={approvingVendors.has(selectedVendor?.id)}
+                        isRejecting={rejectingVendors.has(selectedVendor?.id)}
                     />
                 )}
             </div>
@@ -255,7 +346,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                         </thead>
                         <tbody>
                             {paginatedVendors.map((vendor, index) => (
-                                <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
+                                <tr key={vendor.id} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
                                     <td className="py-4 px-4">{vendor.name}</td>
                                     <td className="py-4 px-4">{vendor.mobile}</td>
                                     <td className="py-4 px-4">{vendor.email}</td>
@@ -264,9 +355,13 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                                     <td className="py-4 px-4">
                                         <button
                                             onClick={() => openVendorDetails(vendor)}
-                                            className="text-blue-600 hover:underline"
+                                            className="text-blue-600 hover:underline disabled:text-gray-400 disabled:cursor-not-allowed"
+                                            disabled={approvingVendors.has(vendor.id) || rejectingVendors.has(vendor.id)}
                                         >
-                                            View Profile
+                                            {approvingVendors.has(vendor.id) || rejectingVendors.has(vendor.id) 
+                                                ? 'Processing...' 
+                                                : 'View Profile'
+                                            }
                                         </button>
                                     </td>
                                 </tr>
@@ -289,7 +384,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                             <td colSpan="2" className="text-center text-gray-500">
                                 It looks like no vendors have joined the platform yet. Once vendors sign up, their details will appear here.
                             </td>
-                        </tr>
+        </tr>
                     </tbody>
                 )}
             </table>
@@ -302,6 +397,9 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                     onClose={() => setIsModalOpen(false)}
                     onApprove={handleApprove}
                     onReject={handleReject}
+                    onRefresh={refreshVendors}
+                    isApproving={approvingVendors.has(selectedVendor.id)}
+                    isRejecting={rejectingVendors.has(selectedVendor.id)}
                 />
             ) : (
                 <VendorApproveDetailsModal
@@ -310,6 +408,9 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                     onClose={() => setIsModalOpen(false)}
                     onApprove={handleApprove}
                     onReject={handleReject}
+                    onRefresh={refreshVendors}
+                    isApproving={approvingVendors.has(selectedVendor?.id)}
+                    isRejecting={rejectingVendors.has(selectedVendor?.id)}
                 />
             )}
         </>

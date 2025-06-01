@@ -47,10 +47,10 @@ const RejectVendorModal = ({
   }, [isOpen]);
   
   // Handle confirmation
-  const handleConfirm = () => {
-    if (onConfirm) onConfirm(vendorData.id);
-    onClose();
-  };
+ const handleConfirm = () => {
+  if (onConfirm) onConfirm(vendor?.id, rejectionReason);
+  onClose();
+};
 
 const modalActions = {
     approve: {
