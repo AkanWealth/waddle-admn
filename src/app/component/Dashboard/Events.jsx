@@ -1,85 +1,106 @@
-
 "use client";
 import { useState, useEffect } from "react";
-import { CalendarClock, Clock, CalendarX, Users, ChevronDown, Calendar, Import } from "lucide-react";
+import { CalendarClock, Clock, CalendarX, Users, ChevronDown } from "lucide-react";
 import Image from "next/image";
+import { useEventAnalyticsStore } from "@/stores/useAnalyticsStore";
+
+const iconMap = {
+  total_events: <CalendarClock className="h-5 w-5 text-white" />,
+  active_events: <Clock className="h-5 w-5 text-white" />,
+  cancelled_events: <CalendarX className="h-5 w-5 text-white" />,
+  total_attendees: <Users className="h-5 w-5 text-white" />,
+};
+
+const colorMap = {
+  total_events: "bg-green-500",
+  active_events: "bg-yellow-500",
+  cancelled_events: "bg-red-600",
+  total_attendees: "bg-purple-500",
+};
 
 export default function Events() {
-  // Dummy data for stat cards
-  const eventStats = [
-    { 
-      title: "Total Events", 
-      count: 12, 
-      change: "+4.3%", 
-      isPositive: true,
-      bgColor: "bg-green-500",
-      icon: <CalendarClock className="h-5 w-5 text-white"/>
-    },
-    { 
-      title: "Active Events", 
-      count: 10, 
-      change: "+4.3%", 
-      isPositive: true,
-      bgColor: "bg-yellow-500",
-      icon: <Clock className="h-5 w-5 text-white"/>
-    },
-    { 
-      title: "Cancelled Events", 
-      count: 2, 
-      change: "+4.3%", 
-      isPositive: true,
-      bgColor: "bg-red-600",
-      icon: <CalendarX className="h-5 w-5 text-white"/>
-    },
-    { 
-      title: "Total Attendees", 
-      count: 250, 
-      change: "+4.3%", 
-      isPositive: true,
-      bgColor: "bg-purple-500",
-      icon: <Users className="h-5 w-5 text-white"/>
-    }
-  ];
-
-  // Dummy data for top performing events table
-  const topEvents = [
-    { id: 1, event: "Boy and Girls Play", vendor: "ABC Events", attendees: 89 },
-    { id: 2, event: "Dance School", vendor: "Softtalk Limited", attendees: 64 },
-    { id: 3, event: "Kids Adventure", vendor: "ABC Events", attendees: 61 },
-    { id: 4, event: "Dance School", vendor: "Softtalk Limited", attendees: 58 },
-    { id: 5, event: "Boy and Girls Play", vendor: "Palm View", attendees: 47 }
-  ];
-
-  // Dummy data for booking rate chart
-  const [bookingData, setBookingData] = useState([
-    { day: "Mon", bookings: 350 },
-    { day: "Tue", bookings: 280 },
-    { day: "Wed", bookings: 180 },
-    { day: "Thu", bookings: 450 },
-    { day: "Fri", bookings: 320 },
-    { day: "Sat", bookings: 420 },
-    { day: "Sun", bookings: 300 }
-  ]);
+  const { 
+    eventStats, 
+    topEvents, 
+    bookingData, 
+    hasData, 
+    isLoading, 
+    error, 
+    fetchEventAnalytics 
+  } = useEventAnalyticsStore();
 
   // State for chart time filter
   const [timeFilter, setTimeFilter] = useState("Monthly");
-  
-  // Empty state flag (toggle this based on API response)
-  const [hasData, setHasData] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  // Function to simulate API data fetch
+  // Fetch data on component mount
   useEffect(() => {
-    // This is where you'd fetch real data from your API
-    // For now, we're just using the dummy data
-  }, []);
+    fetchEventAnalytics();
+  }, [fetchEventAnalytics]);
+
+  // Handle time filter change
+  const handleTimeFilterChange = (filter) => {
+    setTimeFilter(filter);
+    setShowDropdown(false);
+    
+    // Calculate date ranges based on filter
+    const now = new Date();
+    let startDate
+    let endDate
+    
+    switch (filter) {
+      case '7 Last Days':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        endDate = now.toISOString();
+        break;
+      case 'Monthly':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+        break;
+      case 'Yearly':
+        startDate = new Date(now.getFullYear() - 1, 0, 1).toISOString();
+        endDate = new Date(now.getFullYear() + 1, 0, 1).toISOString();
+        break;
+    }
+    
+    fetchEventAnalytics(startDate, endDate);
+  };
 
   // For demo: toggle between data and empty state
   const toggleDataState = () => {
-    setHasData(!hasData);
+    // This would typically be handled by the store
+    // For demo purposes, you might want to manually set hasData
+    console.log("Toggle data state - implement based on your needs");
   };
 
   // Max booking value for chart scaling
-  const maxBooking = Math.max(...bookingData.map(item => item.bookings));
+  const maxBooking = Math.max(...bookingData.map(item => item.bookings), 1);
+
+  if (isLoading) {
+    return (
+      <div className="font-inter">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading event analytics...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="font-inter">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="text-red-800">Error loading event analytics: {error}</div>
+          <button 
+            onClick={() => fetchEventAnalytics()}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="font-inter">
@@ -88,8 +109,8 @@ export default function Events() {
         {eventStats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <div className="flex items-center">
-              <div className={`w-10 h-10 rounded-full ${stat.bgColor} flex items-center justify-center mr-4`}>
-                {stat.icon}
+              <div className={`w-10 h-10 rounded-full ${colorMap[stat.type]} flex items-center justify-center mr-4`}>
+                {iconMap[stat.type]}
               </div>
               <div className="flex flex-col">
                 <p className="text-gray-600 font-medium text-sm">{stat.title}</p>
@@ -110,7 +131,7 @@ export default function Events() {
         <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold mb-4">Top Performing Events</h2>
           
-          {hasData ? (
+          {hasData && topEvents.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -134,18 +155,15 @@ export default function Events() {
           ) : (
             <div className="text-center py-6">
               <div className="w-50 rounded-full flex items-center justify-center mb-4">
-                  <Image 
-                    src="/Empty.png"
-                    alt="No signups yet"
-                    width={134}
-                    height={89}
-                    className="w-full h-full text-white" />
-
-                </div>
+                <Image 
+                  src="/Empty.png"
+                  alt="No events yet"
+                  width={134}
+                  height={89}
+                  className="w-full h-full text-white" 
+                />
+              </div>
               <h3 className="text-lg font-medium mb-2">No Top-Performing Events Yet</h3>
-              {/* <p className="text-gray-500 text-sm max-w-md mx-auto">
-                Event performance data will appear here once events are created and attended.
-              </p> */}
             </div>
           )}
         </div>
@@ -155,20 +173,40 @@ export default function Events() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Event Booking Rate</h2>
             <div className="relative">
-              <button className="flex items-center text-sm border rounded-lg px-3 py-1">
+              <button 
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center text-sm border rounded-lg px-3 py-1"
+              >
                 {timeFilter} <ChevronDown className="ml-2 h-4 w-4" />
               </button>
-              <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg hidden">
-                <div className="py-1">
-                  <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">7 Last Days</button>
-                  <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Monthly</button>
-                  <button className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Yearly</button>
+              {showDropdown && (
+                <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg z-10">
+                  <div className="py-1">
+                    <button 
+                      onClick={() => handleTimeFilterChange('7 Last Days')}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                    >
+                      7 Last Days
+                    </button>
+                    <button 
+                      onClick={() => handleTimeFilterChange('Monthly')}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                    >
+                      Monthly
+                    </button>
+                    <button 
+                      onClick={() => handleTimeFilterChange('Yearly')}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                    >
+                      Yearly
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
           
-          {hasData ? (
+          {hasData && bookingData.length > 0 ? (
             <div className="h-64 flex items-end">
               {bookingData.map((item, index) => (
                 <div key={index} className="flex flex-col items-center flex-1">
@@ -183,21 +221,16 @@ export default function Events() {
           ) : (
             <div className="text-center py-6">
               <div className="w-50 rounded-full flex items-center justify-center mb-4">
-                  <Image 
-                    src="/Empty.png"
-                    alt="No signups yet"
-                    width={134}
-                    height={89}
-                    className="w-full h-full text-white" />
-
-                </div>
+                <Image 
+                  src="/Empty.png"
+                  alt="No bookings yet"
+                  width={134}
+                  height={89}
+                  className="w-full h-full text-white" 
+                />
+              </div>
               <h3 className="text-lg font-medium mb-2">No Event Bookings Yet</h3>
-              {/* <p className="text-gray-500 text-sm max-w-md mx-auto">
-                Event performance data will appear here once events are created and attended.
-              </p> */}
             </div>
-          
-        
           )}
         </div>
       </div>
