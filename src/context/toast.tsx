@@ -62,7 +62,7 @@ export function ToastContext({ children }: ToastContextProps) {
       }
     };
 
-    let toastOptions = {
+    const toastOptions = {
       position: "top-right" as const,
       autoClose: 5000,
       hideProgressBar: true,

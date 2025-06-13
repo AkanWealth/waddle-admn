@@ -1,16 +1,11 @@
 import { authService } from "./authService";
 import { baseUrl } from "../lib/envfile";
 
-interface Booking {
-  id: string;
-  date: string;
-  userId: string;
-  status: string;
-  // Add more fields based on your backend
-}
 
-interface BookingResponse {
+
+export interface BookingResponse {
   success: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   error?: string;
 }
@@ -23,13 +18,16 @@ class BookingsService {
   }
 
   // Get all bookings for the logged-in user
-  async getAllBookings(): Promise<BookingResponse> {
+  async getAllBookings(){
     try {
+      //http://localhost:3030/api/v1/bookings/host/all
       const response = await authService.makeAuthenticatedRequest(
-        `${this.baseURL}/api/v1/bookings/host/all`
+        `/api/v1/bookings`
       );
+      console.log("Testing a couple",response)
       return { success: true, data: response };
     } catch (error: unknown) {
+      console.log(error, "This is error")
       return {
         success: false,
         error:

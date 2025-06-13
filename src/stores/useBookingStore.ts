@@ -1,8 +1,302 @@
+// import { create } from "zustand";
+// import { devtools } from "zustand/middleware";
+// import { IBooking, IVendor } from "@/app/component/BookingManagement/IBooking";
+// import BookingsData from "@/app/component/BookingManagement/SampleData";
+// import React from "react";
+
+// interface RevenueData {
+//   date: string;
+//   amount: number;
+// }
+
+// interface StoreState {
+//   data: RevenueData[];
+//   fetchData: () => void;
+// }
+
+// interface FilterState {
+//   searchTerm: string;
+//   statusFilter: string[];
+//   vendor: string;
+//   dateRange: string;
+//   status: string;
+// }
+
+// interface PaginationState {
+//   currentPage: number;
+//   itemsPerPage: number;
+// }
+
+// interface UIState {
+//   activeTab: string;
+//   isStatusModalOpen: boolean;
+//   isMainFilterOpen: boolean;
+// }
+
+// interface BookingStore {
+//   bookings: IBooking[];
+//   filters: FilterState;
+//   pagination: PaginationState;
+//   ui: UIState;
+
+//   setSearchTerm: (term: string) => void;
+//   setStatusFilter: (statuses: string[]) => void;
+//   setVendor: (vendor: string) => void;
+//   setDateRange: (dateRange: string) => void;
+//   setStatus: (status: string) => void;
+//   clearFilters: () => void;
+//   applyMainFilter: (filters: {
+//     vendor: string;
+//     dateRange: string;
+//     status: string;
+//   }) => void;
+
+//   setCurrentPage: (page: number) => void;
+//   setItemsPerPage: (items: number) => void;
+
+//   setActiveTab: (tab: string) => void;
+//   toggleStatusModal: () => void;
+//   setStatusModalOpen: (open: boolean) => void;
+//   toggleMainFilter: () => void;
+//   setMainFilterOpen: (open: boolean) => void;
+
+//   refreshBookings: () => void;
+//   getStatusBadge: (status: string) => string;
+
+//   isOpenBookingDetails: boolean;
+//   openBookingDetailsModal: () => void;
+//   closeBookingDetailsModal: () => void;
+//   isReportModalOpen: boolean;
+//   openReportModalModal: () => void;
+//   closeReportModalModal: () => void;
+
+//   isDownloadReportModalOpen: boolean;
+//   openDownloadReportModal: () => void;
+//   closeDownloadReportModal: () => void;
+
+//   isOpenGuardianDetails: boolean;
+//   openGuardianDetailsModal: () => void;
+//   closeGuardianDetailsModal: () => void;
+// }
+
+// const initialFilters: FilterState = {
+//   searchTerm: "",
+//   statusFilter: [],
+//   vendor: "",
+//   dateRange: "",
+//   status: "",
+// };
+
+// const initialPagination: PaginationState = {
+//   currentPage: 1,
+//   itemsPerPage: 8,
+// };
+
+// const initialUI: UIState = {
+//   activeTab: "Bookings",
+//   isStatusModalOpen: false,
+//   isMainFilterOpen: false,
+// };
+
+// export const useBookingStore = create<BookingStore>()(
+//   devtools(
+//     (set) => ({
+//       bookings: BookingsData,
+//       filters: initialFilters,
+//       pagination: initialPagination,
+//       ui: initialUI,
+//       isReportModalOpen: false,
+//       openReportModalModal: () => set({ isReportModalOpen: true }),
+//       closeReportModalModal: () => set({ isReportModalOpen: false }),
+//       isOpenBookingDetails: false,
+//       openBookingDetailsModal: () => set({ isOpenBookingDetails: true }),
+//       closeBookingDetailsModal: () => set({ isOpenBookingDetails: false }),
+//       isOpenGuardianDetails: false,
+//       openGuardianDetailsModal: () => set({ isOpenGuardianDetails: true }),
+//       closeGuardianDetailsModal: () => set({ isOpenGuardianDetails: false }),
+
+//       isDownloadReportModalOpen:false,
+//       openDownloadReportModal: () => set({ isDownloadReportModalOpen: true }),
+//       closeDownloadReportModal: () => set({ isDownloadReportModalOpen: false }),
+
+//       setSearchTerm: (term) =>
+//         set(
+//           (state) => ({
+//             filters: { ...state.filters, searchTerm: term },
+//             pagination: { ...state.pagination, currentPage: 1 },
+//           }),
+//           false,
+//           "setSearchTerm"
+//         ),
+
+//       setStatusFilter: (statuses) =>
+//         set(
+//           (state) => ({
+//             filters: { ...state.filters, statusFilter: statuses },
+//             pagination: { ...state.pagination, currentPage: 1 },
+//           }),
+//           false,
+//           "setStatusFilter"
+//         ),
+
+//       setVendor: (vendor) =>
+//         set(
+//           (state) => ({
+//             filters: { ...state.filters, vendor },
+//           }),
+//           false,
+//           "setVendor"
+//         ),
+
+//       setDateRange: (dateRange) =>
+//         set(
+//           (state) => ({
+//             filters: { ...state.filters, dateRange },
+//           }),
+//           false,
+//           "setDateRange"
+//         ),
+
+//       setStatus: (status) =>
+//         set(
+//           (state) => ({
+//             filters: { ...state.filters, status },
+//           }),
+//           false,
+//           "setStatus"
+//         ),
+
+//       clearFilters: () =>
+//         set(
+//           () => ({
+//             filters: initialFilters,
+//             pagination: { ...initialPagination },
+//           }),
+//           false,
+//           "clearFilters"
+//         ),
+
+//       applyMainFilter: (filters) =>
+//         set(
+//           (state) => ({
+//             filters: {
+//               ...state.filters,
+//               vendor: filters.vendor,
+//               dateRange: filters.dateRange,
+//               status: filters.status,
+//             },
+//             pagination: { ...state.pagination, currentPage: 1 },
+//           }),
+//           false,
+//           "applyMainFilter"
+//         ),
+
+//       setCurrentPage: (page) =>
+//         set(
+//           (state) => ({
+//             pagination: { ...state.pagination, currentPage: page },
+//           }),
+//           false,
+//           "setCurrentPage"
+//         ),
+
+//       setItemsPerPage: (items) =>
+//         set(
+//           (state) => ({
+//             pagination: {
+//               ...state.pagination,
+//               itemsPerPage: items,
+//               currentPage: 1,
+//             },
+//           }),
+//           false,
+//           "setItemsPerPage"
+//         ),
+
+//       setActiveTab: (tab) =>
+//         set(
+//           (state) => ({
+//             ui: { ...state.ui, activeTab: tab },
+//             pagination: { ...state.pagination, currentPage: 1 },
+//           }),
+//           false,
+//           "setActiveTab"
+//         ),
+
+//       toggleStatusModal: () =>
+//         set(
+//           (state) => ({
+//             ui: { ...state.ui, isStatusModalOpen: !state.ui.isStatusModalOpen },
+//           }),
+//           false,
+//           "toggleStatusModal"
+//         ),
+
+//       setStatusModalOpen: (open) =>
+//         set(
+//           (state) => ({
+//             ui: { ...state.ui, isStatusModalOpen: open },
+//           }),
+//           false,
+//           "setStatusModalOpen"
+//         ),
+
+//       toggleMainFilter: () =>
+//         set(
+//           (state) => ({
+//             ui: { ...state.ui, isMainFilterOpen: !state.ui.isMainFilterOpen },
+//           }),
+//           false,
+//           "toggleMainFilter"
+//         ),
+
+//       setMainFilterOpen: (open) =>
+//         set(
+//           (state) => ({
+//             ui: { ...state.ui, isMainFilterOpen: open },
+//           }),
+//           false,
+//           "setMainFilterOpen"
+//         ),
+
+//       refreshBookings: () =>
+//         set(
+//           () => ({
+//             bookings: BookingsData,
+//           }),
+//           false,
+//           "refreshBookings"
+//         ),
+
+//       getStatusBadge: (status: string) => {
+//         const baseClasses =
+//           "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
+//         switch (status) {
+//           case "Confirmed":
+//             return `${baseClasses} bg-[#E0F5E6] text-[#28A745]`;
+//           case "Pending":
+//             return `${baseClasses} bg-[#E5E5E5] text-[#272727]`;
+//           case "closed":
+//           case "cancelled":
+//           case "canceled":
+//           case "Canceled":
+//             return `${baseClasses} bg-[#FFDEDE] text-[#CB1A14]`;
+//           default:
+//             return `${baseClasses} bg-gray-100 text-gray-800`;
+//         }
+//       },
+//     }),
+//     {
+//       name: "booking-store",
+//     }
+//   )
+// );
+
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { IBooking, IVendor } from "@/app/component/BookingManagement/IBooking";
-import BookingsData from "@/app/component/BookingManagement/SampleData";
 import React from "react";
+import { bookingsService } from "@/utils/bookingService";
 
 interface RevenueData {
   date: string;
@@ -33,11 +327,17 @@ interface UIState {
   isMainFilterOpen: boolean;
 }
 
+
+
 interface BookingStore {
   bookings: IBooking[];
   filters: FilterState;
   pagination: PaginationState;
   ui: UIState;
+
+  selectedEvent: IBooking | null;
+  setSelectedEvent: (event: IBooking) => void;
+  clearSelectedEvent: () => void;
 
   setSearchTerm: (term: string) => void;
   setStatusFilter: (statuses: string[]) => void;
@@ -60,7 +360,7 @@ interface BookingStore {
   toggleMainFilter: () => void;
   setMainFilterOpen: (open: boolean) => void;
 
-  refreshBookings: () => void;
+  fetchBookingData: () => Promise<void>;
   getStatusBadge: (status: string) => string;
 
   isOpenBookingDetails: boolean;
@@ -101,7 +401,28 @@ const initialUI: UIState = {
 export const useBookingStore = create<BookingStore>()(
   devtools(
     (set) => ({
-      bookings: BookingsData,
+      bookings: [],
+      fetchBookingData: async () => {
+        try {
+          const res = await bookingsService.getAllBookings();
+          if (res.success && Array.isArray(res.data)) {
+            set({ bookings: res.data }, false, "fetchBookingData");
+          } else {
+            console.error("Failed to fetch bookings:", res.error);
+          }
+        } catch (error) {
+          console.error("Error fetching bookings:", error);
+        }
+      },
+
+      selectedEvent: null,
+
+      setSelectedEvent: (event) =>
+        set(() => ({ selectedEvent: event }), false, "setSelectedEvent"),
+
+      clearSelectedEvent: () =>
+        set(() => ({ selectedEvent: null }), false, "clearSelectedEvent"),
+
       filters: initialFilters,
       pagination: initialPagination,
       ui: initialUI,
@@ -114,8 +435,7 @@ export const useBookingStore = create<BookingStore>()(
       isOpenGuardianDetails: false,
       openGuardianDetailsModal: () => set({ isOpenGuardianDetails: true }),
       closeGuardianDetailsModal: () => set({ isOpenGuardianDetails: false }),
-
-      isDownloadReportModalOpen:false,
+      isDownloadReportModalOpen: false,
       openDownloadReportModal: () => set({ isDownloadReportModalOpen: true }),
       closeDownloadReportModal: () => set({ isDownloadReportModalOpen: false }),
 
@@ -259,15 +579,6 @@ export const useBookingStore = create<BookingStore>()(
           "setMainFilterOpen"
         ),
 
-      refreshBookings: () =>
-        set(
-          () => ({
-            bookings: BookingsData,
-          }),
-          false,
-          "refreshBookings"
-        ),
-
       getStatusBadge: (status: string) => {
         const baseClasses =
           "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
@@ -299,7 +610,7 @@ export const useFilteredBookings = () => {
   return React.useMemo(() => {
     return bookings.filter((booking) => {
       const matchesSearch =
-        booking.eventName
+        booking.event.name
           .toLowerCase()
           .includes(filters.searchTerm.toLowerCase()) ||
         booking.organiser

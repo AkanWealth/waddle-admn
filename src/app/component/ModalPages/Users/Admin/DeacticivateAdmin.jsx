@@ -26,7 +26,9 @@ const DeativateAdmineModal = ({
   };
   
   // If no admin is passed, use the mock data
-  const adminData = admin || mockadminData;
+  if(!admin) {
+    return;
+  }
   
   // Check if the viewport is mobile
   const [isMobile, setIsMobile] = useState(false);
@@ -46,7 +48,7 @@ const DeativateAdmineModal = ({
   
   // Handle confirmation
   const handleConfirm = () => {
-    if (onConfirm) onConfirm(adminData.id);
+    if (onConfirm) onConfirm(admin.id);
     onClose();
   };
   
@@ -87,7 +89,7 @@ const DeativateAdmineModal = ({
         {/* Message text (centered for both mobile and desktop) */}
         <div className="text-left">
           <p className="text-gray-700">
-            You are about to deactivate {adminData.name} . This will temporarily remove their access to the platform, but their account will not be deleted.
+            You are about to deactivate {admin.fullName} . This will temporarily remove their access to the platform, but their account will not be deleted.
           </p>
         </div>
         </div> 

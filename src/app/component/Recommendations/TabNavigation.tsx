@@ -1,9 +1,10 @@
 interface TabNavigationProps {
-  activeTab: "Places" | "Events";
-  onTabChange: (tab: "Places" | "Events") => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-const TabData: string[] = ["Places", "Events"];
+const TabData = ["Places", "Events"];
+
 const TabNavigation: React.FC<TabNavigationProps> = ({
   activeTab,
   onTabChange,
@@ -11,7 +12,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
   return (
     <div className="mb-6">
       <nav className="flex items-center border border-gray-300 rounded-lg p-0.5">
-        {TabData.map((tab) => (
+        {TabData.map((tab:string) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab)}

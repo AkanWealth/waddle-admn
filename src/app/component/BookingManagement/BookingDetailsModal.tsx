@@ -8,15 +8,34 @@ import {
   Phone,
   Mail,
   CircleCheck,
+  CircleX,
 } from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
 import { GuardianDetailsData } from "./SampleData";
 import GuardianDetailsModal from "./GuardianDetailsModal";
 import Image from "next/image";
 import SVGAssets from "@/assets/svg";
+import formatCustomDate from "@/lib/formatDate";
+
+const renderStatusIcon = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "confirmed":
+      return <CircleCheck className="h-4 w-4" />;
+    case "pending":
+      return <Clock className="h-4 w-4" />;
+    case "closed":
+    case "cancelled":
+    case "canceled":
+      return <CircleX className="h-4 w-4" />;
+    default:
+      return null;
+  }
+};
 
 const BookingDetailsModal = () => {
   const {
+    getStatusBadge,
+    selectedEvent,
     isOpenBookingDetails,
     closeBookingDetailsModal,
     openGuardianDetailsModal,
@@ -24,9 +43,12 @@ const BookingDetailsModal = () => {
   } = useBookingStore();
 
   if (!isOpenBookingDetails) return;
+  if (!selectedEvent) return;
+
+  console.log(selectedEvent?.status);
 
   return (
-  <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
+    <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
       <div className="bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900"></h2>
@@ -41,41 +63,47 @@ const BookingDetailsModal = () => {
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-gray-900">
-              Kid Timeout with Jane
+              {selectedEvent?.event.name}
             </h3>
-            <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center gap-1.5">
-              <CircleCheck className="w-4 h-4" />
-              <span className="">Paid</span>
+            <div
+              className={`${getStatusBadge(
+                selectedEvent?.status as string
+              )} flex items-center gap-1`}
+            >
+              {renderStatusIcon(selectedEvent?.status as string)}
+              <span className="">{selectedEvent?.status}</span>
             </div>
           </div>
 
-          <h3 className="text-sm text-gray-600">XYZ Events</h3>
+          <h3 className="text-sm text-gray-600">
+            {selectedEvent?.event.category}
+          </h3>
 
           <p className="text-sm text-gray-700">
-            Designed to teach and train family both parents and children to
-            communicate effectively. Bring your kids let us train them to be
-            professionals from foundation.
+            {selectedEvent?.event.description}
           </p>
 
           <div className="space-y-3">
             <div className="flex items-center space-x-3 text-sm text-gray-700">
               <Calendar size={16} className="text-gray-400" />
-              <span>14th February 2024</span>
+              <span>
+                {formatCustomDate(selectedEvent.event.date, "DD-MM-YYYY")}
+              </span>
             </div>
 
             <div className="flex items-center space-x-3 text-sm text-gray-700">
               <Clock size={16} className="text-gray-400" />
-              <span>8am - 2pm</span>
+              <span>{selectedEvent.event.time}</span>
             </div>
 
             <div className="flex items-center space-x-3 text-sm text-gray-700">
               <MapPin size={16} className="text-gray-400" />
-              <span>Viveton, 6 miles away</span>
+              <span>{selectedEvent.event.address}</span>
             </div>
 
             <div className="flex items-center space-x-3 text-sm text-gray-700">
               <Users size={16} className="text-gray-400" />
-              <span>2-10 years old</span>
+              <span>{selectedEvent.event.age_range}</span>
             </div>
             <div className="flex items-center text-sm gap-2">
               <Image
@@ -85,18 +113,27 @@ const BookingDetailsModal = () => {
                 width={20}
                 height={20}
               />
-              <span className="text-gray-600">£20/person</span>
+              <span className="text-gray-600">
+                £{selectedEvent.event.price}/person
+              </span>
             </div>
           </div>
 
           <div className="bg-gray-50 p-3 rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Tickets booked</span>
-              <span className="font-semibold">340</span>
+              <span className="font-semibold">
+                {selectedEvent.event.ticket_booked}
+              </span>
             </div>
             <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-900">Total revenue</span>
-              <span className="text-gray-900">£6,800</span>
+              <span className="text-gray-900">
+                £
+                {(
+                  selectedEvent.event.price * selectedEvent.event.ticket_booked
+                ).toLocaleString()}
+              </span>
             </div>
           </div>
 
@@ -106,13 +143,17 @@ const BookingDetailsModal = () => {
             </h4>
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <span className="text-orange-600 text-xs font-semibold">
-                  XYZ
-                </span>
+                <Image
+                  src={ SVGAssets.DownloadReportIcon}
+                  alt="Organiser logo"
+                  width={50}
+                  height={50}
+                  className="h-full w-full"
+                />
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900">
-                  XYZ Events
+                  {selectedEvent.event.organiser.business_name}
                 </div>
                 <div className="text-sm text-gray-600">Mary Jane</div>
               </div>
@@ -120,11 +161,11 @@ const BookingDetailsModal = () => {
             <div className="mt-2 flex items-center gap-4">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Mail size={14} />
-                <span>xyz@sendgrid.com</span>
+                <span>{selectedEvent.event.organiser.email}</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Phone size={14} />
-                <span>+448674774</span>
+                <span>{selectedEvent.event.organiser.phone_number}</span>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import SearchFilterBar from "./SearchFilterBar";
 import BookingTable from "./BookingTable";
 import PaginationComponent from "../Element/PaginationComponent";
@@ -12,6 +12,8 @@ import {
   usePaginatedBookings,
   useTotalPages,
   usePaginatedVendors,
+  // useInitializeBookings,
+  // useInitializeBookingStore,
 } from "@/stores/useBookingStore";
 import { VendorData } from "./SampleData";
 
@@ -20,6 +22,12 @@ const BookingManagement: React.FC = () => {
   const totalPages = useTotalPages();
   const { paginatedVendors, totalPages: vendorTotalPages } =
     usePaginatedVendors(VendorData);
+
+  const fetchBookingData = useBookingStore((state) => state.fetchBookingData);
+
+  useEffect(() => {
+    fetchBookingData();
+  }, [fetchBookingData]);
 
   const {
     isOpenBookingDetails,
@@ -52,7 +60,6 @@ const BookingManagement: React.FC = () => {
 
   return (
     <div className=" relative">
-      
       <header className="p-6 border-b border-gray-200 bg-white">
         <h1 className="text-xl font-semibold text-gray-900 mb-4">
           All Bookings
@@ -68,7 +75,6 @@ const BookingManagement: React.FC = () => {
                     ? "text-blue-600 font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-600"
                     : "text-gray-500"
                 }`}
-
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}

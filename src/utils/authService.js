@@ -181,6 +181,7 @@ async makeAuthenticatedRequest(endpoint, options = {}) {
             try {
                 accessToken = await this.refreshAccessToken();
                 response = await makeRequest(accessToken);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (refreshError) {
                 this.logout();
                 throw new Error('Authentication expired. Please login again.');

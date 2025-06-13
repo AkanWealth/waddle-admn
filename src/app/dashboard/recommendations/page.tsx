@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -14,91 +14,29 @@ import RecommendationActionModal from "@/app/component/Recommendations/Recommend
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import PlacesDetailsModal from "@/app/component/Recommendations/PlacesDetailsModal";
 import ApprovePlaceModal from "@/app/component/Recommendations/ApprovePlaceModal";
+import { recommendationService } from "@/utils/recommendationService";
+import { toast } from "react-toastify";
+import formatCustomDate from "@/lib/formatDate";
 
 interface Recommendation {
   id: string;
-  placeName: string;
-  submittedBy: string;
-  dateSubmitted: string;
-  location: string;
+  name: string;
+  creator: {
+    name: string;
+  };
+  date: string;
+  address: string;
   category: string;
   status: "Pending" | "Rejected" | "Approved";
+  isDeleted: boolean;
+  isVerified: boolean;
 }
 
-const mockData: Recommendation[] = [
-  {
-    id: "1",
-    placeName: "Little Explorers Park",
-    submittedBy: "John Doe",
-    dateSubmitted: "04-03-2025",
-    location: "Colchester",
-    category: "Outdoor Play",
-    status: "Pending",
-  },
-  {
-    id: "2",
-    placeName: "Tots 'n' Treats Café",
-    submittedBy: "Jane Smith",
-    dateSubmitted: "04-03-2025",
-    location: "Chelmsford",
-    category: "Cafés & Restaurants",
-    status: "Rejected",
-  },
-  {
-    id: "3",
-    placeName: "Dino Discovery Trail",
-    submittedBy: "Mark Johnson",
-    dateSubmitted: "04-03-2025",
-    location: "Ipswich",
-    category: "Learning & Discovery",
-    status: "Approved",
-  },
-  {
-    id: "4",
-    placeName: "Rainbow Arts Studio",
-    submittedBy: "Jane Smith",
-    dateSubmitted: "04-03-2025",
-    location: "Colchester",
-    category: "Wellness & Calm Spaces",
-    status: "Approved",
-  },
-  {
-    id: "5",
-    placeName: "Little Explorers Park",
-    submittedBy: "Mark Johnson",
-    dateSubmitted: "04-03-2025",
-    location: "Colchester",
-    category: "Playgrounds & Parks",
-    status: "Approved",
-  },
-  {
-    id: "6",
-    placeName: "Rainbow Arts Studio",
-    submittedBy: "John Doe",
-    dateSubmitted: "04-03-2025",
-    location: "Chelmsford",
-    category: "Wellness & Calm Spaces",
-    status: "Rejected",
-  },
-  {
-    id: "7",
-    placeName: "Dino Discovery Trail",
-    submittedBy: "Jane Smith",
-    dateSubmitted: "04-03-2025",
-    location: "Ipswich",
-    category: "Seasonal Events",
-    status: "Pending",
-  },
-  {
-    id: "8",
-    placeName: "Tots 'n' Treats Café",
-    submittedBy: "Mark Johnson",
-    dateSubmitted: "04-03-2025",
-    location: "Colchester",
-    category: "Free & Local Gems",
-    status: "Approved",
-  },
-];
+function determineStatus(event:Recommendation): "Pending" | "Rejected" | "Approved" {
+  if (event.isDeleted) return "Rejected";
+  if (event.isVerified) return "Approved";
+  return "Pending";
+}
 
 interface SearchFilterProps {
   searchTerm: string;
@@ -189,28 +127,30 @@ interface TableRowProps {
 const TableRow: React.FC<TableRowProps> = ({
   recommendation,
   onActionClick,
-  showModal,
-  onCloseModal,
+  // showModal,
+  // onCloseModal,
 }) => {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-3 px-4 text-sm text-[#515151] font-semibold">
-        {recommendation.placeName}
+        {recommendation.name}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
-        {recommendation.submittedBy}
+        {recommendation.creator.name}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
-        {recommendation.dateSubmitted}
+        {
+          formatCustomDate(recommendation.date, "DD-MM-YYYY")
+        }
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
-        {recommendation.location}
+        {recommendation.address}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
         {recommendation.category}
       </td>
       <td className="py-3 px-4">
-        <StatusBadge status={recommendation.status} />
+        <StatusBadge status={ determineStatus(recommendation)} />
       </td>
       <td className="py-3 px-4 relative">
         <button
@@ -219,7 +159,6 @@ const TableRow: React.FC<TableRowProps> = ({
         >
           <MoreVertical className="w-4 h-4" />
         </button>
-        
       </td>
     </tr>
   );
@@ -284,18 +223,37 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
 };
 
 const ParentRecommendations: React.FC = () => {
-  const {showPlaceDetailsModal, showApproveDetailsModal} = useRecommendationsStore()
-  const [activeTab, setActiveTab] = useState<"Places" | "Events">("Places");
+  const { showPlaceDetailsModal, showApproveDetailsModal } =
+    useRecommendationsStore();
+  const [activeTab, setActiveTab] = useState<string>("Places");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
   const itemsPerPage = 7;
+  const [placesList, setPlacesList] = useState<Recommendation[]>([]);
 
-  const filteredData = mockData.filter(
+  useEffect(() => {
+   
+      async function FetchEvents():Promise<void> {
+        const response =
+          await recommendationService.getAllRecommendationsEvents(1, 1000);
+        console.log(response, "This is response from recommendations");
+        if (response.success) {
+          setPlacesList(response.data.events);
+        } else {
+          toast.error(response.error);
+        }
+      }
+
+      FetchEvents()
+    
+  }, []);
+
+  const filteredData = placesList.filter(
     (item) =>
-      item.placeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.submittedBy.toLowerCase().includes(searchTerm.toLowerCase())
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.creator.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -353,11 +311,7 @@ const ParentRecommendations: React.FC = () => {
               onActionClick={handleActionClick}
               onCloseModal={handleCloseModal}
             />
-            {activeModalId && (
-          
-            <RecommendationActionModal  />
-          
-        )}
+            {activeModalId && <RecommendationActionModal />}
           </div>
         </div>
       </div>
@@ -366,9 +320,8 @@ const ParentRecommendations: React.FC = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
-      {showPlaceDetailsModal && <PlacesDetailsModal/>}
-      {showApproveDetailsModal && <ApprovePlaceModal/>}
-
+      {showPlaceDetailsModal && <PlacesDetailsModal />}
+      {showApproveDetailsModal && <ApprovePlaceModal />}
     </div>
   );
 };
