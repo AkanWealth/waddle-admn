@@ -14,6 +14,7 @@
 
 
 export type IBooking = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   organiser: any;
   id: string;
   userId: string;

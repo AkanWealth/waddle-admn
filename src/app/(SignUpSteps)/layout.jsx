@@ -3,7 +3,8 @@ import { Bounce, ToastContainer } from "react-toastify";
 import Image from "next/image";
 import "../globals.css";
 
-function AuthLayout({ children, currentStep = 1 }) {
+function AuthLayout({ children}) {
+  const currentStep = 1;
   const steps = [
     { number: 1, label: "Sign up" },
     { number: 2, label: "Email" },
