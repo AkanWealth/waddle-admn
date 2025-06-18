@@ -17,7 +17,8 @@ const PlacesDetailsModal = () => {
     console.log("Image clicked:", image, "at index:", index);
   };
   const amenities = ["Parking", "Toilets", "Café", "Playground"];
-  const {openShowApproveDetailsModal}=useRecommendationsStore()
+  const {openShowApproveDetailsModal, closeShowApproveDetailsModal, closeShowPlaceDetailsModal, selectedPlace}=useRecommendationsStore()
+  console.log(selectedPlace, "This is the selected")
   return (
     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
       <div className="px-5 py-4 bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
@@ -26,11 +27,12 @@ const PlacesDetailsModal = () => {
             <h3 className="text-[#404040] font-semibold text-xl">
               Place Details
             </h3>
-            <X className="text-[#404040]" />
+            <X onClick={()=>closeShowPlaceDetailsModal()} className="text-[#404040]" />
           </div>
           <div className="flex   justify-end my-2.5">
             <div className="w-[80%] flex items-center gap-6">
               <button
+             onClick={closeShowApproveDetailsModal}
                 type="button"
                 className="flex-1 border border-[#CC0000] px-3 py-2 text-[#CC0000] rounded-xl"
               >

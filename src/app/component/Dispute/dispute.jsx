@@ -16,6 +16,7 @@ export default function DisputeManagement() {
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
     
+    
     // Mobile responsive states
     const [mobileView, setMobileView] = useState(false);
 

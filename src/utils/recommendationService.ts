@@ -25,6 +25,42 @@ class RecommendationService {
       };
     }
   }
+
+  async approveRecommendationPlace(id: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/verify/${id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to approve recommendation",
+      };
+    }
+  }
+
+  async unverifyRecommendationPlace(id: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+         `/api/v1/crowd-sourcing/unverify/${id}`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to approve recommendation",
+      };
+    }
+  }
 }
 
 export const recommendationService = new RecommendationService();

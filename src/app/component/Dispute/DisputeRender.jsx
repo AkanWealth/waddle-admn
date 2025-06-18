@@ -3,83 +3,82 @@
 import React, { useState, useEffect } from "react";
 import { Clock, TriangleAlert, AlertCircle, CircleCheck, XCircle, TrendingUpDown } from "lucide-react";
 import DisputeDetailModal from "../ModalPages/Dispute/DisputeDetailModal";
-
-
+import { disputeService } from "@/utils/disputeService";
 
 export default function DisputeTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
-
-    // Sample data for disputes
-    const [allDisputes, setAllDisputes] = useState([
-        {
-            id: "#DPT-1023",
-            customer: "John Doe",
-            vendor: "FunKids Hub",
-            reason: "Refund Request",
-            lastUpdated: "04-03-2025",
-            status: "In Review"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "Jane Smith",
-            vendor: "PlayZone Events",
-            reason: "Service Issue",
-            lastUpdated: "04-03-2025",
-            status: "Resolved"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "Mark Johnson",
-            vendor: "Little Explorers",
-            reason: "Refund Request",
-            lastUpdated: "04-03-2025",
-            status: "Closed"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "Jane Smith",
-            vendor: "PlayZone Events",
-            reason: "Misleading Info",
-            lastUpdated: "04-03-2025",
-            status: "Closed"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "Mark Johnson",
-            vendor: "FunKids Hub",
-            reason: "Service Issue",
-            lastUpdated: "04-03-2025",
-            status: "In Review"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "John Doe",
-            vendor: "Little Explorers",
-            reason: "Refund Request",
-            lastUpdated: "04-03-2025",
-            status: "Active"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "Jane Smith",
-            vendor: "PlayZone Events",
-            reason: "Refund Request",
-            lastUpdated: "04-03-2025",
-            status: "Pending"
-        },
-        {
-            id: "#DPT-1023",
-            customer: "Mark Johnson",
-            vendor: "FunKids Hub",
-            reason: "Misleading Info",
-            lastUpdated: "04-03-2025",
-            status: "Inactive"
-        }
-    ]);
-
+    // State management
+    const [allDisputes, setAllDisputes] = useState([]);
     const [filteredDisputes, setFilteredDisputes] = useState([]);
     const [paginatedDisputes, setPaginatedDisputes] = useState([]);
     const [selectedDispute, setSelectedDispute] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch disputes data on component mount
+    useEffect(() => {
+        const fetchDisputes = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                
+                const result = await disputeService.getAllDisputes();
+                console.log(result, "This is the  result")
+                
+                if (result.success && result.data) {
+                    // Transform the API data to match your component's expected format
+                    const transformedData = transformApiData(result.data);
+                    setAllDisputes(transformedData);
+                } else {
+                    setError(result.error || "Failed to fetch disputes");
+                    // Fallback to empty array or keep sample data for development
+                    setAllDisputes([]);
+                }
+            } catch (err) {
+                setError("An unexpected error occurred while fetching disputes");
+                console.error("Error fetching disputes:", err);
+                setAllDisputes([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDisputes();
+    }, []);
+
+    // Transform API data to match component format
+    const transformApiData = (apiData) => {
+        // Adjust this function based on the actual structure of your API response
+        if (Array.isArray(apiData)) {
+            return apiData.map(item => ({
+                id: item.id || item.ticketId || `#DPT-${item.id}`,
+                customer: item.customerName || item.customer || "N/A",
+                vendor: item.vendorName || item.vendor || "N/A",
+                reason: item.reason || item.category || item.subject || "N/A",
+                lastUpdated: formatDate(item.lastUpdated || item.updatedAt || item.createdAt),
+                status: item.status || "Pending"
+            }));
+        }
+        
+        // If the data is wrapped in another structure, adjust accordingly
+        if (apiData.disputes || apiData.tickets) {
+            return transformApiData(apiData.disputes || apiData.tickets);
+        }
+        
+        return [];
+    };
+
+    // Format date to match your existing format (DD-MM-YYYY)
+    const formatDate = (dateString) => {
+        if (!dateString) return new Date().toLocaleDateString('en-GB');
+        
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        } catch {
+            return dateString;
+        }
+    };
 
     // Status badge component
     const StatusBadge = ({ status }) => {
@@ -129,7 +128,6 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
         );
     };
 
-
     // Apply search and filters
     useEffect(() => {
         let results = [...allDisputes];
@@ -142,8 +140,8 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                     dispute.id.toLowerCase().includes(term) ||
                     dispute.customer.toLowerCase().includes(term) ||
                     dispute.vendor.toLowerCase().includes(term) ||
-                    dispute.reason.toLowerCase().includes(term) || // Add reason to search
-                    dispute.status.toLowerCase().includes(term)    // Add status to search
+                    dispute.reason.toLowerCase().includes(term) ||
+                    dispute.status.toLowerCase().includes(term)
             );
         }
 
@@ -152,7 +150,7 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
             results = results.filter(dispute => statusFilter.includes(dispute.status));
         }
 
-        // Apply date filter - improve date comparison
+        // Apply date filter
         if (dateFilter.from) {
             const fromDate = new Date(dateFilter.from);
             results = results.filter(dispute => {
@@ -190,6 +188,35 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
         setPaginatedDisputes(filteredDisputes.slice(startIndex, endIndex));
     }, [currentPage, filteredDisputes]);
 
+    // Loading state
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-gray-600">Loading disputes...</span>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="text-center py-8">
+                <div className="text-red-600 mb-2">
+                    <AlertCircle className="w-8 h-8 mx-auto mb-2" />
+                    Error loading disputes
+                </div>
+                <p className="text-gray-600 text-sm">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()} 
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
     // Render mobile view
     if (mobileView) {
         return (
@@ -206,18 +233,17 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                             </thead>
                             <tbody>
                                 {paginatedDisputes.map((dispute, index) => (
-                                    <tr key={index} className="text-gray-800 text-sm border-b">
+                                    <tr key={dispute.id || index} className="text-gray-800 text-sm border-b">
                                         <td className="py-4 pr-2">{dispute.id}</td>
                                         <td className="py-4 px-2 text-center">
                                             <StatusBadge status={dispute.status} />
                                         </td>
                                         <td className="py-4 pl-2 text-center">
-                                            <a
-                                                href="#"
+                                            <button
                                                 className="text-blue-600 hover:underline"
                                                 onClick={() => opendisputeDetails(dispute)}>
                                                 View Details
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -231,7 +257,7 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                                 </td>
                             </tr>
                             <tr>
-                                <td colSpan="3" className="text-center py-2 text-gray-800 text-bold">
+                                <td colSpan="3" className="text-center py-2 text-gray-800 font-bold">
                                     No Disputes Yet
                                 </td>
                             </tr>
@@ -255,94 +281,94 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
 
     // Desktop view
     return (
-        <> {/* Change from overflow-x-auto */}
+        <>
             <div className="overflow-x-auto">
-            <table className="min-w-full">
-                {paginatedDisputes.length > 0 ? (
-                    <>
-                        <thead className="bg-white">
-                            <tr className="text-left text-gray-500 text-sm ">
-                                <th scope="col" className="px-6 py-3 white-space-nowrap text-left text-sm font-medium text-gray-500 tracking-wider">
-                                    Dispute Id
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500  tracking-wider">
-                                    Customer
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500  tracking-wider">
-                                    Vendor
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500  tracking-wider">
-                                    Reason
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500  tracking-wider">
-                                    Last Updated
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500  tracking-wider">
-                                    Status
-                                </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500  tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {paginatedDisputes.map((dispute, index) => (
-                                <tr key={index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                        {dispute.id}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {dispute.customer}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {dispute.vendor}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {dispute.reason}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {dispute.lastUpdated}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <StatusBadge status={dispute.status} />
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
-                                        <a
-                                         href="#" 
-                                         className="hover:underline"
-                                          onClick={() => opendisputeDetails(dispute)}>View Details</a>
-                                    </td>
+                <table className="min-w-full">
+                    {paginatedDisputes.length > 0 ? (
+                        <>
+                            <thead className="bg-white">
+                                <tr className="text-left text-gray-500 text-sm">
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Dispute Id
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Customer
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Vendor
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Reason
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Last Updated
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                        Actions
+                                    </th>
                                 </tr>
-                            ))}
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {paginatedDisputes.map((dispute, index) => (
+                                    <tr key={dispute.id || index} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                            {dispute.id}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {dispute.customer}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {dispute.vendor}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {dispute.reason}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {dispute.lastUpdated}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={dispute.status} />
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
+                                            <button
+                                                className="hover:underline"
+                                                onClick={() => opendisputeDetails(dispute)}>
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </>
+                    ) : (
+                        <tbody>
+                            <tr>
+                                <td colSpan="7" className="text-center py-4 text-gray-500">
+                                    <img src="/emptyFrame.png" alt="No disputes" className="w-auto h-auto mx-auto mb-4" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan="7" className="text-center py-2 text-gray-800 font-bold">
+                                    No Disputes Yet
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan="7" className="text-center text-gray-500">
+                                    It looks like no disputes have been filed yet. When disputes are created, they will appear here.
+                                </td>
+                            </tr>
                         </tbody>
-                    </>
-                ) : (
-                    <tbody>
-                        <tr>
-                            <td colSpan="7" className="text-center py-4 text-gray-500">
-                                <img src="/emptyFrame.png" alt="No disputes" className="w-auto h-auto mx-auto mb-4" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colSpan="7" className="text-center py-2 text-gray-800 text-bold">
-                                No Disputes Yet
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colSpan="7" className="text-center text-gray-500">
-                                It looks like no disputes have been filed yet. When disputes are created, they will appear here.
-                            </td>
-                        </tr>
-                    </tbody>
-                )}
-            </table>
-             <DisputeDetailModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                dispute={selectedDispute}/>
+                    )}
+                </table>
+                <DisputeDetailModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    dispute={selectedDispute}
+                />
             </div>
-            {/* Modal for dispute details */}
-           
         </>
     );
 }

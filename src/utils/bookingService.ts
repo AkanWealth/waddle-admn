@@ -36,6 +36,40 @@ class BookingsService {
     }
   }
 
+  async getAllVendorRevenue(){
+    try {
+      //http://localhost:3030/api/v1/bookings/host/all
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/bookings/vendors/revenue`
+      );
+      console.log("Testing a couple",response)
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error")
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to fetch bookings",
+      };
+    }
+  }
+
+  async getAllVendorBooking(){
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/bookings/vendors/report`
+      );
+      console.log("Testing a couple right here",response)
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error")
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to fetch bookings",
+      };
+    }
+  }
   
 }
 

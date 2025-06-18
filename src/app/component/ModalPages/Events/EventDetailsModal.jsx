@@ -14,6 +14,7 @@ const EventDetailsModal = ({
     onReject,
     onEdit
 }) => {
+    console.log("This is the event that is selected",event)
     // Merge with default data if needed or use provided event data
     const eventData = {
         title: "Dance Class by Aura Jean",

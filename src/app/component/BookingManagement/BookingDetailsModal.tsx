@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
 import { GuardianDetailsData } from "./SampleData";
-import GuardianDetailsModal from "./GuardianDetailsModal";
+// import GuardianDetailsModal from "./GuardianDetailsModal";
 import Image from "next/image";
 import SVGAssets from "@/assets/svg";
 import formatCustomDate from "@/lib/formatDate";
@@ -39,7 +39,7 @@ const BookingDetailsModal = () => {
     isOpenBookingDetails,
     closeBookingDetailsModal,
     openGuardianDetailsModal,
-    isOpenGuardianDetails,
+    // isOpenGuardianDetails,
   } = useBookingStore();
 
   if (!isOpenBookingDetails) return;
@@ -224,7 +224,7 @@ const BookingDetailsModal = () => {
           </div>
         </div>
       </div>
-      {isOpenGuardianDetails && <GuardianDetailsModal />}
+      {/* {isOpenGuardianDetails && <GuardianDetailsModal />} */}
     </div>
   );
 };

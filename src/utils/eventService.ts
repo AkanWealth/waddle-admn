@@ -4,13 +4,9 @@ import { CreateEventType } from "@/types/Events";
 
 class EventService {
   private baseURL: string;
-  private currentPage: number;
-  private readonly pageSize: number;
 
   constructor() {
     this.baseURL = baseUrl;
-    this.currentPage = 1;
-    this.pageSize = 7;
   }
 
   async createEventAsAdmin(createEventData: CreateEventType): Promise<{
@@ -40,18 +36,18 @@ class EventService {
     }
   }
 
-  async getPaginatedEvents(page: number, pageSize: number = 7): Promise<{
+  async getPaginatedEvents(): Promise<{
     success: boolean;
     data?: unknown;
     error?: string;
   }> {
-    const endpoint = `/api/v1/events/${page}/${pageSize}`;
-  
+    const endpoint = `/api/v1/events/admin`;
+
     try {
       const response = await authService.makeAuthenticatedRequest(endpoint, {
         method: "GET",
       });
-  
+
       return { success: true, data: response };
     } catch (error: unknown) {
       return {
@@ -62,11 +58,6 @@ class EventService {
             : "An unexpected error occurred while fetching paginated events",
       };
     }
-  }
-  
-
-  resetPagination() {
-    this.currentPage = 1;
   }
 }
 

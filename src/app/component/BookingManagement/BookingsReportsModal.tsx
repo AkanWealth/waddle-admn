@@ -3,6 +3,8 @@ import { X, Filter, Mail, Phone, House, Globe } from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
 import Image from "next/image";
 import SVGAssets from "@/assets/svg";
+import { useEffect, useState } from "react";
+import { bookingsService } from "@/utils/bookingService";
 
 const chartData = [
   { month: "Feb", revenue: 20000 },
@@ -14,56 +16,38 @@ const chartData = [
   { month: "Aug", revenue: 55000 },
 ];
 
-const bookingsData = [
-  {
-    id: 1,
-    name: "Kids 123",
-    date: "2024-07-02",
-    status: "Completed",
-    revenue: 1200,
-  },
-  {
-    id: 2,
-    name: "Learn xyz",
-    date: "2024-08-10",
-    status: "Cancelled",
-    revenue: 3800,
-  },
-  {
-    id: 3,
-    name: "Pronunciation",
-    date: "2024-09-12",
-    status: "Completed",
-    revenue: 4200,
-  },
-  {
-    id: 4,
-    name: "Lion Bear",
-    date: "2024-12-25",
-    status: "Completed",
-    revenue: 2800,
-  },
-  {
-    id: 5,
-    name: "White Mouse",
-    date: "2024-11-18",
-    status: "Cancelled",
-    revenue: 4000,
-  },
-];
+type VendorBookingDataType = {
+  id: number;
+  name: string;
+  date: string;
+  status: "Completed" | "Cancelled" | "Pending";
+  revenue: number;
+};
 
 const BookingsReportsModal: React.FC = () => {
-  const { closeReportModalModal, isReportModalOpen, openDownloadReportModal } = useBookingStore();
+  const { closeReportModalModal, isReportModalOpen, openDownloadReportModal } =
+    useBookingStore();
+  const [vendorsBookingData, setvendorsBookingData] = useState([]);
 
-  
+  useEffect(() => {
+    const fetchVendorRevenueData = async () => {
+      const result = await bookingsService.getAllVendorBooking();
+      if (result.success) {
+        setvendorsBookingData(result.data);
+      } else {
+        console.error("Failed to fetch vendor revenue data:", result.error);
+      }
+    };
+    fetchVendorRevenueData();
+  }, []);
 
-  const totalBookings = bookingsData.length;
-  const totalRevenue = bookingsData.reduce(
-    (sum, booking) => sum + booking.revenue,
+  const totalBookings = vendorsBookingData.length;
+  const totalRevenue = vendorsBookingData.reduce(
+    (sum, booking: VendorBookingDataType) => sum + booking.revenue,
     0
   );
-  const completedBookings = bookingsData.filter(
-    (booking) => booking.status === "Completed"
+  const completedBookings = vendorsBookingData.filter(
+    (booking: VendorBookingDataType) => booking.status === "Completed"
   ).length;
 
   const formatCurrency = (amount: number) => {
@@ -225,24 +209,29 @@ const BookingsReportsModal: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {bookingsData.map((booking) => (
-                      <tr key={booking.id} className="border-b border-gray-100">
-                        <td className="py-4 px-2 text-sm text-gray-900">
-                          {booking.name}
-                        </td>
-                        <td className="py-4 px-2 text-sm text-gray-500">
-                          {formatDate(booking.date)}
-                        </td>
-                        <td className="py-4 px-2">
-                          <span className="inline-flex px-2 py-1 text-xs text-[#303237] font-medium rounded-full">
-                            {booking.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 text-sm text-gray-900 text-right">
-                          {formatCurrency(booking.revenue)}
-                        </td>
-                      </tr>
-                    ))}
+                    {vendorsBookingData?.map(
+                      (booking: VendorBookingDataType) => (
+                        <tr
+                          key={booking.id}
+                          className="border-b border-gray-100"
+                        >
+                          <td className="py-4 px-2 text-sm text-gray-900">
+                            {booking?.name}
+                          </td>
+                          <td className="py-4 px-2 text-sm text-gray-500">
+                            {formatDate(booking.date)}
+                          </td>
+                          <td className="py-4 px-2">
+                            <span className="inline-flex px-2 py-1 text-xs text-[#303237] font-medium rounded-full">
+                              {booking.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-2 text-sm text-gray-900 text-right">
+                            {formatCurrency(booking.revenue)}
+                          </td>
+                        </tr>
+                      )
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -251,7 +240,10 @@ const BookingsReportsModal: React.FC = () => {
 
           <div className="border-t border-gray-200 px-4 py-4 bg-gray-50 flex-shrink-0">
             <div className="flex justify-end">
-              <button  onClick={openDownloadReportModal} className="flex items-center rounded-[12px] gap-2 px-4 py-2 bg-[#2853A6] text-white text-sm font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+              <button
+                onClick={openDownloadReportModal}
+                className="flex items-center rounded-[12px] gap-2 px-4 py-2 bg-[#2853A6] text-white text-sm font-medium cursor-pointer hover:bg-blue-700 transition-colors"
+              >
                 <Image
                   src={SVGAssets.ReportIcon}
                   width={19}

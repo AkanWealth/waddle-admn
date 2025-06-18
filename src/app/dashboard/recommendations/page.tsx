@@ -32,7 +32,9 @@ interface Recommendation {
   isVerified: boolean;
 }
 
-function determineStatus(event:Recommendation): "Pending" | "Rejected" | "Approved" {
+function determineStatus(
+  event: Recommendation
+): "Pending" | "Rejected" | "Approved" {
   if (event.isDeleted) return "Rejected";
   if (event.isVerified) return "Approved";
   return "Pending";
@@ -119,19 +121,23 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 // Table Row Component
 interface TableRowProps {
   recommendation: Recommendation;
-  onActionClick: (id: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onActionClick: (item: any) => void;
   showModal: boolean;
   onCloseModal: () => void;
+  activeModalId: string | null;
 }
 
 const TableRow: React.FC<TableRowProps> = ({
+  activeModalId,
   recommendation,
   onActionClick,
-  // showModal,
-  // onCloseModal,
+  onCloseModal,
 }) => {
+  const isActive = activeModalId === recommendation.id;
+
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50">
+    <tr className="border-b border-gray-100 hover:bg-gray-50 ">
       <td className="py-3 px-4 text-sm text-[#515151] font-semibold">
         {recommendation.name}
       </td>
@@ -139,9 +145,7 @@ const TableRow: React.FC<TableRowProps> = ({
         {recommendation.creator.name}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
-        {
-          formatCustomDate(recommendation.date, "DD-MM-YYYY")
-        }
+        {formatCustomDate(recommendation.date, "DD-MM-YYYY")}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
         {recommendation.address}
@@ -150,15 +154,17 @@ const TableRow: React.FC<TableRowProps> = ({
         {recommendation.category}
       </td>
       <td className="py-3 px-4">
-        <StatusBadge status={ determineStatus(recommendation)} />
+        <StatusBadge status={determineStatus(recommendation)} />
       </td>
       <td className="py-3 px-4 relative">
         <button
-          onClick={() => onActionClick(recommendation.id)}
+          onClick={() => onActionClick(recommendation)}
           className="text-gray-400 hover:text-gray-600"
         >
           <MoreVertical className="w-4 h-4" />
         </button>
+
+        {isActive && <RecommendationActionModal onClose={onCloseModal} />}
       </td>
     </tr>
   );
@@ -168,7 +174,8 @@ const TableRow: React.FC<TableRowProps> = ({
 interface RecommendationsTableProps {
   data: Recommendation[];
   activeModalId: string | null;
-  onActionClick: (id: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onActionClick: (item: any) => void;
   onCloseModal: () => void;
 }
 
@@ -179,8 +186,8 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
   onCloseModal,
 }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
+    <div className="w-full overflow-y-hidden relative h-full">
+      <table className="w-full table-auto">
         <thead>
           <tr className="border-b border-gray-200">
             <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
@@ -206,9 +213,11 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
             </th>
           </tr>
         </thead>
-        <tbody>
+
+        <tbody className="overflow-y-hidden">
           {data.map((item) => (
             <TableRow
+              activeModalId={activeModalId}
               key={item.id}
               recommendation={item}
               onActionClick={onActionClick}
@@ -223,7 +232,7 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
 };
 
 const ParentRecommendations: React.FC = () => {
-  const { showPlaceDetailsModal, showApproveDetailsModal } =
+  const { showPlaceDetailsModal, showApproveDetailsModal, setSelectedPlace } =
     useRecommendationsStore();
   const [activeTab, setActiveTab] = useState<string>("Places");
   const [searchTerm, setSearchTerm] = useState("");
@@ -233,20 +242,20 @@ const ParentRecommendations: React.FC = () => {
   const [placesList, setPlacesList] = useState<Recommendation[]>([]);
 
   useEffect(() => {
-   
-      async function FetchEvents():Promise<void> {
-        const response =
-          await recommendationService.getAllRecommendationsEvents(1, 1000);
-        console.log(response, "This is response from recommendations");
-        if (response.success) {
-          setPlacesList(response.data.events);
-        } else {
-          toast.error(response.error);
-        }
+    async function FetchEvents(): Promise<void> {
+      const response = await recommendationService.getAllRecommendationsEvents(
+        1,
+        1000
+      );
+      console.log(response, "This is response from recommendations");
+      if (response.success) {
+        setPlacesList(response.data.events);
+      } else {
+        toast.error(response.error);
       }
+    }
 
-      FetchEvents()
-    
+    FetchEvents();
   }, []);
 
   const filteredData = placesList.filter(
@@ -263,9 +272,11 @@ const ParentRecommendations: React.FC = () => {
     startIndex + itemsPerPage
   );
 
-  const handleActionClick = (id: string) => {
-    console.log("Action clicked for item:", id);
-    setActiveModalId(id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleActionClick = (item:any) => {
+    setSelectedPlace(item)
+    console.log("Action clicked for item:", item.id);
+    setActiveModalId(item.id);
   };
 
   const handleCloseModal = () => {
@@ -311,7 +322,6 @@ const ParentRecommendations: React.FC = () => {
               onActionClick={handleActionClick}
               onCloseModal={handleCloseModal}
             />
-            {activeModalId && <RecommendationActionModal />}
           </div>
         </div>
       </div>

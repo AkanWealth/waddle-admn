@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import BaseModal from "../../Element/BaseModal";
 import StatusBadge from "../../EventManagement/StatusBadge";
-import { InfoIcon,Clock } from "lucide-react";
+import { InfoIcon, Clock } from "lucide-react";
 import DeleteEventModal from "./DeleteEventModal";
 import EventCreationModal from "./createEventModal";
+import splitDoubleUrl, { splitInstructions } from "@/lib/splitDoubleUrl";
+import formatCustomDate from "@/lib/formatDate";
 /**
  * eventApproveDetailsModal - Component for displaying event details in a modal
- * 
+ *
  * @param {Object} props
  * @param {Object} props.event - event data object
  * @param {boolean} props.isOpen - Controls the visibility of the modal
@@ -16,284 +18,323 @@ import EventCreationModal from "./createEventModal";
  * @param {function} props.onApprove - Function to handle event approval
  * @param {function} props.onReject - Function to handle event rejection
  */
-const EventApproveDetailsModal = ({ event, isOpen, onClose, onApprove, onReject }) => {
+const EventApproveDetailsModal = ({
+  event,
+  isOpen,
+  onClose,
+  onApprove,
+  onReject,
+}) => {
+  // If no event is selected, don't render the modal
+  if (!event) return null;
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [eventToEdit, setEventToEdit] = useState(null);
 
-    // If no event is selected, don't render the modal
-    if (!event) return null;
+  // Determine if status is "Pending" to show action buttons
+  const isnotActive = event.status === "Non-compliant";
+  const isDeactivated = event.status === "Draft";
 
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [eventToEdit, setEventToEdit] = useState(null);
-
-
-
-    
-    // Determine if status is "Pending" to show action buttons
-    const isnotActive = event.status === "Non-compliant";
-    const isDeactivated = event.status === "Draft";
-
-
-    // Determine button actions based on event status
-    const getActions = () => {
-        if (isnotActive || isDeactivated) {
-            return {
-                reject: {
-                    label: "Edit Event",
-                    onClick: () => {
-                        setEventToEdit(event); 
-                        setEditModalOpen(true); 
-                        onClose();  
-                    },
-                    className: "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full"
-                },
-                approve: {
-                    label: "Delete Event",
-                   onClick: () => openActivateModal(event), 
-                    className: "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full"
-                },
-                
-            };
-        } else if (event.status === "Approved" || event.status === "Active") {
-            return {
-                suspend: {
-                    label: "Delete Event",
-                    onClick: () => openActivateModal(event), // <-- Open the suspend modal
-                    className: "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full"
-                },
-                cancel: {
-                    label: "Edit Event",
-                    onClick: () => {
-                        setEventToEdit(event); 
-                        setEditModalOpen(true);
-                        onClose(); 
-                    },
-                    className: "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full"
-                }
-            };
-        }
-        else {
-            return {
-                close: {
-                    label: "Close",
-                    onClick: onClose,
-                    className: "border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded"
-                }
-            };
-        }
-    };
-
- const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-
-     const eventData = {
-        title: "Dance Class by Aura Jean",
-        description: "Very nice event organised to teach and entertain family both parents and children. this is very nice this rich and enjoyable. Bring your kids\nVery nice event organised to teach and entertain family both parents and children. this is very nice this rich and enjoyable. Bring your kids",
-        safetyMeasures: [
-            "Snacks included",
-            "Parental supervision required"
-        ],
-        details: [
-            { label: "Date", value: "14th February 2024", icon: "calendar" },
-            { label: "Time", value: "8am - 2pm", icon: "clock" },
-            { label: "Location", value: "Wivehoe, 6 miles away", icon: "location" },
-            { label: "Age Range", value: "2-10 years old", icon: "person" },
-            { label: "Price", value: "£20/person", icon: "money" }
-        ],
-        organizer: {
-            name: "Aura Jean",
-            company: "Chef Food Limited",
-            email: "aurajean@cheffood.com",
-            phone: "+4498274774"
+  // Determine button actions based on event status
+  const getActions = () => {
+    if (isnotActive || isDeactivated) {
+      return {
+        reject: {
+          label: "Edit Event",
+          onClick: () => {
+            setEventToEdit(event);
+            setEditModalOpen(true);
+            onClose();
+          },
+          className:
+            "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full",
         },
-        images: [
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" }
-        ],
-        status: "Pending" // This would come from props
-    };
-const mergedEvent = { ...eventData, ...event };
-    const handleSuspendevent = (eventId, reason) => {
-        // Your suspension logic here
-        console.log(`Suspending event ${eventId}: ${reason}`);
-    };
+        approve: {
+          label: "Delete Event",
+          onClick: () => openActivateModal(event),
+          className:
+            "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full",
+        },
+      };
+    } else if (event.status === "Approved" || event.status === "Active") {
+      return {
+        suspend: {
+          label: "Delete Event",
+          onClick: () => openActivateModal(event), // <-- Open the suspend modal
+          className:
+            "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full",
+        },
+        cancel: {
+          label: "Edit Event",
+          onClick: () => {
+            setEventToEdit(event);
+            setEditModalOpen(true);
+            onClose();
+          },
+          className:
+            "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full",
+        },
+      };
+    } else {
+      return {
+        close: {
+          label: "Close",
+          onClick: onClose,
+          className:
+            "border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded",
+        },
+      };
+    }
+  };
 
-    // When you want to open the modal
-    const openSuspendModal = (event) => {
-        if (onClose) onClose(); // Close the approve modal
-        setSelectedevent(event);
-        setSuspendModalOpen(true);
-    };
-    const openActivateModal = (event) => {
-        if (onClose) onClose(); // Close the approve modal
-        // setSelectedevent(event);
-        setDeleteModalOpen(true); // Open activate modal
-    };
-    const openEnableModal = (event) => {
-        if (onClose) onClose(); // Close the approve modal  
-        setSelectedevent(event);
-        setEnableModalOpen(true); // Open enable modal
-    };
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-    const renderIcon = (iconType) => {
-        switch (iconType) {
-            case 'calendar':
-                return <span className="text-gray-600 mr-2">📅</span>;
-            case 'clock':
-                return <span className="text-gray-600 mr-2">🕒</span>;
-            case 'location':
-                return <span className="text-gray-600 mr-2">📍</span>;
-            case 'person':
-                return <span className="text-gray-600 mr-2">👤</span>;
-            case 'money':
-                return <span className="text-gray-600 mr-2">💰</span>;
-            default:
-                return null;
+  console.log("The event i am looking at", event);
+
+  const eventData = {
+   
+    details: [
+      { label: "Date", value: "14th February 2024", icon: "calendar" },
+      { label: "Time", value: "8am - 2pm", icon: "clock" },
+      { label: "Location", value: "Wivehoe, 6 miles away", icon: "location" },
+      { label: "Age Range", value: "2-10 years old", icon: "person" },
+      { label: "Price", value: "£20/person", icon: "money" },
+    ],
+  };
+  //     organizer: {
+  //       name: "Aura Jean",
+  //       company: "Chef Food Limited",
+  //       email: "aurajean@cheffood.com",
+  //       phone: "+4498274774",
+  //     },
+  //     images: [
+  //       { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
+  //       { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
+  //       { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
+  //       { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
+  //     ],
+  //     status: "Pending", // This would come from props
+  //   };
+
+  const mergedEvent = { ...eventData, ...event };
+  console.log("Event Data:", mergedEvent.images);
+  const processedImages = splitDoubleUrl(mergedEvent.images);
+  const processedInstructions = splitInstructions(mergedEvent.instruction);
+  const handleSuspendevent = (eventId, reason) => {
+    // Your suspension logic here
+    console.log(`Suspending event ${eventId}: ${reason}`);
+  };
+
+  // When you want to open the modal
+  const openSuspendModal = (event) => {
+    if (onClose) onClose(); // Close the approve modal
+    setSelectedevent(event);
+    setSuspendModalOpen(true);
+  };
+  const openActivateModal = (event) => {
+    if (onClose) onClose(); // Close the approve modal
+    // setSelectedevent(event);
+    setDeleteModalOpen(true); // Open activate modal
+  };
+  const openEnableModal = (event) => {
+    if (onClose) onClose(); // Close the approve modal
+    setSelectedevent(event);
+    setEnableModalOpen(true); // Open enable modal
+  };
+
+  const renderIcon = (iconType) => {
+    switch (iconType) {
+      case "calendar":
+        return <span className="text-gray-600 mr-2">📅</span>;
+      case "clock":
+        return <span className="text-gray-600 mr-2">🕒</span>;
+      case "location":
+        return <span className="text-gray-600 mr-2">📍</span>;
+      case "person":
+        return <span className="text-gray-600 mr-2">👤</span>;
+      case "money":
+        return <span className="text-gray-600 mr-2">💰</span>;
+      default:
+        return null;
+    }
+  };
+
+  // Title for the modal based on status
+  const modalTitle = "Event Details";
+
+  return (
+    <>
+      <BaseModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={modalTitle}
+        actions={getActions()}
+        buttonPlacement={
+          event.status === "Approved" ||
+          event.status === "Active" ||
+          event.status === "Inactive" ||
+          event.status === "Deactivated"
+            ? "bottom"
+            : "bottom"
         }
-    };
-
-    // Title for the modal based on status
-    const modalTitle = "Event Details";
-
-    return (
-        <><BaseModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title={modalTitle}
-            actions={getActions()}
-            buttonPlacement={event.status === "Approved" || event.status === "Active" || event.status === "Inactive" || event.status === "Deactivated" ? "bottom" : "bottom"}
-            size={{ width: "99%", maxWidth: "800px" }}
-            className="overflow-y-auto"
-            showDividers={false}
-        >
-            <div>
-                {/* Last Login Information */}
-                {/* {(event.status === "Non-compliant" || event.status === "non-compliant") && (
+        size={{ width: "99%", maxWidth: "800px" }}
+        className="overflow-y-auto"
+        showDividers={false}
+      >
+        <div>
+          {/* Last Login Information */}
+          {/* {(event.status === "Non-compliant" || event.status === "non-compliant") && (
                     <div className="flex items-center justify-between mb-2">
                     <h3 className="text-xl font-medium text-gray-800">{event.name}</h3>
                     <StatusBadge status={event.status} />
                 </div>
                 )} */}
-                {/* {(event.status === "Inactive") && ( */}
-                    <div className="mb-4 text-sm text-gray-700">
-                        <div className="flex items-center mb-2">
-                            <InfoIcon className="h-5 w-5 text-red-500 mr-2" />
-                            <span className="text-gray-700">Only events with no registered attendees can be deleted.</span>
-                        </div>
-                        {/* <p></p> */}
-                    </div>
-                {/* )} */}
+          {/* {(event.status === "Inactive") && ( */}
+          <div className="mb-4 text-sm text-gray-700">
+            <div className="flex items-center mb-2">
+              <InfoIcon className="h-5 w-5 text-red-500 mr-2" />
+              <span className="text-gray-700">
+                Only events with no registered attendees can be deleted.
+              </span>
+            </div>
+            {/* <p></p> */}
+          </div>
+          {/* )} */}
 
-                {/* Status badge and event name section */}
-                <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-medium text-gray-800">{event.name}</h3>
-                    <StatusBadge status={event.status} />
-                </div>
-                
-            <div className="space-y-6">
-                {/* Status Badge - Top right corner */}
-                <div className="flex justify-end items-center mb-4 mt-2">
-                    {/* <button
+          {/* Status badge and event name section */}
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xl font-medium text-gray-800">{event.name}</h3>
+            <StatusBadge status={event.status} />
+          </div>
+
+          <div className="space-y-6">
+            {/* Status Badge - Top right corner */}
+            <div className="flex justify-end items-center mb-4 mt-2">
+              {/* <button
         onClick={onEdit}
         className="text-blue-600 border border-blue-600 px-6 py-2 rounded hover:bg-blue-50"
     >
         Edit Event
     </button> */}
-                    {/* <div className="flex items-center">
+              {/* <div className="flex items-center">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200">
                             <span className="mr-1"><Clock className='w-4 h-4 text-gray-500 mr-1' /></span> Pending
                         </span>
                     </div> */}
+            </div>
+
+            {/* Event Title and Description */}
+            <section>
+              <h2 className="text-xl font-semibold">{mergedEvent.title}</h2>
+              <p className="text-gray-700 whitespace-pre-line mt-2">
+                {mergedEvent.description}
+              </p>
+            </section>
+            <hr className="border-gray-300 mb-6" />
+            {/* Safety Measures */}
+            <section>
+              <h3 className="text-lg font-medium mb-2">Safety Measures</h3>
+              <div className="flex flex-wrap gap-2">
+                {processedInstructions.map((measure, index) => (
+                  <div
+                    key={index}
+                    className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full"
+                  >
+                    {measure}
+                  </div>
+                ))}
+              </div>
+            </section>
+            <hr className="border-gray-300 mb-6" />
+
+            {/* Event Details */}
+            <section className="space-y-2">
+              <div className="flex items-center">
+                {renderIcon("calendar")}
+                <span className="">
+                    {formatCustomDate(mergedEvent.date, "Do MMMM YYYY")}
+                </span>
+                
+              </div>
+              <div className="flex items-center">
+                {renderIcon("clock")}
+                <span>{mergedEvent.time}</span>
+              </div>
+              <div className="flex items-center">
+                {renderIcon("location")}
+                <span>{mergedEvent.details[2].value}</span>
+              </div>
+              <div className="flex items-center">
+                {renderIcon("person")}
+                <span>{mergedEvent.age_range}</span>
+              </div>
+              <div className="flex items-center">
+                {renderIcon("money")}
+                <span>{`£${mergedEvent.price}/person`}</span>
+              </div>
+            </section>
+            <hr className="border-gray-300 mb-6" />
+            {/* Organizer */}
+            <section>
+              <h3 className="text-lg font-medium mb-2">Organiser</h3>
+              <div className="flex items-start">
+                <div className="mr-3 text-3xl">👨‍🍳</div>
+                <div className="space-y-1">
+                  <p className="font-medium">
+                    {mergedEvent.organizer?.name ||
+                      `${mergedEvent.admin?.first_name ?? ""} ${
+                        mergedEvent.admin?.last_name ?? ""
+                      }`.trim()}
+                  </p>
+                  <p className="text-gray-700">
+                    {mergedEvent.organizer?.company}
+                  </p>
+                  <div className="flex flex-col sm:flex-row sm:gap-4">
+                    <div className="flex items-center">
+                      <span className="mr-1">✉️</span>
+                      <a
+                        href={`mailto:${
+                          mergedEvent.organizer?.email ||
+                          mergedEvent.admin?.email
+                        }`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        <p>
+                          {mergedEvent.organizer?.email ||
+                            `${mergedEvent.admin?.email ?? ""} `.trim()}
+                        </p>
+                      </a>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="mr-1">📞</span>
+                      <span>
+                        {mergedEvent.organizer?.phone ||
+                          `${mergedEvent.admin?.phone ?? ""} `.trim()}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </section>
 
-                {/* Event Title and Description */}
-                <section>
-                    <h2 className="text-xl font-semibold">{mergedEvent.title}</h2>
-                    <p className="text-gray-700 whitespace-pre-line mt-2">{mergedEvent.description}</p>
-                </section>
-                <hr className="border-gray-300 mb-6" />
-                {/* Safety Measures */}
-                <section>
-                    <h3 className="text-lg font-medium mb-2">Safety Measures</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {mergedEvent.safetyMeasures.map((measure, index) => (
-                            <div key={index} className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full">
-                                {measure}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-                <hr className="border-gray-300 mb-6" />
-
-                {/* Event Details */}
-                <section className="space-y-2">
-                    <div className="flex items-center">
-                        {renderIcon('calendar')}
-                        <span>{mergedEvent.details[0].value}</span>
-                    </div>
-                    <div className="flex items-center">
-                        {renderIcon('clock')}
-                        <span>{mergedEvent.details[1].value}</span>
-                    </div>
-                    <div className="flex items-center">
-                        {renderIcon('location')}
-                        <span>{mergedEvent.details[2].value}</span>
-                    </div>
-                    <div className="flex items-center">
-                        {renderIcon('person')}
-                        <span>{mergedEvent.details[3].value}</span>
-                    </div>
-                    <div className="flex items-center">
-                        {renderIcon('money')}
-                        <span>{mergedEvent.details[4].value}</span>
-                    </div>
-                </section>
-                <hr className="border-gray-300 mb-6" />
-                {/* Organizer */}
-                <section>
-                    <h3 className="text-lg font-medium mb-2">Organiser</h3>
-                    <div className="flex items-start">
-                        <div className="mr-3 text-3xl">👨‍🍳</div>
-                        <div className="space-y-1">
-                            <p className="font-medium">{mergedEvent.organizer.name}</p>
-                            <p className="text-gray-700">{mergedEvent.organizer.company}</p>
-                            <div className="flex flex-col sm:flex-row sm:gap-4">
-                                <div className="flex items-center">
-                                    <span className="mr-1">✉️</span>
-                                    <a
-                                        href={`mailto:${mergedEvent.organizer.email}`}
-                                        className="text-blue-600 hover:underline"
-                                    >
-                                        {mergedEvent.organizer.email}
-                                    </a>
-                                </div>
-                                <div className="flex items-center">
-                                    <span className="mr-1">📞</span>
-                                    <span>{mergedEvent.organizer.phone}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Images */}
-                <section>
-                    <h3 className="text-lg font-medium mb-2">Images</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {mergedEvent.images.map((image, index) => (
-                            <div key={index} className="bg-gray-50 p-2 rounded">
-                                <img
-                                    src={image.url}
-                                    alt={image.name}
-                                    className="bg-gray-200 h-16 w-full object-cover mb-2 rounded" />
-                                <p className="text-sm truncate">{image.name}</p>
-                                <p className="text-xs text-gray-500">{image.size}</p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-                {/* <div className="mt-10 flex justify-center space-x-4">
+            {/* Images */}
+            <section>
+              <h3 className="text-lg font-medium mb-2">Images</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {processedImages.map((image, index) => (
+                  <div key={index} className="bg-gray-50 p-2 rounded">
+                    <img
+                      src={image.url}
+                      alt={image.name}
+                      className="bg-gray-200 h-16 w-full object-cover mb-2 rounded"
+                    />
+                    <p className="text-sm truncate">{image.name}</p>
+                    <p className="text-xs text-gray-500">{image.size}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+            {/* <div className="mt-10 flex justify-center space-x-4">
         <button
             onClick={onReject}
             className="px-6 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50"
@@ -307,20 +348,20 @@ const mergedEvent = { ...eventData, ...event };
             Approve
         </button>
     </div> */}
-            </div>
-                {/* Contact name */}
-                {/* <p className="text-gray-600 mb-4">{event.contactName || "Mary White"}</p> */}
+          </div>
+          {/* Contact name */}
+          {/* <p className="text-gray-600 mb-4">{event.contactName || "Mary White"}</p> */}
 
-                {/* Description */}
-                {/* <p className="text-gray-700 mb-6">
+          {/* Description */}
+          {/* <p className="text-gray-700 mb-6">
                     {event.description || "Designed to teach and train family both parents and children to communicate effectively. Bring your kids let us train them to be professional from foundation."}
                 </p> */}
 
-                {/* Contact Details Section */}
-                {/* <h4 className="text-lg font-medium text-gray-800 mb-4">Contact Details</h4>
+          {/* Contact Details Section */}
+          {/* <h4 className="text-lg font-medium text-gray-800 mb-4">Contact Details</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {/* <div className="flex flex-col-2 gap-4"> */}
-                    {/* Phone 
+          {/* Phone 
                     <div className="flex items-center bg-gray-100 rounded-full px-4 py-2 w-fit">
                         <div className="mr-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -371,8 +412,8 @@ const mergedEvent = { ...eventData, ...event };
                     {/* </div> 
                 </div> */}
 
-                {/* Event Details Section for Approved/Active events */}
-                {/* {(event.status === "Approved" || event.status === "Active" || event.status === "Inactive") && (
+          {/* Event Details Section for Approved/Active events */}
+          {/* {(event.status === "Approved" || event.status === "Active" || event.status === "Inactive") && (
                     <>
                         <h4 className="text-lg font-medium text-gray-800 mb-4">Event Details</h4>
                         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -458,7 +499,7 @@ const mergedEvent = { ...eventData, ...event };
                         </div>
                     </>
                 )} */}
-                {/* {(event.status === "Deactivated") && (
+          {/* {(event.status === "Deactivated") && (
                     <>
                         <h4 className="text-lg font-medium text-gray-800 mb-4">Reason for Reason for Disabling Account</h4>
                         <div className="flex flex-col items-center justify-center mb-6">
@@ -482,9 +523,9 @@ const mergedEvent = { ...eventData, ...event };
                         </div>
                     </>
                 )} */}
-            </div>
-        </BaseModal>
-            {/* <SuspendeventModal
+        </div>
+      </BaseModal>
+      {/* <SuspendeventModal
                 event={selectedevent}
                 isOpen={suspendModalOpen}
                 onClose={() => setSuspendModalOpen(false)}
@@ -496,23 +537,23 @@ const mergedEvent = { ...eventData, ...event };
                 onConfirm={handleSuspendevent}
             />
            */}
-           <EventCreationModal
-                isOpen={editModalOpen}
-                onClose={() => setEditModalOpen(false)}
-                onSave={(updatedEvent) => {
-                    // handle save logic here if needed
-                    setEditModalOpen(false);
-                }}
-                eventData={eventToEdit} // Pass the event to edit
-            />
-            <DeleteEventModal
-                event={event}
-                isOpen={deleteModalOpen}  // Only open when activateModalOpen is true
-                onClose={() => setDeleteModalOpen(false)}
-                onConfirm={handleSuspendevent}
-            /> 
-                </>
-    );
+      <EventCreationModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onSave={(updatedEvent) => {
+          // handle save logic here if needed
+          setEditModalOpen(false);
+        }}
+        eventData={eventToEdit} // Pass the event to edit
+      />
+      <DeleteEventModal
+        event={event}
+        isOpen={deleteModalOpen} // Only open when activateModalOpen is true
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleSuspendevent}
+      />
+    </>
+  );
 };
 
 export default EventApproveDetailsModal;

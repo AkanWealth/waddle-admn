@@ -1,12 +1,23 @@
-
-
-
-import React from 'react';
-import { VendorData } from './SampleData';
-import { usePaginatedVendors } from '@/stores/useBookingStore';
+import React, { useEffect, useState } from "react";
+import { usePaginatedVendors } from "@/stores/useBookingStore";
+import { bookingsService } from "@/utils/bookingService";
 
 const RevenueVendorTable: React.FC = () => {
-  const { paginatedVendors } = usePaginatedVendors(VendorData);
+  const [vendorList, setVendorList] = useState([]);
+
+  useEffect(() => {
+    const fetchVendorRevenueData = async () => {
+      const response = await bookingsService.getAllVendorRevenue();
+      if (response.success) {
+        setVendorList(response.data);
+      } else {
+        console.error("Failed to fetch vendor revenue data:", response.error);
+      }
+    };
+    fetchVendorRevenueData();
+  }, []);
+
+  const { paginatedVendors } = usePaginatedVendors(vendorList);
 
   return (
     <div className="w-full max-w-6xl mx-auto m-4">
@@ -38,7 +49,7 @@ const RevenueVendorTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedVendors.map(vendor => (
+                {paginatedVendors.map((vendor) => (
                   <tr key={vendor.name} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {vendor.name}
@@ -69,7 +80,7 @@ const RevenueVendorTable: React.FC = () => {
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">Vendors</h2>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -86,7 +97,7 @@ const RevenueVendorTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedVendors.map(vendor => (
+                {paginatedVendors.map((vendor) => (
                   <tr key={vendor.name} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {vendor.name}

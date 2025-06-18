@@ -468,6 +468,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
             case "Draft":
                 return (
                     <EventDetailsModal
+                    event={selectedevent}
                         {...modalProps}
                         onApprove={handleApprove}
                         onReject={handleReject}
