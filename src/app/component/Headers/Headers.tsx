@@ -1,34 +1,120 @@
-import SVGAssets from "@/assets/svg"
-import { ArrowRight } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+"use client";
 
-const Header = () => {
-  return (
-    <header className="flex items-center justify-between mx-7 py-3.5">
-        <Image src={SVGAssets.HomeLogo} alt="Home Logo"  className="h-16 w-16 "/>
-        <nav className="flex items-center justify-between w-1/2  gap-[8px]">
-            <nav className="flex items-center gap-4 text-[16px]">
-                <Link href="/" className="font-normal text-[#303237]">
-                    Home
-                </Link>
-                <Link href="/" className="font-normal text-[#303237]">
-                    About us
-                </Link>
-                <Link href="/" className="font-normal text-[#303237]">
-                    FAQs
-                </Link>
-                <Link href="/" className="font-normal text-[#303237]">
-                    Contact us
-                </Link>
-            </nav>
-            <nav className="flex items-center gap-[24px] font-semibold">
-                <button className="text-[#2853A6] fonnt border border-[#2853A6] px-[12px] py-[10px] rounded-[12px]" type="button">Login</button>
-                <button className="bg-[#2853A6] flex items-center gap-3  px-[12px] py-[10px] rounded-[12px] text-white" type="button"> <span className="">Get Started</span><ArrowRight /> </button>
-            </nav>
-        </nav>
-    </header>
-  )
+import { useState } from "react";
+import SVGAssets from "@/assets/svg";
+import { ArrowRight, Menu, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+interface HeaderProps {
+  usedFor: "started" | "download";
 }
 
-export default Header        
+const Header = ({ usedFor }: HeaderProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  return (
+    <header className="relative bg-white">
+      <div className="flex items-center justify-between mx-4 md:mx-7 py-4">
+        {/* Logo */}
+        <Image src={SVGAssets.HomeLogo} alt="Home Logo" className="h-12 w-12" />
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center w-auto gap-[100px]">
+          {/* Links */}
+          <div className="flex items-center gap-6 text-[16px] text-[#303237]">
+            <Link href="/">Home</Link>
+            <Link href="/">About us</Link>
+            <Link href="/">FAQs</Link>
+            <Link href="/">Contact us</Link>
+          </div>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-4 font-semibold">
+            <button className="text-[#2853A6] border border-[#2853A6] px-4 py-2 rounded-[12px]">
+              Login
+            </button>
+            {usedFor == "started" && (
+              <button className="bg-[#2853A6] flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
+                <span>Get Started</span> <ArrowRight />
+              </button>
+            )}
+
+            {usedFor == "download" && (
+              <button className="bg-[#2853A6] flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
+                <span>Download Waddle</span> <ArrowRight />
+              </button>
+            )}
+          </div>
+        </nav>
+
+        {/* Mobile Hamburger Icon */}
+        <button
+          className="md:hidden block"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? (
+            <X className="text-black" size={28} />
+          ) : (
+            <Menu className="text-black" size={28} />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Slide-out Menu */}
+      <div
+        className={`absolute top-full left-0 w-full bg-white transition-all duration-300 z-50 md:hidden ${
+          isMenuOpen ? "max-h-screen py-6" : "max-h-0 overflow-hidden"
+        }`}
+      >
+        <div className="flex flex-col items-start gap-4 px-6">
+          <Link
+            href="/"
+            className="text-[#303237] text-base"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            href="/"
+            className="text-[#303237] text-base"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            About us
+          </Link>
+          <Link
+            href="/"
+            className="text-[#303237] text-base"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            FAQs
+          </Link>
+          <Link
+            href="/"
+            className="text-[#303237] text-base"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Contact us
+          </Link>
+          <div className="flex flex-col gap-3 pt-4 w-full">
+            <button className="text-[#2853A6] border border-[#2853A6] px-4 py-2 rounded-[12px] w-full">
+              Login
+            </button>
+            {usedFor === "started" && (
+              <button className="bg-[#2853A6] flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
+                <span>Get Started</span> <ArrowRight />
+              </button>
+            )}
+            {usedFor === "download" && (
+              <button className="bg-[#2853A6] flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
+                <span>Download Waddle</span> <ArrowRight />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
