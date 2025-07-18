@@ -114,10 +114,10 @@ const BaseModal = ({
 
                 {/* Modal title */}
                 {title && (
-                    <h2 className="text-xl font-medium mb-4 mt-2">{title}</h2>
+                    <h2 className="text-xl font-medium mb-4 mt-2 text-black">{title}</h2>
                 )}
 {description && (
-                    <p className="my-4 text-gray-600 mb-6">{description}</p>
+                    <p className="my-4  mb-6 text-black">{description}</p>
                 )}
           {showDividers && <hr className="border-gray-300 mb-6" />}
 
@@ -126,7 +126,7 @@ const BaseModal = ({
 
 
                 {/* Modal content */}
-                <div className="clear-both">
+                <div className="clear-both text-black">
                     {children}
                 </div>
 

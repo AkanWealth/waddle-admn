@@ -233,7 +233,7 @@ function Layout({ children }) {
               <div className="w-10 h-10 bg-[#F8F2EC] rounded-full flex text-sm items-center justify-center text-black font-medium">
                 {userProfile.initials}
               </div>
-              <div className="hidden md:block ml-2">
+              <div className="hidden md:block ml-2 text-black">
                 <div className="flex items-center">
                   <span className="font-inter text-sm font-semibold">
                     {profileLoading ? "Loading..." : userProfile.name}

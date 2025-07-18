@@ -26,7 +26,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
         return {
             id: organiser.id,
             name: organiser.business_name || organiser.name,
-            mobile: organiser.phone_number,
+            mobile: organiser.mobile,
             email: organiser.email,
             date: new Date(organiser.createdAt).toISOString().split('T')[0], // Format: YYYY-MM-DD
             status: organiser.isApproved ? "Approved" : "Pending",
@@ -348,7 +348,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                             {paginatedVendors.map((vendor, index) => (
                                 <tr key={vendor.id} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
                                     <td className="py-4 px-4">{vendor.name}</td>
-                                    <td className="py-4 px-4">{vendor.mobile}</td>
+                                    <td className="py-4 px-4">{vendor.mobile ? vendor.mobile : "NA"}</td>
                                     <td className="py-4 px-4">{vendor.email}</td>
                                     <td className="py-4 px-4">{vendor.date}</td>
                                     <td className="py-4 px-4"><StatusBadge status={vendor.status} /></td>

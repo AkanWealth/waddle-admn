@@ -121,15 +121,15 @@ export default function UserActivity() {
       {/* User Growth Chart */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">User Growth</h2>
+          <h2 className="text-lg font-semibold mb-4 text-black">User Growth</h2>
           <div className="flex space-x-6 mb-4">
             <div className="flex items-center">
               <div className="w-3 h-3 rounded-full bg-blue-600 mr-2"></div>
-              <span className="text-sm">Parents</span>
+              <span className="text-sm text-black">Parents</span>
             </div>
             <div className="flex items-center">
               <div className="w-3 h-3 rounded-full bg-orange-500 mr-2"></div>
-              <span className="text-sm">Event Organisers</span>
+              <span className="text-sm text-black">Event Organisers</span>
             </div>
           </div>
         </div>
@@ -179,12 +179,7 @@ export default function UserActivity() {
       </div>
 
       {/* Button to toggle empty state (for demo purposes only) */}
-      <button
-        onClick={toggleDataState}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md"
-      >
-        Toggle Empty State (Demo)
-      </button>
+    
     </div>
   );
 }

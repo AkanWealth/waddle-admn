@@ -129,7 +129,7 @@ export default function Events() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Top Performing Events Table */}
         <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold mb-4">Top Performing Events</h2>
+          <h2 className="text-lg text-black font-semibold mb-4">Top Performing Events</h2>
           
           {hasData && topEvents.length > 0 ? (
             <div className="overflow-x-auto">
@@ -163,7 +163,7 @@ export default function Events() {
                   className="w-full h-full text-white" 
                 />
               </div>
-              <h3 className="text-lg font-medium mb-2">No Top-Performing Events Yet</h3>
+              <h3 className="text-lg font-medium mb-2 text-black">No Top-Performing Events Yet</h3>
             </div>
           )}
         </div>
@@ -171,7 +171,7 @@ export default function Events() {
         {/* Event Booking Rate Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Event Booking Rate</h2>
+            <h2 className="text-lg font-semibold text-black">Event Booking Rate</h2>
             <div className="relative">
               <button 
                 onClick={() => setShowDropdown(!showDropdown)}
@@ -236,12 +236,12 @@ export default function Events() {
       </div>
       
       {/* Button to toggle empty state (for demo purposes only) */}
-      <button 
+      {/* <button 
         onClick={toggleDataState} 
         className="mt-8 px-4 py-2 bg-blue-600 text-white rounded-md"
       >
         Toggle Empty State (Demo)
-      </button>
+      </button> */}
     </div>
   );
 }

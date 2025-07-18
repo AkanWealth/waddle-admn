@@ -129,7 +129,7 @@ const EventDetailsModal = ({
             size={{ width: "99%", maxWidth: "800px" }}
             showDividers={true}
         >
-            <div className="space-y-6">
+            <div className="space-y-6 text-black">
                 {/* Status Badge - Top right corner */}
                 <div className="flex justify-end items-center mb-4 mt-2">
                     {/* <button
@@ -153,7 +153,7 @@ const EventDetailsModal = ({
                 <hr className="border-gray-300 mb-6" />
                 {/* Safety Measures */}
                 <section>
-                    <h3 className="text-lg font-medium mb-2">Safety Measures</h3>
+                    <h3 className="text-lg font-medium mb-2 text-black">Safety Measures</h3>
                     <div className="flex flex-wrap gap-2">
                         {mergedEvent.safetyMeasures.map((measure, index) => (
                             <div key={index} className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full">
@@ -178,11 +178,11 @@ const EventDetailsModal = ({
                         {renderIcon('location')}
                         <span>{mergedEvent.details[2].value}</span>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center t">
                         {renderIcon('person')}
                         <span>{mergedEvent.details[3].value}</span>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center ">
                         {renderIcon('money')}
                         <span>{mergedEvent.details[4].value}</span>
                     </div>
@@ -190,7 +190,7 @@ const EventDetailsModal = ({
                 <hr className="border-gray-300 mb-6" />
                 {/* Organizer */}
                 <section>
-                                        <h3 className="text-lg font-medium mb-2">Organiser</h3>
+                                        <h3 className="text-lg font-medium mb-2 text-black">Organiser</h3>
                                         <div className="flex items-start">
                                             <div className="mr-3 text-3xl">
                                                 <img src="/Chief.png" alt="Organizer" className="rounded-full w-12 h-12" />

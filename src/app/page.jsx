@@ -1,15 +1,15 @@
 // 'use client';
 
 import Image from "next/image";
-import Header from "./component/Headers/Headers";
-import ImageFiles from "@/assets/images";
-import SVGAssets from "@/assets/svg";
+import Header from "../../src/app/component/component/Headers/Headers";
 import { CircleCheck, MapPinCheckInside, Star } from "lucide-react";
 import { ParentsLoveWaddleDetails } from "@/lib/data";
 import { FaStar } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
-import { FAQSection } from "./component/Homepage/Faq";
-import Footer from "./component/Homepage/Footer";
+import { FAQSection } from "../../src/app/component/component/Homepage/Faq";
+import Footer from "../../src/app/component/component/Homepage/Footer";
+import SVGAssets from "@/assets/assets/svg";
+import ImageFiles from "@/assets/assets/images";
 
 const exampleFAQs = [
   {

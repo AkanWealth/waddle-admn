@@ -59,15 +59,15 @@ function Login() {
   return (
     <div className="w-full">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Welcome Back! 👋</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-white">Welcome Back! 👋</h1>
+        <p className=" mt-2 text-white">
           Log in to manage your events, track bookings, and grow your business.
         </p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-6">
         <div className="space-y-1">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm text-white font-medium text-gray-700">
             Email Address <span className="text-red-500">*</span>
           </label>
           <input
@@ -82,7 +82,7 @@ function Login() {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-white text-sm font-medium">
             Password <span className="text-red-500">*</span>
           </label>
           <div className="relative">
