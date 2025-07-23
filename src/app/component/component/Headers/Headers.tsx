@@ -10,6 +10,7 @@ interface HeaderProps {
   usedFor: "started" | "download";
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Header = ({ usedFor }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

@@ -1,11 +1,13 @@
-"use client";
-import React from "react";
-import UserManagement from "../../component/UserManagement/users";
+import React, { Suspense } from "react";
+import UserManagementClient from "./UserManagementClient";
 
 
 export default function Page() {
   return (
-      <UserManagement />
+     <Suspense fallback={<div></div>}>
+       <UserManagementClient />
+     </Suspense>
 
   );
 }
+
