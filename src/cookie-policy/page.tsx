@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import Header from "../../../src1/app/component/Headers/Headers";
-import Footer from "../../../src1/app/component/Homepage/Footer";
+import Header from "@/app/component/component/Headers/Headers";
+import Footer from "@/app/component/component/Homepage/Footer";
+
 
 const CookiePolicyPage = () => {
   return (
