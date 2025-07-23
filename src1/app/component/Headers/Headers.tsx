@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import SVGAssets from "@/assets/svg";
 import { ArrowRight, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import SVGAssets from "@/assets/assets/svg";
 
 interface HeaderProps {
   usedFor: "started" | "download";
@@ -31,20 +31,9 @@ const Header = ({ usedFor }: HeaderProps) => {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-4 font-semibold">
-            <button className="text-[#2853A6] border border-[#2853A6] px-4 py-2 rounded-[12px]">
-              Login
+            <button className="bg-[#2853A6] flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
+              <span>Download Waddle</span> <ArrowRight />
             </button>
-            {usedFor == "started" && (
-              <button className="bg-[#2853A6] flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
-                <span>Get Started</span> <ArrowRight />
-              </button>
-            )}
-
-            {usedFor == "download" && (
-              <button className="bg-[#2853A6] flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
-                <span>Download Waddle</span> <ArrowRight />
-              </button>
-            )}
           </div>
         </nav>
 
@@ -97,19 +86,9 @@ const Header = ({ usedFor }: HeaderProps) => {
             Contact us
           </Link>
           <div className="flex flex-col gap-3 pt-4 w-full">
-            <button className="text-[#2853A6] border border-[#2853A6] px-4 py-2 rounded-[12px] w-full">
-              Login
+            <button className="bg-[#2853A6] flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
+              <span>Download Waddle</span> <ArrowRight />
             </button>
-            {usedFor === "started" && (
-              <button className="bg-[#2853A6] flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
-                <span>Get Started</span> <ArrowRight />
-              </button>
-            )}
-            {usedFor === "download" && (
-              <button className="bg-[#2853A6] flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
-                <span>Download Waddle</span> <ArrowRight />
-              </button>
-            )}
           </div>
         </div>
       </div>

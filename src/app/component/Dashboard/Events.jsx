@@ -18,7 +18,7 @@ const colorMap = {
   total_attendees: "bg-purple-500",
 };
 
-export default function Events() {
+export default function Events({ dateRange }) {
   const { 
     eventStats, 
     topEvents, 
@@ -35,8 +35,8 @@ export default function Events() {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchEventAnalytics();
-  }, [fetchEventAnalytics]);
+    fetchEventAnalytics(dateRange.startDate, dateRange.endDate);
+  }, [fetchEventAnalytics, dateRange]);
 
   // Handle time filter change
   const handleTimeFilterChange = (filter) => {
@@ -92,7 +92,7 @@ export default function Events() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <div className="text-red-800">Error loading event analytics: {error}</div>
           <button 
-            onClick={() => fetchEventAnalytics()}
+            onClick={() => fetchEventAnalytics(dateRange.startDate, dateRange.endDate)}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md text-sm"
           >
             Retry
@@ -115,7 +115,7 @@ export default function Events() {
               <div className="flex flex-col">
                 <p className="text-gray-600 font-medium text-sm">{stat.title}</p>
                 <div className="flex flex-col items-baseline">
-                  <h2 className="text-2xl font-bold">{stat.count}</h2>
+                  <h2 className="text-2xl font-bold text-[#1D1D1E]">{stat.count}</h2>
                   <span className={`text-xs ml-2 ${stat.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {stat.change} vs last month
                   </span>
@@ -129,7 +129,7 @@ export default function Events() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Top Performing Events Table */}
         <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold mb-4">Top Performing Events</h2>
+          <h2 className="text-lg text-black font-semibold mb-4">Top Performing Events</h2>
           
           {hasData && topEvents.length > 0 ? (
             <div className="overflow-x-auto">
@@ -163,7 +163,7 @@ export default function Events() {
                   className="w-full h-full text-white" 
                 />
               </div>
-              <h3 className="text-lg font-medium mb-2">No Top-Performing Events Yet</h3>
+              <h3 className="text-lg font-medium mb-2 text-black">No Top-Performing Events Yet</h3>
             </div>
           )}
         </div>
@@ -171,16 +171,16 @@ export default function Events() {
         {/* Event Booking Rate Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Event Booking Rate</h2>
+            <h2 className="text-lg font-semibold text-black">Event Booking Rate</h2>
             <div className="relative">
               <button 
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center text-sm border rounded-lg px-3 py-1"
+                className="flex items-center text-[#1D1D1E] text-sm border rounded-lg px-3 py-1"
               >
                 {timeFilter} <ChevronDown className="ml-2 h-4 w-4" />
               </button>
               {showDropdown && (
-                <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 mt-1 text-[#1D1D1E] bg-white border rounded-lg shadow-lg z-10">
                   <div className="py-1">
                     <button 
                       onClick={() => handleTimeFilterChange('7 Last Days')}
@@ -236,12 +236,12 @@ export default function Events() {
       </div>
       
       {/* Button to toggle empty state (for demo purposes only) */}
-      <button 
+      {/* <button 
         onClick={toggleDataState} 
         className="mt-8 px-4 py-2 bg-blue-600 text-white rounded-md"
       >
         Toggle Empty State (Demo)
-      </button>
+      </button> */}
     </div>
   );
 }

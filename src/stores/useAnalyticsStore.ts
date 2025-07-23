@@ -20,7 +20,7 @@ type AnalyticsStore = {
   monthlyData: MonthlyDataPoint[];
   hasData: boolean;
   loading: boolean;
-  fetchAnalytics: () => Promise<void>;
+  fetchAnalytics: (startDate?: string, endDate?: string) => Promise<void>;
 };
 
 //Events Types
@@ -70,11 +70,10 @@ export const useEventAnalyticsStore = create<EventAnalyticsState>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const params = new URLSearchParams();
-      if (startDate) params.append("startDate", startDate);
-      if (endDate) params.append("endDate", endDate);
-      set({ isLoading: true });
-      const response = await analyticsService.getEventActivityData();
+      const response = await analyticsService.getEventActivityData(
+        startDate,
+        endDate
+      );
 
       if (response.success) {
       }
@@ -108,9 +107,12 @@ export const useAnalyticsStore = create<AnalyticsStore>((set) => ({
   monthlyData: [],
   hasData: true,
   loading: false,
-  fetchAnalytics: async () => {
+  fetchAnalytics: async (startDate?: string, endDate?: string) => {
     set({ loading: true });
-    const result = await analyticsService.getUserActivityData();
+    const result = await analyticsService.getUserActivityData(
+      startDate,
+      endDate
+    );
     if (result.success) {
       set({
         userStats: result.data.userStats,

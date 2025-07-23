@@ -1,7 +1,8 @@
 import React from "react";
-import Header from "../component/Headers/Headers";
-import Footer from "../component/Homepage/Footer";
+
 import Link from "next/link";
+import Header from "../component/component/Headers/Headers";
+import Footer from "../component/component/Homepage/Footer";
 
 const PrivacyPolicyPage = () => {
   return (

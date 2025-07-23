@@ -29,7 +29,7 @@ export default function PaginationComponent({ currentPage, totalPages, onPageCha
                         key={number}
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
                             currentPage === number 
-                                ? "bg-blue-600 text-white" 
+                                ? "bg-[#2853A6] text-white" 
                                 : "text-gray-500 hover:bg-gray-100"
                         }`}
                         onClick={() => onPageChange(number)}

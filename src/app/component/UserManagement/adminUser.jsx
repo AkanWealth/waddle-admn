@@ -17,10 +17,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { authService } from "@/utils/authService";
-import { userService } from "@/utils/userService";
+import PaginationComponent from "../Element/PaginationComponent";
 
 export default function AdminUsersTable({
   currentPage,
+  onPageChange,
   searchTerm,
   statusFilter,
   dateFilter,
@@ -151,12 +152,17 @@ export default function AdminUsersTable({
 
   // Pagination logic
   const itemsPerPage = 7;
+  const totalPages = Math.max(1, Math.ceil(filteredAdmins.length / itemsPerPage));
 
   useEffect(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setPaginatedAdmin(filteredAdmins.slice(startIndex, endIndex));
-  }, [currentPage, filteredAdmins]);
+    // If currentPage is out of range, reset to 1
+    if (currentPage > totalPages) {
+      onPageChange(1);
+    }
+  }, [currentPage, filteredAdmins, totalPages, onPageChange]);
 
   // Calculate dropdown position with portal positioning
   const calculateDropdownPosition = (index) => {
@@ -515,6 +521,13 @@ export default function AdminUsersTable({
           mode="edit"
           onSuccess={refreshData}
         />
+        {paginatedAdmin.length > 0 && (
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        )}
       </>
     );
   }
@@ -672,6 +685,13 @@ export default function AdminUsersTable({
           setDeletingAdmin(null);
         }}
       />
+      {paginatedAdmin.length > 0 && (
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      )}
     </>
   );
 }

@@ -32,7 +32,7 @@ const colorMap = {
   inactive: "bg-red-500",
 };
 
-export default function UserActivity() {
+export default function UserActivity({ dateRange }) {
   // Dummy data for user stats cards
   // const userStats = [
   //   {
@@ -73,8 +73,8 @@ export default function UserActivity() {
   const { userStats, monthlyData, hasData, fetchAnalytics } =
     useAnalyticsStore();
   useEffect(() => {
-    fetchAnalytics();
-  }, [fetchAnalytics]);
+    fetchAnalytics(dateRange.startDate, dateRange.endDate);
+  }, [fetchAnalytics, dateRange]);
 
   // For demo: toggle between data and empty state
   const toggleDataState = () => {
@@ -103,7 +103,7 @@ export default function UserActivity() {
                   {stat.title}
                 </p>
                 <div className="flex flex-col items-baseline">
-                  <h2 className="text-2xl font-bold">{stat.count}</h2>
+                  <h2 className="text-2xl text-[#1D1D1E] font-bold">{stat.count}</h2>
                   <span
                     className={`text-xs ml-2 ${
                       stat.isPositive ? "text-green-500" : "text-red-500"
@@ -121,15 +121,15 @@ export default function UserActivity() {
       {/* User Growth Chart */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">User Growth</h2>
+          <h2 className="text-lg font-semibold mb-4 text-black">User Growth</h2>
           <div className="flex space-x-6 mb-4">
             <div className="flex items-center">
               <div className="w-3 h-3 rounded-full bg-blue-600 mr-2"></div>
-              <span className="text-sm">Parents</span>
+              <span className="text-sm text-black">Parents</span>
             </div>
             <div className="flex items-center">
               <div className="w-3 h-3 rounded-full bg-orange-500 mr-2"></div>
-              <span className="text-sm">Event Organisers</span>
+              <span className="text-sm text-black">Event Organisers</span>
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function UserActivity() {
                 className="w-full h-full text-white"
               />
             </div>
-            <h3 className="text-lg font-medium mb-2">No New Signups Yet</h3>
+            <h3 className="text-lg font-medium text-[#1D1D1E]  mb-2">No New Signups Yet</h3>
             <p className="text-gray-500 text-sm max-w-md">
               User registration trends will appear here as more parents and
               vendors join the platform.
@@ -179,12 +179,7 @@ export default function UserActivity() {
       </div>
 
       {/* Button to toggle empty state (for demo purposes only) */}
-      <button
-        onClick={toggleDataState}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md"
-      >
-        Toggle Empty State (Demo)
-      </button>
+    
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import SVGAssets from "@/assets/svg";
+import SVGAssets from "@/assets/assets/svg";
 
 export const ParentsLoveWaddleDetails = [
   {
@@ -39,7 +39,7 @@ export const ParentsLoveWaddleDetails = [
     id: 6,
     title: "All in one place",
     description:
-    "Say goodbye to endless searching. Waddle puts everything in one place.",
+      "Say goodbye to endless searching. Waddle puts everything in one place.",
     image: SVGAssets.AllInOne,
-  },        
+  },
 ];

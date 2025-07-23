@@ -8,20 +8,23 @@ class AnalyticsService {
     this.baseURL = baseUrl;
   }
 
-  async getUserActivityData() {
+  async getUserActivityData(startDate?: string, endDate?: string) {
     try {
-      const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/host/analytics
-            `,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      console.log(response, "This one here")
+      let url = `/api/v1/host/analytics`;
+      const params = [];
+      if (startDate) params.push(`startDate=${encodeURIComponent(startDate)}`);
+      if (endDate) params.push(`endDate=${encodeURIComponent(endDate)}`);
+      if (params.length > 0) {
+        url += `?${params.join("&")}`;
+      }
+      const response = await authService.makeAuthenticatedRequest(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log(response, "This one here");
       return { success: true, data: response };
     } catch (error: unknown) {
-        console.log(error)
+      console.log(error);
       return {
         success: false,
         error:
@@ -31,20 +34,23 @@ class AnalyticsService {
       };
     }
   }
-  async getEventActivityData() {
+  async getEventActivityData(startDate?: string, endDate?: string) {
     try {
-      const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/host/analytics/event
-            `,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      console.log(response, "This one here")
+      let url = `/api/v1/host/analytics/event`;
+      const params = [];
+      if (startDate) params.push(`startDate=${encodeURIComponent(startDate)}`);
+      if (endDate) params.push(`endDate=${encodeURIComponent(endDate)}`);
+      if (params.length > 0) {
+        url += `?${params.join("&")}`;
+      }
+      const response = await authService.makeAuthenticatedRequest(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log(response, "This one here");
       return { success: true, data: response };
     } catch (error: unknown) {
-        console.log(error)
+      console.log(error);
       return {
         success: false,
         error:

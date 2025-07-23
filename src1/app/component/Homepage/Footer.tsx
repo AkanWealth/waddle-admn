@@ -1,4 +1,4 @@
-import SVGAssets from "@/assets/svg";
+import SVGAssets from "@/assets/assets/svg";
 import Image from "next/image";
 import Link from "next/link";
 import {

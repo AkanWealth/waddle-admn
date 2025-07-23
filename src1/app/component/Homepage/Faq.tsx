@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import SVGAssets from "@/assets/svg";
+import SVGAssets from "@/assets/assets/svg";
 
 // Type definitions
 export interface FAQ {
