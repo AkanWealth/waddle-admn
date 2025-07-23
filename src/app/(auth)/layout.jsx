@@ -6,7 +6,7 @@ import "../globals.css";
 function AuthLayout({ children }) {
   return (
     <Suspense>
-      <main className="fixed w-full h-screen flex font-rubikRegular">
+      <main className="fixed w-full h-screen !bg-white flex font-rubikRegular">
         {/* Left side with banner image and text */}
         <div className="hidden md:flex md:w-1/2 h-full flex-col relative bg-[#F9F1EE] p-16">
           {/* Logo at the top */}

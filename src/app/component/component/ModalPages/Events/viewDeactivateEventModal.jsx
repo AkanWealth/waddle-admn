@@ -118,6 +118,7 @@ const EventApproveDetailsModal = ({
 
   const mergedEvent = { ...eventData, ...event };
   console.log("Event Data:", mergedEvent.images);
+  console.log("Event Data from the modal:", mergedEvent);
   const processedImages = splitDoubleUrl(mergedEvent.images);
   const processedInstructions = splitInstructions(mergedEvent.instruction);
   const handleSuspendevent = (eventId, reason) => {

@@ -134,19 +134,21 @@ export default function EventManagement() {
       <div className="font-inter flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
         <div className="gap-4 grid grid-cols-1 items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Event Management</h1>
-          <p className="text-gray-500">View and manage your event here</p>
+          <p className="text-gray-500">View and manage your event here actually</p>
         </div>
         <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
-          {/* <button 
-                        className="flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+          <button 
+                        className="cursor-pointer flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
                         onClick={handleCreateEvent}
                     >
                         <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Create Event
-                    </button> */}
-          <button className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
-            <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                    </button>
+          <button className="cursor-pointer flex items-center gap-2 border border-[#CC0000] text-[#CC0000] px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+            <span className="text-[#CC0000]">
             Deleted Events
+            </span>
+            <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 text-[#CC0000]" />
           </button>
         </div>
       </div>
@@ -167,7 +169,7 @@ export default function EventManagement() {
                 placeholder="Search by event name..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 text-black border border-gray-300 rounded-lg  outline-none"
               />
               <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
             </div>

@@ -199,7 +199,7 @@ function Layout({ children }) {
             className="flex items-center px-5 py-3 rounded-md text-red-600 hover:bg-gray-50 transition-colors text-sm font-medium w-full text-left"
           >
             <LogOut className="w-5 h-5 mr-3 text-red-500" />
-            <span>LogOut</span>
+            <span>Log Out</span>
           </button>
         </div>
       </nav>

@@ -38,12 +38,22 @@ export default function Dashboard() {
 
         {/* Date range and export */}
         <div className="flex flex-col sm:flex-row lg:justify-end gap-4">
-          <div className="flex items-center border border-gray-300 rounded-lg bg-white p-2 max-w-md">
-            <Calendar className="w-4 h-4 text-blue-700 mr-2" />
+          <div className="flex items-center border border-gray-300 rounded-lg bg-white px-2 max-w-md">
+            {/* <Calendar className="w-4 h-4 text-blue-700 mr-2" /> */}
             <span className="text-xs text-gray-600 mr-1">From:</span>
-            <span className="text-sm text-gray-800 mr-3">Start Date</span>
+            <input
+              type="date"
+              className="text-sm text-gray-800 mr-3 border rounded px-1"
+              value={dateRange.startDate ? new Date(dateRange.startDate).toISOString().split('T')[0] : ''}
+              onChange={e => setDateRange(dr => ({ ...dr, startDate: e.target.value }))}
+            />
             <span className="text-xs text-gray-600 mr-1">To:</span>
-            <span className="text-sm text-gray-800">End Date</span>
+            <input
+              type="date"
+              className="text-sm text-gray-800 border rounded px-1"
+              value={dateRange.endDate ? new Date(dateRange.endDate).toISOString().split('T')[0] : ''}
+              onChange={e => setDateRange(dr => ({ ...dr, endDate: e.target.value }))}
+            />
           </div>
           <button 
             onClick={handleExport}
@@ -76,8 +86,8 @@ export default function Dashboard() {
 
       {/* Tab Content */}
       <div className="shadow-sm">
-        {activeTab === "User Activity" && <UserActivity />}
-        {activeTab === "Events" && <Events />}
+        {activeTab === "User Activity" && <UserActivity dateRange={dateRange} />}
+        {activeTab === "Events" && <Events dateRange={dateRange} />}
       </div>
     </div>
   );

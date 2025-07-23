@@ -4,7 +4,7 @@ import { CircleCheck, CircleXIcon, Clock, TriangleAlert, TrendingUpDown } from "
 
 export default function StatusBadge({ status }) {
     switch (status) {
-        case "Approved":
+        case "Published":
             return (
                 <div className="flex items-center bg-green-100 rounded-lg px-2">
                     <CircleCheck className="w-4 h-4 text-green-500 mr-1" />

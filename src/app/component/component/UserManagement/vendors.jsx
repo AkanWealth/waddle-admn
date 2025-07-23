@@ -23,6 +23,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
 
     // Function to transform API data to match your component structure
     const transformVendorData = (organiser) => {
+        console.log(organiser, "This is the organiser that we have selected")
         return {
             id: organiser.id,
             name: organiser.business_name || organiser.name,
@@ -31,7 +32,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
             date: new Date(organiser.createdAt).toISOString().split('T')[0], // Format: YYYY-MM-DD
             status: organiser.isApproved ? "Approved" : "Pending",
             contactName: organiser.name,
-            description: `Business: ${organiser.business_name || 'N/A'}, Category: ${organiser.business_category}`,
+            description:organiser.description,
             contactDetails: {
                 phone: organiser.phone_number,
                 email: organiser.email,

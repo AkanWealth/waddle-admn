@@ -18,7 +18,7 @@ const colorMap = {
   total_attendees: "bg-purple-500",
 };
 
-export default function Events() {
+export default function Events({ dateRange }) {
   const { 
     eventStats, 
     topEvents, 
@@ -35,8 +35,8 @@ export default function Events() {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchEventAnalytics();
-  }, [fetchEventAnalytics]);
+    fetchEventAnalytics(dateRange.startDate, dateRange.endDate);
+  }, [fetchEventAnalytics, dateRange]);
 
   // Handle time filter change
   const handleTimeFilterChange = (filter) => {
@@ -92,7 +92,7 @@ export default function Events() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <div className="text-red-800">Error loading event analytics: {error}</div>
           <button 
-            onClick={() => fetchEventAnalytics()}
+            onClick={() => fetchEventAnalytics(dateRange.startDate, dateRange.endDate)}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md text-sm"
           >
             Retry
@@ -115,7 +115,7 @@ export default function Events() {
               <div className="flex flex-col">
                 <p className="text-gray-600 font-medium text-sm">{stat.title}</p>
                 <div className="flex flex-col items-baseline">
-                  <h2 className="text-2xl font-bold">{stat.count}</h2>
+                  <h2 className="text-2xl font-bold text-[#1D1D1E]">{stat.count}</h2>
                   <span className={`text-xs ml-2 ${stat.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {stat.change} vs last month
                   </span>
@@ -175,12 +175,12 @@ export default function Events() {
             <div className="relative">
               <button 
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center text-sm border rounded-lg px-3 py-1"
+                className="flex items-center text-[#1D1D1E] text-sm border rounded-lg px-3 py-1"
               >
                 {timeFilter} <ChevronDown className="ml-2 h-4 w-4" />
               </button>
               {showDropdown && (
-                <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 mt-1 text-[#1D1D1E] bg-white border rounded-lg shadow-lg z-10">
                   <div className="py-1">
                     <button 
                       onClick={() => handleTimeFilterChange('7 Last Days')}

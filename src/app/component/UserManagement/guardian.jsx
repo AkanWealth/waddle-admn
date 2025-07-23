@@ -5,11 +5,11 @@ import axios from "axios";
 import StatusBadge from "./StatusBadge";
 import GuardianDetailsModal from "../ModalPages/Users/Guardian/viewPendingDetail";
 import { authService } from "@/utils/authService";
+import PaginationComponent from "../Element/PaginationComponent";
 
 
 
-
-export default function GuardiansTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
+export default function GuardiansTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
     const [allGuardians, setAllGuardians] = useState([]);
     const [filteredGuardians, setFilteredGuardians] = useState([]);
     const [paginatedGuardians, setPaginatedGuardians] = useState([]);
@@ -95,12 +95,17 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
 
     // Pagination logic
     const itemsPerPage = 7;
+    const totalPages = Math.max(1, Math.ceil(filteredGuardians.length / itemsPerPage));
 
     useEffect(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         setPaginatedGuardians(filteredGuardians.slice(startIndex, endIndex));
-    }, [currentPage, filteredGuardians]);
+        // If currentPage is out of range, reset to 1
+        if (currentPage > totalPages) {
+            onPageChange(1);
+        }
+    }, [currentPage, filteredGuardians, totalPages, onPageChange]);
 
     const handleDeleteGuardian = async (guardianId) => {
         try {
@@ -210,6 +215,13 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                     onClose={() => setIsModalOpen(false)}
                     onDelete={handleDeleteGuardian}
                 />
+                {paginatedGuardians.length > 0 && (
+                    <PaginationComponent
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={onPageChange}
+                    />
+                )}
             </div>
         );
     }
@@ -280,6 +292,13 @@ export default function GuardiansTable({ currentPage, searchTerm, statusFilter, 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
             />
+            {paginatedGuardians.length > 0 && (
+                <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            )}
         </>
     );
 }

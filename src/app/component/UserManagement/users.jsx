@@ -12,14 +12,16 @@ import GuardiansTable from "./guardian";
 import AdminUsersTable from "./adminUser";
 import PaginationComponent from "../Element/PaginationComponent";
 import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function UserManagement() {
     // State for active tab
-    const [activeTab, setActiveTab] = useState("Vendors");
-    
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(2);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const tabFromUrl = searchParams.get('tab');
+    const pageFromUrl = parseInt(searchParams.get('page'), 10);
+    const [activeTab, setActiveTab] = useState(tabFromUrl || "Vendors");
+    const [currentPage, setCurrentPage] = useState(pageFromUrl > 0 ? pageFromUrl : 1);
     
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState("");
@@ -49,11 +51,21 @@ export default function UserManagement() {
         setActiveTab(tab);
         setCurrentPage(1);
         setStatusFilter([]); // Reset status filter when changing tabs
+        // Update URL
+        const params = new URLSearchParams(window.location.search);
+        params.set('tab', tab);
+        params.set('page', '1');
+        router.replace(`?${params.toString()}`);
     };
 
     // Handle page change
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
+        // Update URL
+        const params = new URLSearchParams(window.location.search);
+        params.set('tab', activeTab);
+        params.set('page', String(pageNumber));
+        router.replace(`?${params.toString()}`);
     };
 
     // Handle search input change
@@ -125,6 +137,12 @@ export default function UserManagement() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Sync state with URL on mount
+    useEffect(() => {
+        if (tabFromUrl && tabFromUrl !== activeTab) setActiveTab(tabFromUrl);
+        if (pageFromUrl && pageFromUrl !== currentPage) setCurrentPage(pageFromUrl);
+    }, [tabFromUrl, pageFromUrl]);
+
     return (
         <><div>
             <div className="font-inter flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
@@ -134,7 +152,7 @@ export default function UserManagement() {
                 </div>
                 <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
                     <button
-                        className="flex items-center bg-blue-800 text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+                        className="flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
                         onClick={() => setIsCreateAdminModalOpen(true)}
                     >
                         <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
@@ -252,6 +270,7 @@ export default function UserManagement() {
                         {activeTab === "Vendors" && (
                             <VendorsTable
                                 currentPage={currentPage}
+                                onPageChange={handlePageChange}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
@@ -260,6 +279,7 @@ export default function UserManagement() {
                         {activeTab === "Guardians" && (
                             <GuardiansTable
                                 currentPage={currentPage}
+                                onPageChange={handlePageChange}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
@@ -268,6 +288,7 @@ export default function UserManagement() {
                         {activeTab === "Admin Users" && (
                             <AdminUsersTable
                                 currentPage={currentPage}
+                                onPageChange={handlePageChange}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
@@ -276,10 +297,7 @@ export default function UserManagement() {
                     </div>
 
                     {/* Pagination */}
-                    <PaginationComponent
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange} />
+                    
                 </div>
             </div>
         </div>

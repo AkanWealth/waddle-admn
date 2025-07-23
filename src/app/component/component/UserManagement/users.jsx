@@ -12,6 +12,7 @@ import GuardiansTable from "./guardian";
 import AdminUsersTable from "./adminUser";
 import PaginationComponent from "../Element/PaginationComponent";
 import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
+import DeletedUsersModal from "../ModalPages/Users/DeletedUsersModal";
 
 export default function UserManagement() {
     // State for active tab
@@ -27,6 +28,7 @@ export default function UserManagement() {
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
+    const [isDeletedUsersModalOpen, setIsDeletedUsersModalOpen] = useState(false);
     const { showMessage } = useToastContext();
     
     // Mobile responsive states
@@ -134,13 +136,13 @@ export default function UserManagement() {
                 </div>
                 <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
                     <button
-                        className="flex items-center bg-blue-800 text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+                        className="flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
                         onClick={() => setIsCreateAdminModalOpen(true)}
                     >
                         <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Add New User
                     </button>
-                    <button className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+                    <button onClick={() => setIsDeletedUsersModalOpen(true)} className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
                         <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Deleted Users
                     </button>
@@ -287,6 +289,10 @@ export default function UserManagement() {
                 isOpen={isCreateAdminModalOpen}
                 onClose={() => setIsCreateAdminModalOpen(false)}
                 onSuccess={handleAdminUserSuccess}
+                 />
+                 <DeletedUsersModal
+                    isOpen={isDeletedUsersModalOpen}
+                    onClose={() => setIsDeletedUsersModalOpen(false)}
                  />
         </>
     );

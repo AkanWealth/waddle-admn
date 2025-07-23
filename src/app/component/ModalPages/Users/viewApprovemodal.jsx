@@ -162,7 +162,7 @@ const VendorApproveDetailsModal = ({
           {console.log(vendor, "This is the vendor")}
           {(vendor.status === "Approved" || vendor.status === "Active") && (
             <div className="mb-4 text-gray-700">
-              <p>Last Login :April 24th, 2025, 9:16 pm</p>
+              <p>Last Login at :April 24th, 2025, 9:16 pm</p>
             </div>
           )}
 
@@ -179,11 +179,12 @@ const VendorApproveDetailsModal = ({
           )}
 
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-medium text-gray-800">{vendor.name}</h3>
+            <h3 className="text-xl font-semibold text-[#303237]">{vendor.name}</h3>
             <StatusBadge status={vendor.status} />
           </div>
+{            console.log(vendor, "This is the vendor that we have selected")}
 
-          <p className="text-gray-600 mb-4">
+          <p className="text-[#7E8494] text-lg font-semibold mb-4">
             {vendor.contactName || "Mary White"}
           </p>
 
