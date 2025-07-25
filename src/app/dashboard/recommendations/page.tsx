@@ -367,6 +367,6 @@ const NoRecommendations = () => {
         You haven’t created any events yet. Get started by clicking the “Create
         Event”
       </p>
-    </div>
+    </div>  
   );
 };
