@@ -10,9 +10,9 @@ import {
 import { IoMdMail } from "react-icons/io";
 const FooterLinksOne =[
   {id:1, href:"", name:"Home"},
-  {id:2, href:"", name:"About Us"},
+  {id:2, href:"#about", name:"About Us"},
   {id:3, href:"/contact-us", name:"Contact Us"},
-  {id:4, href:"/faq", name:"FAQs"}
+  {id:4, href:"#faq", name:"FAQs"}
 ]
 
 const FooterLinksTwo = [

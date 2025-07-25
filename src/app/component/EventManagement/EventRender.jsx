@@ -6,7 +6,7 @@ import CrownSourcingModal from "../ModalPages/Events/CrownSourcingModal";
 import EventApproveDetailsModal from "../ModalPages/Events/viewDeactivateEventModal";
 import EventDetailsModal from "../ModalPages/Events/EventDetailsModal";
 
-export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
+export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView, isLoading }) {
     console.log(data, "This is the data");
     
     // State management
@@ -256,7 +256,19 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
             <>
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
-                        {paginatedevents.length > 0 ? (
+                        {isLoading ? (
+                            <tbody>
+                                <tr>
+                                    <td colSpan={3} className="text-center py-8">
+                                        <svg className="animate-spin h-8 w-8 text-blue-600 mb-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                        </svg>
+                                        <span className="text-gray-500">Loading events...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        ) : paginatedevents.length > 0 ? (
                             <>
                                 <thead>
                                     <tr className="text-left text-gray-500 text-sm border-b">
@@ -287,7 +299,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                             </>
                         ) : (
                             <tbody>
-                                <EmptyState colSpan={3} />
+                                {!isLoading && <EmptyState colSpan={3} />}
                             </tbody>
                         )}
                     </table>
@@ -302,7 +314,19 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         <>
             <div className="overflow-x-auto">
                 <table className="min-w-full">
-                    {paginatedevents.length > 0 ? (
+                    {isLoading ? (
+                        <tbody>
+                            <tr>
+                                <td colSpan={6} className="text-center py-8">
+                                    <svg className="animate-spin h-8 w-8 text-blue-600 mb-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                    </svg>
+                                    <span className="text-gray-500">Loading events...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    ) : paginatedevents.length > 0 ? (
                         <>
                             <thead>
                                 <tr className="text-left bg-[#FAFAFA]  text-gray-500 text-sm">
@@ -344,7 +368,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                         </>
                     ) : (
                         <tbody>
-                            <EmptyState colSpan={6} />
+                            {!isLoading && <EmptyState colSpan={6} />}
                         </tbody>
                     )}
                 </table>

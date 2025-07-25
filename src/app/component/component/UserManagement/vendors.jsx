@@ -85,14 +85,28 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
 
         // Apply search
         if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            results = results.filter(
-                vendor =>
-                    vendor.name.toLowerCase().includes(term) ||
-                    vendor.email.toLowerCase().includes(term) ||
-                    vendor.mobile.includes(term) ||
-                    vendor.contactName.toLowerCase().includes(term)
-            );
+            const term = String(searchTerm).toLowerCase();
+            results = results.filter(vendor => {
+                if (!vendor) {
+                    console.log('Vendor is undefined or null:', vendor);
+                    return false;
+                }
+                try {
+                    // Log the types for debugging
+                    if (typeof vendor.mobile !== 'string') {
+                        console.log('Non-string vendor.mobile:', vendor.mobile, 'Type:', typeof vendor.mobile, 'Vendor:', vendor);
+                    }
+                    return (
+                        String(vendor.name || '').toLowerCase().includes(term) ||
+                        String(vendor.email || '').toLowerCase().includes(term) ||
+                        String(vendor.mobile || '').includes(term) ||
+                        String(vendor.contactName || '').toLowerCase().includes(term)
+                    );
+                } catch (e) {
+                    console.log('Error in vendor filter:', vendor, e);
+                    return false;
+                }
+            });
         }
 
         // Apply status filter
