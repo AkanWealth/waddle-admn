@@ -17,6 +17,8 @@ import ApprovePlaceModal from "@/app/component/Recommendations/ApprovePlaceModal
 import { recommendationService } from "@/utils/recommendationService";
 import { toast } from "react-toastify";
 import formatCustomDate from "@/lib/formatDate";
+import SVGAssets from "@/assets/svg";
+import Image from "next/image";
 
 interface Recommendation {
   id: string;
@@ -273,8 +275,8 @@ const ParentRecommendations: React.FC = () => {
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleActionClick = (item:any) => {
-    setSelectedPlace(item)
+  const handleActionClick = (item: any) => {
+    setSelectedPlace(item);
     console.log("Action clicked for item:", item.id);
     setActiveModalId(item.id);
   };
@@ -301,8 +303,12 @@ const ParentRecommendations: React.FC = () => {
 
       <div className="bg-white px-2 py-2">
         <h2 className="text-lg font-medium text-gray-900 mb-4">
-          <span className="">Recommended Places</span>{" "}
-          <span className="text-orange-500">(12)</span>
+          <span>
+            {activeTab === "Places"
+              ? "Recommended Places"
+              : "Recommended Events"}
+          </span>{" "}
+          <span className="text-orange-500">({filteredData.length})</span>
         </h2>
 
         <div className="mb-6">
@@ -316,20 +322,26 @@ const ParentRecommendations: React.FC = () => {
             />
           </div>
           <div className="bg-white relative">
-            <RecommendationsTable
-              data={paginatedData}
-              activeModalId={activeModalId}
-              onActionClick={handleActionClick}
-              onCloseModal={handleCloseModal}
-            />
+            {paginatedData.length === 0 ? (
+              <NoRecommendations />
+            ) : (
+              <RecommendationsTable
+                data={paginatedData}
+                activeModalId={activeModalId}
+                onActionClick={handleActionClick}
+                onCloseModal={handleCloseModal}
+              />
+            )}
           </div>
         </div>
       </div>
-      <PaginationComponent
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      {filteredData.length > 0 && (
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
       {showPlaceDetailsModal && <PlacesDetailsModal />}
       {showApproveDetailsModal && <ApprovePlaceModal />}
     </div>
@@ -337,3 +349,23 @@ const ParentRecommendations: React.FC = () => {
 };
 
 export default ParentRecommendations;
+
+const NoRecommendations = () => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] py-8">
+      <Image
+        src={SVGAssets.NoRecommendationsImage}
+        alt="No Recommendations"
+        width={151}
+        height={168}
+      />
+      <h1 className="text-2xl font-bold text-gray-800">
+        No Parent Recommendations Yet
+      </h1>
+      <p className="text-gray-500">
+        You haven’t created any events yet. Get started by clicking the “Create
+        Event”
+      </p>
+    </div>
+  );
+};
