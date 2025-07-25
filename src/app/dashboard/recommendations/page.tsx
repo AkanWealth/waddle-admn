@@ -349,7 +349,6 @@ const ParentRecommendations: React.FC = () => {
 };
 
 export default ParentRecommendations;
-
 const NoRecommendations = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] py-8">
@@ -366,6 +365,7 @@ const NoRecommendations = () => {
         You haven’t created any events yet. Get started by clicking the “Create
         Event”
       </p>
+    </div>  
     </div>
   );
 };
