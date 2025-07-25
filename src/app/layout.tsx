@@ -14,6 +14,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Waddle Admin Dashboard",
   description: "",
+  icons: {
+    icon: "/HomeLogo.svg",
+  },
 };
 
 export default function RootLayout({
