@@ -6,7 +6,7 @@ import {
   FaInstagram
 } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
-import { FaXTwitter } from "react-icons/fa6";
+import { FaTiktok } from "react-icons/fa6";
 const FooterLinksOne =[
   {id:1, href:"", name:"Home"},
   {id:2, href:"#about", name:"About Us"},
@@ -22,7 +22,7 @@ const FooterLinksTwo = [
 
 const FooterSocialMediaLinks = [
   { id: 1, href: "https://www.facebook.com/appwaddle", name: FaFacebook },
-  { id: 2, href: "https://www.twitter.com/@waddle.app", name: FaXTwitter },
+  { id: 2, href: "https://www.tiktok.com/@waddle.app", name: FaTiktok },
   { id: 3, href: "https://www.instagram.com/app_waddle", name: FaInstagram },
 ];
 
