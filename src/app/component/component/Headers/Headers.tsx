@@ -18,21 +18,27 @@ const Header = ({ usedFor }: HeaderProps) => {
     <header className="relative bg-white">
       <div className="flex items-center justify-between mx-4 md:mx-7 py-4">
         {/* Logo */}
-        <Image src={SVGAssets.HomeLogo} alt="Home Logo" className="h-12 w-12" />
+        <Link href="/">
+          <Image
+            src={SVGAssets.HomeLogo}
+            alt="Home Logo"
+            className="h-[50px] w-[200px]"
+          />
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center w-auto gap-[100px]">
           {/* Links */}
           <div className="flex items-center gap-6 text-[16px] text-[#303237]">
             <Link href="/">Home</Link>
-            <Link href="/">About us</Link>
-            <Link href="/">FAQs</Link>
-            <Link href="/">Contact us</Link>
+            <Link href="/#about">About us</Link>
+            <Link href="/#faq">FAQs</Link>
+            <Link href="/contact-us">Contact us</Link>
           </div>
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-4 font-semibold">
-            <button className="bg-[#2853A6] flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
+            <button className="bg-[#2853A6] cursor-pointer flex items-center gap-2 px-4 py-2 rounded-[12px] text-white">
               <span>Download Waddle</span> <ArrowRight />
             </button>
           </div>
@@ -66,28 +72,28 @@ const Header = ({ usedFor }: HeaderProps) => {
             Home
           </Link>
           <Link
-            href="/"
+            href="/#about"
             className="text-[#303237] text-base"
             onClick={() => setIsMenuOpen(false)}
           >
             About us
           </Link>
           <Link
-            href="/"
+            href="/#faq"
             className="text-[#303237] text-base"
             onClick={() => setIsMenuOpen(false)}
           >
             FAQs
           </Link>
           <Link
-            href="/"
+            href="/contact-us"
             className="text-[#303237] text-base"
             onClick={() => setIsMenuOpen(false)}
           >
             Contact us
-          </Link>
+          </Link> 
           <div className="flex flex-col gap-3 pt-4 w-full">
-            <button className="bg-[#2853A6] flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
+            <button className="bg-[#2853A6] cursor-pointer flex items-center justify-center gap-2 px-4 py-2 rounded-[12px] text-white w-full">
               <span>Download Waddle</span> <ArrowRight />
             </button>
           </div>

@@ -12,6 +12,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* adjust based on your fixed header height */
+
+}
+
 
 :root {
   --background: #ffffff;

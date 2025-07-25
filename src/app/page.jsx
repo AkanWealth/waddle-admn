@@ -93,7 +93,9 @@ const exampleFAQs = [
 const HomePage = () => {
   return (
     <section className="bg-white min-h-screen">
-      <Header  usedFor="started"/>
+      <header className="sticky top-0 z-50">
+        <Header usedFor="started" />
+      </header>
       <section className="bg-[#2853A6] flex flex-col lg:flex-row pt-20 pb-3 px-4 lg:px-20 justify-around items-center overflow-x-hidden">
         <section className="w-full lg:max-w-[559px] flex flex-col gap-5 text-white">
           <h3 className="text-[32px] sm:text-[40px] lg:text-[56px] font-bold leading-tight">
@@ -147,9 +149,9 @@ const HomePage = () => {
         </section>
       </section>
 
-      <section className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20 px-4 lg:px-20 py-16">
+      <section id="about" className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20 px-4 lg:px-20 py-16">
         {/* Text Section */}
-        <section className="w-full lg:max-w-[512px] flex flex-col gap-5">
+        <section  className="w-full lg:max-w-[512px] flex flex-col gap-5">
           <h3 className="text-[#303237] text-[28px] sm:text-[32px] lg:text-[40px] font-semibold">
             About Waddle
           </h3>
@@ -296,7 +298,7 @@ const HomePage = () => {
 
             <div>
               <button
-                className="bg-[#2853A6] px-6 py-3 rounded-[12px] text-white text-[14px] font-semibold hover:bg-[#1f4288] transition-colors"
+                className="invisible bg-[#2853A6] px-6 py-3 rounded-[12px] text-white text-[14px] font-semibold hover:bg-[#1f4288] transition-colors"
                 type="button"
               >
                 Become an Organiser
@@ -306,7 +308,7 @@ const HomePage = () => {
         </section>
       </section>
 
-      <section className="w-full bg-white px-4 sm:px-6 lg:px-20 py-12">
+      <section id="faq" className="w-full bg-white px-4 sm:px-6 lg:px-20 py-12">
         <FAQSection faqs={exampleFAQs} />
       </section>
 
