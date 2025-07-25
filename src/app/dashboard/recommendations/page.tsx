@@ -366,6 +366,5 @@ const NoRecommendations = () => {
         Event”
       </p>
     </div>  
-    </div>
   );
 };
