@@ -5,9 +5,8 @@ import StatusBadge from "./StatusBadge";
 import { authService } from "@/utils/authService";
 import VendorDetailsModal from "../ModalPages/Users/viewPendingDetail";
 import VendorApproveDetailsModal from "../ModalPages/Users/viewApprovemodal";
-import PaginationComponent from "../Element/PaginationComponent";
 
-export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
+export default function VendorsTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
     const [allVendors, setAllVendors] = useState([]);
     const [filteredVendors, setFilteredVendors] = useState([]);
     const [paginatedVendors, setPaginatedVendors] = useState([]);
@@ -24,17 +23,16 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
 
     // Function to transform API data to match your component structure
     const transformVendorData = (organiser) => {
-        console.log(organiser, "This is the organiser that we have selected just now")
+        console.log(organiser, "This is the organiser that we have selected")
         return {
             id: organiser.id,
             name: organiser.business_name || organiser.name,
-            mobile: organiser.mobile,
+            mobile: organiser.phone_number,
             email: organiser.email,
-            lastLogin: organiser.lastLoginAt,
             date: new Date(organiser.createdAt).toISOString().split('T')[0], // Format: YYYY-MM-DD
             status: organiser.isApproved ? "Approved" : "Pending",
             contactName: organiser.name,
-            description: organiser.description,
+            description:organiser.description,
             contactDetails: {
                 phone: organiser.phone_number,
                 email: organiser.email,
@@ -64,7 +62,6 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             
             if (response && response.organiser) {
                 const transformedVendors = response.organiser.map(transformVendorData);
-                console.log(transformedVendors, "This is the transformed vendors")
                 setAllVendors(transformedVendors);
             } else {
                 setError('No vendors data received');
@@ -88,14 +85,28 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
 
         // Apply search
         if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            results = results.filter(
-                vendor =>
-                    vendor.name.toLowerCase().includes(term) ||
-                    vendor.email.toLowerCase().includes(term) ||
-                    vendor.mobile.includes(term) ||
-                    vendor.contactName.toLowerCase().includes(term)
-            );
+            const term = String(searchTerm).toLowerCase();
+            results = results.filter(vendor => {
+                if (!vendor) {
+                    console.log('Vendor is undefined or null:', vendor);
+                    return false;
+                }
+                try {
+                    // Log the types for debugging
+                    if (typeof vendor.mobile !== 'string') {
+                        console.log('Non-string vendor.mobile:', vendor.mobile, 'Type:', typeof vendor.mobile, 'Vendor:', vendor);
+                    }
+                    return (
+                        String(vendor.name || '').toLowerCase().includes(term) ||
+                        String(vendor.email || '').toLowerCase().includes(term) ||
+                        String(vendor.mobile || '').includes(term) ||
+                        String(vendor.contactName || '').toLowerCase().includes(term)
+                    );
+                } catch (e) {
+                    console.log('Error in vendor filter:', vendor, e);
+                    return false;
+                }
+            });
         }
 
         // Apply status filter
@@ -116,17 +127,12 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
 
     // Pagination logic
     const itemsPerPage = 7;
-    const totalPages = Math.max(1, Math.ceil(filteredVendors.length / itemsPerPage));
 
     useEffect(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         setPaginatedVendors(filteredVendors.slice(startIndex, endIndex));
-        // If currentPage is out of range, reset to 1
-        if (currentPage > totalPages) {
-            onPageChange(1);
-        }
-    }, [currentPage, filteredVendors, totalPages, onPageChange]);
+    }, [currentPage, filteredVendors]);
 
     // Function to open vendor details modal
     const openVendorDetails = (vendor) => {
@@ -333,13 +339,6 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                         isRejecting={rejectingVendors.has(selectedVendor?.id)}
                     />
                 )}
-                {paginatedVendors.length > 0 && (
-                    <PaginationComponent
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={onPageChange}
-                    />
-                )}
             </div>
         );
     }
@@ -364,7 +363,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                             {paginatedVendors.map((vendor, index) => (
                                 <tr key={vendor.id} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
                                     <td className="py-4 px-4">{vendor.name}</td>
-                                    <td className="py-4 px-4">{vendor.mobile ? vendor.mobile : "NA"}</td>
+                                    <td className="py-4 px-4">{vendor.mobile}</td>
                                     <td className="py-4 px-4">{vendor.email}</td>
                                     <td className="py-4 px-4">{vendor.date}</td>
                                     <td className="py-4 px-4"><StatusBadge status={vendor.status} /></td>
@@ -427,13 +426,6 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                     onRefresh={refreshVendors}
                     isApproving={approvingVendors.has(selectedVendor?.id)}
                     isRejecting={rejectingVendors.has(selectedVendor?.id)}
-                />
-            )}
-            {paginatedVendors.length > 0 && (
-                <PaginationComponent
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={onPageChange}
                 />
             )}
         </>
