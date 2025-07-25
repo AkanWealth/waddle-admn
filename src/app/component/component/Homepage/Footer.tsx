@@ -3,11 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   FaFacebook,
-  FaInstagram,
-  FaLinkedin,
-  FaTwitter,
+  FaInstagram
 } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
+import { FaXTwitter } from "react-icons/fa6";
 const FooterLinksOne =[
   {id:1, href:"", name:"Home"},
   {id:2, href:"#about", name:"About Us"},
@@ -21,17 +20,25 @@ const FooterLinksTwo = [
   {id:3, href:"/terms-of-use", name:"Terms Of Use"}
 ];
 
+const FooterSocialMediaLinks = [
+  { id: 1, href: "https://www.facebook.com/appwaddle", name: FaFacebook },
+  { id: 2, href: "https://www.twitter.com/@waddle.app", name: FaXTwitter },
+  { id: 3, href: "https://www.instagram.com/app_waddle", name: FaInstagram },
+];
+
 const Footer = () => {
   return (
     <footer className="flex flex-col gap-10 w-full">
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Logo & Contact */}
         <div className="flex flex-col gap-6">
-          <Image
-            src={SVGAssets.HomeLogo}
-            alt="Home Logo"
-            className="h-16 w-16"
-          />
+          <Link href="/">
+            <Image
+              src={SVGAssets.HomeLogo}
+              alt="Home Logo"
+              className="h-16 w-16"
+            />
+          </Link>
 
           {/* App Buttons */}
           <div className="flex items-center gap-4">
@@ -86,15 +93,21 @@ const Footer = () => {
 
       <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-t pt-6 w-full">
         <div className="flex items-center gap-4">
-          {[FaFacebook, FaTwitter, FaInstagram, FaLinkedin].map((Icon, i) => (
-            <button
-              key={i}
-              className="bg-[#2853A6] p-2 rounded-full text-white hover:bg-[#1f4288] transition"
-              type="button"
-            >
-              <Icon className="h-[18px] w-[18px]" />
-            </button>
-          ))}
+          {FooterSocialMediaLinks.map((item) => {
+            const IconComponent = item.name;
+
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className="bg-[#2853A6] p-2 rounded-full text-white hover:bg-[#fdfdfd] hover:text-[#2853A6] hover:border hover:border-[#2853A6] transition"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IconComponent className="h-[18px] w-[18px]" />
+              </Link>
+            );
+          })}
         </div>
 
         <p className="text-[14px] sm:text-[16px] text-[#303237] font-normal text-left w-full sm:w-auto">

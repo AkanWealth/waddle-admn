@@ -27,11 +27,13 @@ const Footer = () => {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Logo & Contact */}
         <div className="flex flex-col gap-6">
-          <Image
-            src={SVGAssets.HomeLogo}
-            alt="Home Logo"
-            className="h-16 w-16"
-          />
+          <Link href="/">
+            <Image
+              src={SVGAssets.HomeLogo}
+              alt="Home Logo"
+              className="h-16 w-16"
+            />
+          </Link>
 
           {/* App Buttons */}
           <div className="flex items-center gap-4">
@@ -87,13 +89,13 @@ const Footer = () => {
       <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-t pt-6 w-full">
         <div className="flex items-center gap-4">
           {[FaFacebook, FaTwitter, FaInstagram, FaLinkedin].map((Icon, i) => (
-            <button
+            <Link
+              href={`https://www.${Icon.name}.com`}
               key={i}
               className="bg-[#2853A6] p-2 rounded-full text-white hover:bg-[#1f4288] transition"
-              type="button"
             >
               <Icon className="h-[18px] w-[18px]" />
-            </button>
+            </Link>
           ))}
         </div>
 
