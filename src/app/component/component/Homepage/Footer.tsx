@@ -100,7 +100,7 @@ const Footer = () => {
               <Link
                 key={item.id}
                 href={item.href}
-                className="bg-[#2853A6] p-2 rounded-full text-white hover:bg-[#1f4288] transition"
+                className="bg-[#2853A6] p-2 rounded-full text-white hover:bg-[#fdfdfd] hover:text-[#2853A6] hover:border hover:border-[#2853A6] transition"
                 target="_blank"
                 rel="noopener noreferrer"
               >
