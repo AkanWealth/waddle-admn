@@ -87,6 +87,7 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
   };
 
   const isActionable = dispute?.status === "In Review";
+  console.log(dispute, "This is the dispute")
 
   // Dummy object for testing, replace with actual dispute data
   const disputeDetails = {

@@ -30,7 +30,11 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
             mobile: organiser.phone_number,
             email: organiser.email,
             date: new Date(organiser.createdAt).toISOString().split('T')[0], // Format: YYYY-MM-DD
-            status: organiser.isApproved ? "Approved" : "Pending",
+            status: organiser.isSuspended
+                ? "Suspended"
+                : organiser.isApproved
+                    ? "Approved"
+                    : "Pending",
             contactName: organiser.name,
             description:organiser.description,
             contactDetails: {
@@ -233,6 +237,19 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
         await fetchVendors();
     };
 
+    // Function to update vendor status in state
+    const handleVendorStatusChange = (vendorId, newStatus) => {
+        setAllVendors(vendors =>
+            vendors.map(v =>
+                v.id === vendorId ? { ...v, status: newStatus } : v
+            )
+        );
+        // If the new status is Suspended, ensure the filter includes it
+        if (newStatus === "Suspended" && !statusFilter.includes("Suspended")) {
+            setStatusFilter([...statusFilter, "Suspended"]);
+        }
+    };
+
     // Loading state
     if (loading) {
         return (
@@ -334,6 +351,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                         onClose={() => setIsModalOpen(false)}
                         onApprove={handleApprove}
                         onReject={handleReject}
+                        onStatusChange={handleVendorStatusChange}
                         onRefresh={refreshVendors}
                         isApproving={approvingVendors.has(selectedVendor?.id)}
                         isRejecting={rejectingVendors.has(selectedVendor?.id)}
@@ -423,6 +441,7 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                     onClose={() => setIsModalOpen(false)}
                     onApprove={handleApprove}
                     onReject={handleReject}
+                    onStatusChange={handleVendorStatusChange}
                     onRefresh={refreshVendors}
                     isApproving={approvingVendors.has(selectedVendor?.id)}
                     isRejecting={rejectingVendors.has(selectedVendor?.id)}

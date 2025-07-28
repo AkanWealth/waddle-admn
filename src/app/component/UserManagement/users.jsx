@@ -36,7 +36,7 @@ export default function UserManagement() {
 
     // Define status options for each tab
     const statusOptions = {
-        "Vendors": ["Approved", "Pending", "Rejected", "Deactivated", "Inactive"],
+        "Vendors": ["Approved", "Pending", "Rejected", "Deactivated", "Inactive", "Suspended"],
         "Guardians": ["Active", "Inactive"],
         "Admin Users": ["Active", "Inactive", "Pending"]
     };

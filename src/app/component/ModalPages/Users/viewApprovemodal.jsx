@@ -16,6 +16,7 @@ const VendorApproveDetailsModal = ({
   onClose,
   onApprove,
   onReject,
+  onStatusChange, // <-- Add this prop
 }) => {
   const [modals, setModals] = useState({
     suspend: false,
@@ -65,6 +66,9 @@ const VendorApproveDetailsModal = ({
       const response = await userService.suspendVendor(vendorId);
       if (response.success) {
         toast.success("Vendor suspended successfully");
+        if (typeof onStatusChange === "function") {
+          onStatusChange(vendorId, "Suspended");
+        }
         onClose();
       } else{
         console.error("Error suspending vendor:", response.error);

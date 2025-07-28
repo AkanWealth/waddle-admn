@@ -87,16 +87,17 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
   };
 
   const isActionable = dispute?.status === "In Review";
+  console.log(dispute, "This is the dispute")
 
   // Dummy object for testing, replace with actual dispute data
   const disputeDetails = {
-    id: dispute?.id || "#DPT-1023",
-    customer: dispute?.customer || "John Doe",
-    vendor: dispute?.vendor || "FunKids Hub",
-    event: "Summer Kids Art Camp",
+    id: dispute?.id ,
+    customer: dispute?.customer,
+    vendor: dispute?.vendor,
+    event: dispute?.event,
     reason: dispute?.reason || "Refund Request",
-    reference: "BK-6789",
-    dateEscalated: "March 17, 2025 - 10:30 AM",
+    reference: dispute?.booking,
+    dateEscalated: dispute?.lastUpdated,
     status: dispute?.status || "In Review",
     vendorStatement: "The customer is requesting a refund after attending half of the event. The event was delivered as promised, but they claim dissatisfaction"
   };
@@ -155,24 +156,48 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
       <hr className="border-gray-100 mb-6" />
       {/* Vendor's Statement */}
       <div className="mb-6">
-        <h3 className="font-bold text-lg text-gray-800 mb-2">Vendor's Submitted Information</h3>
-        <h4 className="font-bold text-gray-800 mb-2">Vendor's Statement</h4>
+        <h4 className="font-bold text-gray-800 mb-2">Parent's Statement</h4>
         <div className="bg-gray-300 p-4 rounded-md text-sm text-gray-700">
           {disputeDetails.vendorStatement}
         </div>
       </div>
 
+
       {/* Attachments */}
       <div className="mb-6">
         <h3 className="font-medium text-gray-800 mb-2">Attachments (if any)</h3>
-        <div className="flex items-center p-3">
+        {
+          dispute?.file ? 
+          <div className="flex items-center p-3">
           <FileText className="w-5 h-5 text-blue-500 mr-3" />
           <div>
             <p className="text-sm font-medium">Complaint_Summary.pdf</p>
             <p className="text-xs text-gray-500">200 KB</p>
           </div>
         </div>
+          :
+          <div className="flex items-center p-3">
+            <FileText className="w-5 h-5 text-blue-500 mr-3" />
+            <div>
+              <p className="text-sm font-medium">No attachments</p>
+            </div>
+          </div>
+        }
+        
       </div>
+
+      {
+        dispute.status === "Pending" && (
+          <div className="mb-6 flex gap-4">
+            <button className="border flex-1 border-[#2853A6] text-[#2853A6] px-4 py-2 rounded-md" type="button">
+              Cancel
+            </button>
+            <button className="bg-[#2853A6] flex-1 text-white px-4 py-2 rounded-md" type="button">
+              Resolve Dispute
+            </button>
+          </div>
+        )
+      }
 
       {/* Only render admin response section and buttons if dispute is "In Review" */}
       {isActionable && (

@@ -8,19 +8,37 @@ class DisputeService {
     this.baseURL = baseUrl;
   }
 
-  async getAllDisputes(): Promise<{
+  async getAllDisputes(
+    params: {
+      includeResolved?: boolean;
+      endDate?: string;
+      startDate?: string;
+      category?: string;
+      status?: string;
+      limit?: number;
+      page?: number;
+    } = {}
+  ): Promise<{
     success: boolean;
     data?: unknown;
     error?: string;
   }> {
-    const endpoint = `/api/v1/ticket/all-tickets`;
-
+    let endpoint = `/api/v1/disputes/admin/all`;
+    const query = new URLSearchParams();
+    if (params.includeResolved !== undefined)
+      query.append("includeResolved", String(params.includeResolved));
+    if (params.endDate) query.append("endDate", params.endDate);
+    if (params.startDate) query.append("startDate", params.startDate);
+    if (params.category) query.append("category", params.category);
+    if (params.status) query.append("status", params.status);
+    if (params.limit) query.append("limit", String(params.limit));
+    if (params.page) query.append("page", String(params.page));
+    if ([...query].length > 0) endpoint += `?${query.toString()}`;
     try {
       const response = await authService.makeAuthenticatedRequest(endpoint, {
         method: "GET",
       });
       console.log("DisputeService - getAllDisputes response:", response);
-
       return { success: true, data: response };
     } catch (error: unknown) {
       return {

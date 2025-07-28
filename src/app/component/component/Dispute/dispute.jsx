@@ -21,7 +21,7 @@ export default function DisputeManagement() {
     const [mobileView, setMobileView] = useState(false);
 
     // Status options
-    const statusOptions = ["All", "In Review", "Resolved", "Closed", "Active", "Pending", "Inactive"];
+    const statusOptions = ["All", "In Review", "Resolved","Pending"];
 
     // Handle page change
     const handlePageChange = (pageNumber) => {
