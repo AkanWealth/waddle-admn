@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Lock, Shield, Trash2, Clock, Check, X, Loader2, Eye, EyeOff } from "lucide-react";
 import { authService } from "@/utils/authService";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProfileSecurityPage({
     profileSettings,
@@ -12,6 +13,9 @@ export default function ProfileSecurityPage({
     const [hasProfileChanges, setHasProfileChanges] = useState(false);
     const [hasPasswordChanges, setHasPasswordChanges] = useState(false);
     const [initialSettings, setInitialSettings] = useState({ ...profileSettings });
+    
+    // Get refreshUserData from AuthContext
+    const { refreshUserData } = useAuth();
     
     // Profile-related states
     const [isProfileSaving, setIsProfileSaving] = useState(false);
@@ -185,6 +189,9 @@ export default function ProfileSecurityPage({
             
             setHasProfileChanges(false);
             setProfileSaveSuccess(true);
+
+            // Refresh user data in AuthContext to update the header
+            await refreshUserData();
 
             console.log("Profile updated successfully:", response);
 

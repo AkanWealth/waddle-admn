@@ -192,8 +192,8 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
             <button className="border flex-1 border-[#2853A6] text-[#2853A6] px-4 py-2 rounded-md" type="button">
               Cancel
             </button>
-            <button className="bg-[#2853A6] flex-1 text-white px-4 py-2 rounded-md" type="button">
-              Resolve Dispute
+            <button className="bg-[#2853A6] flex-1 cursor-pointer text-white px-4 py-2 rounded-md" type="button">
+              Move to In Review
             </button>
           </div>
         )

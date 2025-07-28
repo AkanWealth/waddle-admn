@@ -107,22 +107,27 @@ const HomePage = () => {
             app.
           </p>
 
-          <section className="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-none">
-            <button className="h-[60px] w-full sm:w-[200px]" type="button">
-              <Image
-                src={SVGAssets.DownloadViaApple}
-                alt="Download via Apple"
-                className="h-full w-full object-contain"
-              />
-            </button>
-            <button className="h-[60px] w-full sm:w-[200px]" type="button">
-              <Image
-                src={SVGAssets.DownloadViaGoogle}
-                alt="Download via Google"
-                className="h-full w-full object-contain"
-              />
-            </button>
-          </section>
+<section className="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-none">
+  <button className="h-[60px] w-[200px]" type="button">
+    <Image
+      src={SVGAssets.DownloadViaApple}
+      alt="Download via Apple"
+      height={60}
+      width={200}
+      className="h-[60px] w-[200px] object-contain"
+    />
+  </button>
+  <button className="h-[60px] w-[200px]" type="button">
+    <Image
+      src={SVGAssets.DownloadViaGoogle}
+      alt="Download via Google"
+      height={60}
+      width={200}
+      className="h-[60px] w-[200px] object-contain"
+    />
+  </button>
+</section>
+
 
           <section className="flex flex-wrap items-center gap-4 text-sm sm:text-base">
             <div className="flex items-center gap-2">

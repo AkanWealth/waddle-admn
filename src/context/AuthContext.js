@@ -45,6 +45,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Function to refresh user data
+  const refreshUserData = async () => {
+    try {
+      if (authService.isAuthenticated()) {
+        const userData = await authService.getUserProfile();
+        setUser(userData);
+        return userData;
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+      throw error;
+    }
+  };
+
   const login = async (email, password) => {
     try {
       const result = await authService.login(email, password);
@@ -77,6 +91,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     checkAuthStatus,
+    refreshUserData,
   };
 
   return (
