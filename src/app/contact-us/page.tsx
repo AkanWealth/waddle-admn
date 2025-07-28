@@ -76,18 +76,28 @@ const ContactUsPage = () => {
                 placeholder="Enter your message"
               />
             </div>
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center flex-col sm:flex-row justify-between gap-2">
               <p className="text-[#898483]  text-[16px]">
                 <span className="">
-                  By sending this form, I confirm I have read and accept the
+                  By sending this form, I confirm I have read and accepted the
                 </span>
 
-                <Link href="/privacy-policy" className="text-[#2853A6] pl-1.5 text-[16px]">
+                <Link
+                  href="/privacy-policy"
+                  className="text-[#2853A6] pl-1.5 text-[16px]"
+                >
                   Privacy Policy
                 </Link>
+                <span className="text-[#898483] text-[16px] ">, and</span>
+                <Link
+                  href="/terms-of-use"
+                  className="text-[#2853A6] pl-1.5 text-[16px]"
+                >
+                  Terms & Conditions
+                </Link>
               </p>
-              <button className="bg-[#2853A6] flex items-center gap-2 text-white px-8 py-3 rounded-[12px]">
-                <span className="text-[#FFFFFF] font-medium text-[16px]">
+              <button className="bg-[#2853A6]  flex items-center gap-2 text-white px-8 py-3 rounded-[12px]">
+                <span className="text-[#FFFFFF] font-medium text-nowrap text-[16px]">
                   Send message
                 </span>
                 <ArrowRightIcon className="w-4 h-4" />

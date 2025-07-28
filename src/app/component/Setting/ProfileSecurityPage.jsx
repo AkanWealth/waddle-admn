@@ -429,7 +429,7 @@ export default function ProfileSecurityPage({
                             type="text"
                             value={profileSettings.firstName || ''}
                             onChange={(e) => handleProfileChange("firstName", e.target.value)}
-                            className={`w-full p-3 border ${profileErrors.firstName ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            className={`w-full text-black p-3 border ${profileErrors.firstName ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             disabled={isProfileSaving}
                         />
                         {profileErrors.firstName && (
@@ -442,7 +442,7 @@ export default function ProfileSecurityPage({
                             type="text"
                             value={profileSettings.lastName || ''}
                             onChange={(e) => handleProfileChange("lastName", e.target.value)}
-                            className={`w-full p-3 border ${profileErrors.lastName ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            className={`w-full text-black p-3 border ${profileErrors.lastName ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             disabled={isProfileSaving}
                         />
                         {profileErrors.lastName && (
@@ -455,7 +455,7 @@ export default function ProfileSecurityPage({
                             type="email"
                             value={profileSettings.email || ''}
                             onChange={(e) => handleProfileChange("email", e.target.value)}
-                            className={`w-full p-3 border ${profileErrors.email ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            className={`w-full text-black p-3 border ${profileErrors.email ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             disabled={isProfileSaving}
                         />
                         {profileErrors.email && (
@@ -468,7 +468,7 @@ export default function ProfileSecurityPage({
                             type="text"
                             value={profileSettings.role || ''}
                             readOnly
-                            className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                            className="w-full text-black p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
                         />
                     </div>
                 </div>
@@ -515,7 +515,7 @@ export default function ProfileSecurityPage({
                                 type={showCurrentPassword ? "text" : "password"}
                                 value={profileSettings.currentPassword || ""}
                                 onChange={(e) => handleProfileChange("currentPassword", e.target.value)}
-                                className={`w-full p-3 border ${passwordErrors.current ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                className={`w-full text-black p-3 border ${passwordErrors.current ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                 placeholder="Enter current password"
                                 disabled={isPasswordSaving}
                             />
@@ -543,7 +543,7 @@ export default function ProfileSecurityPage({
                                 type={showNewPassword ? "text" : "password"}
                                 value={profileSettings.newPassword || ""}
                                 onChange={(e) => handleProfileChange("newPassword", e.target.value)}
-                                className={`w-full p-3 border ${passwordErrors.new ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                className={`w-full text-black p-3 border ${passwordErrors.new ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                 placeholder="Enter new password"
                                 disabled={isPasswordSaving}
                             />
@@ -571,7 +571,7 @@ export default function ProfileSecurityPage({
                                 type={showConfirmPassword ? "text" : "password"}
                                 value={profileSettings.confirmPassword || ""}
                                 onChange={(e) => handleProfileChange("confirmPassword", e.target.value)}
-                                className={`w-full p-3 border ${passwordErrors.confirm ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                className={`w-full text-black p-3 border ${passwordErrors.confirm ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                 placeholder="Confirm new password"
                                 disabled={isPasswordSaving}
                             />
