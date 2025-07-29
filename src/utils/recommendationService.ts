@@ -10,7 +10,7 @@ class RecommendationService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getAllRecommendationsEvents(page: number = 1, pageSize: number = this.defaultPageSize) {
+  async getAllRecommendationsEvents() {
     try {
       const response = await authService.makeAuthenticatedRequest(
         `/api/v1/crowd-sourcing/events/admin`
@@ -22,11 +22,31 @@ class RecommendationService {
       return {
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to fetch recommendations",
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
       };
     }
   }
 
+  async getAllRecommendationsPlaces() {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/places/1/10000`
+      );
+      console.log("Testing a couple", response);
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
+      };
+    }
+  }
   async approveRecommendationPlace(id: string) {
     try {
       const response = await authService.makeAuthenticatedRequest(
@@ -42,7 +62,9 @@ class RecommendationService {
       return {
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to approve recommendation",
+          error instanceof Error
+            ? error.message
+            : "Failed to approve recommendation",
       };
     }
   }
@@ -50,7 +72,7 @@ class RecommendationService {
   async unverifyRecommendationPlace(id: string) {
     try {
       const response = await authService.makeAuthenticatedRequest(
-         `/api/v1/crowd-sourcing/unverify/${id}`
+        `/api/v1/crowd-sourcing/unverify/${id}`
       );
       return { success: true, data: response };
     } catch (error: unknown) {
@@ -58,7 +80,9 @@ class RecommendationService {
       return {
         success: false,
         error:
-          error instanceof Error ? error.message : "Failed to approve recommendation",
+          error instanceof Error
+            ? error.message
+            : "Failed to approve recommendation",
       };
     }
   }

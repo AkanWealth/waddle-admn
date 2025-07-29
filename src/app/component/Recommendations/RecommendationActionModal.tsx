@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import { MessageSquareX, Quote, ThumbsUp, Route } from "lucide-react";
 
@@ -13,45 +13,28 @@ interface RecommendationActionModalProps {
   onClose: () => void;
 }
 
-const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({ onClose }) => {
+const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
+  onClose,
+}) => {
   const { openShowPlaceDetailsModal } = useRecommendationsStore();
   const modalRef = useRef<HTMLDivElement>(null);
-  const [showAbove, setShowAbove] = useState(false);
 
-
-  
-
-  useEffect(() => {
-    if (!modalRef.current) return;
-
-    const buttonRect = modalRef.current.parentElement?.getBoundingClientRect();
-    const modalHeight = 200; // Estimate or calculate dynamically if needed
-
-    if (buttonRect) {
-      const spaceBelow = window.innerHeight - buttonRect.bottom;
-      const spaceAbove = buttonRect.top;
-
-      // If there's not enough space below but enough space above
-      if (spaceBelow < modalHeight && spaceAbove > modalHeight) {
-        setShowAbove(true);
-      }
-    }
-  }, []);
+  // Removed showAbove and related logic
 
   const handleClick = (tab: number) => {
     if (tab === 1) {
       openShowPlaceDetailsModal();
     }
-    if(tab === 2) {
+    if (tab === 2) {
       // Handle parent reviews action here
       console.log("Parent Reviews action triggered");
     }
     onClose();
-    if(tab === 3) {
+    if (tab === 3) {
       // Call the approve recommendation function here
       console.log("Approve Place action triggered");
     }
-    if(tab === 4) {
+    if (tab === 4) {
       // Call the reject recommendation function here
       console.log("Reject Place action triggered");
     }
@@ -59,10 +42,7 @@ const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({ o
   };
 
   return (
-    <div
-      ref={modalRef}
-      className={`absolute right-0 z-50 w-[290px] ${showAbove ? "bottom-full mb-2" : "top-full mt-2"}`}
-    >
+    <div ref={modalRef} className="z-50 w-[290px]">
       <div className="bg-white shadow-2xl rounded-[20px] border border-[#E5E7EF]">
         {RecommendationActionModalItems.map(({ id, Icon, text }) => (
           <div

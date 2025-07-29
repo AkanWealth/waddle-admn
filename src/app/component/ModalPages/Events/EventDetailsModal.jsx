@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import formatCustomDate from '@/lib/formatDate';
 import BaseModal from '../../Element/BaseModal';
 import { Clock, CalendarDaysIcon, MapPin,User, BadgeDollarSign, Phone, Mail } from 'lucide-react';
 import ApproveEventModal from './approveEventModal';
@@ -20,11 +21,7 @@ const EventDetailsModal = ({
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         try {
-            return new Date(dateString).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            return formatCustomDate(dateString, 'DD-MM-YYYY');
         } catch {
             return 'Invalid Date';
         }

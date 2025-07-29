@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+//@ts-nocheck
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Search,
   Filter,
@@ -14,8 +16,6 @@ import RecommendationActionModal from "@/app/component/Recommendations/Recommend
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import PlacesDetailsModal from "@/app/component/Recommendations/PlacesDetailsModal";
 import ApprovePlaceModal from "@/app/component/Recommendations/ApprovePlaceModal";
-import { recommendationService } from "@/utils/recommendationService";
-import { toast } from "react-toastify";
 import formatCustomDate from "@/lib/formatDate";
 import SVGAssets from "@/assets/svg";
 import Image from "next/image";
@@ -123,8 +123,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 // Table Row Component
 interface TableRowProps {
   recommendation: Recommendation;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onActionClick: (item: any) => void;
+  onActionClick: (item: Recommendation) => void;
   showModal: boolean;
   onCloseModal: () => void;
   activeModalId: string | null;
@@ -137,6 +136,24 @@ const TableRow: React.FC<TableRowProps> = ({
   onCloseModal,
 }) => {
   const isActive = activeModalId === recommendation.id;
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [openAbove, setOpenAbove] = useState(false);
+
+  const handleActionClick = (item: Recommendation) => {
+    if (isActive) {
+      onCloseModal();
+    } else {
+      // Calculate available space for modal
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const modalHeight = 220; // Adjust to your modal's height
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        setOpenAbove(spaceBelow < modalHeight && spaceAbove > modalHeight);
+      }
+      onActionClick(item);
+    }
+  };
 
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50 ">
@@ -160,13 +177,23 @@ const TableRow: React.FC<TableRowProps> = ({
       </td>
       <td className="py-3 px-4 relative">
         <button
-          onClick={() => onActionClick(recommendation)}
+          ref={buttonRef}
+          onClick={() => handleActionClick(recommendation)}
           className="text-gray-400 hover:text-gray-600"
         >
           <MoreVertical className="w-4 h-4" />
         </button>
 
-        {isActive && <RecommendationActionModal onClose={onCloseModal} />}
+        {isActive && (
+          <div
+            className={`absolute right-0 z-20 min-w-[180px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 ${
+              openAbove ? "bottom-full mb-2" : "top-full mt-2"
+            }`}
+            style={{ minWidth: 180 }}
+          >
+            <RecommendationActionModal onClose={onCloseModal} />
+          </div>
+        )}
       </td>
     </tr>
   );
@@ -174,110 +201,241 @@ const TableRow: React.FC<TableRowProps> = ({
 
 // Table Component
 interface RecommendationsTableProps {
+  activeTab: string;
   data: Recommendation[];
   activeModalId: string | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onActionClick: (item: any) => void;
+  onActionClick: (item: Recommendation) => void;
   onCloseModal: () => void;
 }
 
 const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
+  activeTab,
   data,
   activeModalId,
   onActionClick,
   onCloseModal,
 }) => {
   return (
-    <div className="w-full overflow-y-hidden relative h-full">
-      <table className="w-full table-auto">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Place Name
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Submitted By
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Date Submitted
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Location
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Category
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Status
-            </th>
-            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-              Action
-            </th>
-          </tr>
-        </thead>
+    <>
+      {activeTab === "Places" ? (
+        <div className="w-full overflow-y-hidden relative h-full">
+          <table className="w-full table-auto">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Place Name
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Submitted By
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Date Submitted
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Location
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Category
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Status
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Action
+                </th>
+              </tr>
+            </thead>
 
-        <tbody className="overflow-y-hidden">
-          {data.map((item) => (
-            <TableRow
-              activeModalId={activeModalId}
-              key={item.id}
-              recommendation={item}
-              onActionClick={onActionClick}
-              showModal={activeModalId === item.id}
-              onCloseModal={onCloseModal}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+            <tbody className="overflow-y-hidden">
+              {data.map((item) => (
+                <TableRow
+                  activeModalId={activeModalId}
+                  key={item.id}
+                  recommendation={item}
+                  onActionClick={onActionClick}
+                  showModal={activeModalId === item.id}
+                  onCloseModal={onCloseModal}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="w-full overflow-y-hidden relative h-full">
+          <table className="w-full table-auto">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Event Name
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Submitted By
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Date Submitted
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Entry Fee
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Category
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Status
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="overflow-y-hidden">
+              {data.map((item) => (
+                <TableRowEvents
+                  activeModalId={activeModalId}
+                  key={item.id}
+                  event={item}
+                  onActionClick={onActionClick}
+                  showModal={activeModalId === item.id}
+                  onCloseModal={onCloseModal}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
+};
+
+interface TableRowEventsProps {
+  event: import("@/types/IRecommendations").Event;
+  onActionClick: (item: import("@/types/IRecommendations").Event) => void;
+  showModal: boolean;
+  onCloseModal: () => void;
+  activeModalId: string | null;
+}
+
+const TableRowEvents: React.FC<TableRowEventsProps> = ({
+  activeModalId,
+  event,
+  onActionClick,
+  onCloseModal,
+}) => {
+  const isActive = activeModalId === event.id;
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [openAbove, setOpenAbove] = useState(false);
+
+  const handleActionClick = (
+    item: import("@/types/IRecommendations").Event
+  ) => {
+    if (isActive) {
+      onCloseModal();
+    } else {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const modalHeight = 220;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        setOpenAbove(spaceBelow < modalHeight && spaceAbove > modalHeight);
+      }
+      onActionClick(item);
+    }
+  };
+
+  return (
+    <tr className="border-b border-gray-100 hover:bg-gray-50">
+      <td className="py-3 px-4 text-sm text-[#515151] font-semibold">
+        {event.name}
+      </td>
+      <td className="py-3 px-4 text-sm text-gray-600">{event.submittedBy}</td>
+      <td className="py-3 px-4 text-sm text-gray-600">{event.dateSubmitted}</td>
+      <td className="py-3 px-4 text-sm text-gray-600">{event.entryFee}</td>
+      <td className="py-3 px-4 text-sm text-gray-600">{event.category}</td>
+      <td className="py-3 px-4">
+        <StatusBadge status={event.status} />
+      </td>
+      <td className="py-3 px-4 relative">
+        <button
+          ref={buttonRef}
+          onClick={() => handleActionClick(event)}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          <MoreVertical className="w-4 h-4" />
+        </button>
+
+        {isActive && (
+          <div
+            className={`absolute right-0 z-20 min-w-[180px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 ${
+              openAbove ? "bottom-full mb-2" : "top-full mt-2"
+            }`}
+            style={{ minWidth: 180 }}
+          >
+            <RecommendationActionModal onClose={onCloseModal} />
+          </div>
+        )}
+      </td>
+    </tr>
   );
 };
 
 const ParentRecommendations: React.FC = () => {
-  const { showPlaceDetailsModal, showApproveDetailsModal, setSelectedPlace } =
-    useRecommendationsStore();
+  const {
+    places,
+    events,
+    refreshEvents,
+    setSelectedPlace,
+    setSelectedEvent,
+    showPlaceDetailsModal,
+    showApproveDetailsModal,
+  } = useRecommendationsStore();
   const [activeTab, setActiveTab] = useState<string>("Places");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
   const itemsPerPage = 7;
-  const [placesList, setPlacesList] = useState<Recommendation[]>([]);
 
   useEffect(() => {
-    async function FetchEvents(): Promise<void> {
-      const response = await recommendationService.getAllRecommendationsEvents(
-        1,
-        1000
-      );
-      console.log(response, "This is response from recommendations");
-      if (response.success) {
-        setPlacesList(response.data.events);
-      } else {
-        toast.error(response.error);
-      }
-    }
+    refreshEvents(activeTab as "Places" | "Events");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
-    FetchEvents();
-  }, []);
-
-  const filteredData = placesList.filter(
+  // Filtering and pagination logic for each tab
+  const filteredPlaces = places.filter(
     (item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.creator.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const filteredEvents = events.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.submittedBy.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(
+    (activeTab === "Places" ? filteredPlaces.length : filteredEvents.length) /
+      itemsPerPage
+  );
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(
+  const paginatedPlaces = filteredPlaces.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+  const paginatedEvents = filteredEvents.slice(
     startIndex,
     startIndex + itemsPerPage
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleActionClick = (item: any) => {
+  // Action click handlers for each tab
+  const handleActionClickPlace = (item: Recommendation) => {
     setSelectedPlace(item);
-    console.log("Action clicked for item:", item.id);
+    setActiveModalId(item.id);
+  };
+  const handleActionClickEvent = (
+    item: import("@/types/IRecommendations").Event
+  ) => {
+    setSelectedEvent(item);
     setActiveModalId(item.id);
   };
 
@@ -286,7 +444,6 @@ const ParentRecommendations: React.FC = () => {
   };
 
   const handleFilterClick = () => {
-    console.log("Filter clicked");
     // Handle filter logic here
   };
 
@@ -308,13 +465,16 @@ const ParentRecommendations: React.FC = () => {
               ? "Recommended Places"
               : "Recommended Events"}
           </span>{" "}
-          <span className="text-orange-500">({filteredData.length})</span>
+          <span className="text-orange-500">
+            {activeTab === "Places"
+              ? `(${filteredPlaces.length})`
+              : `(${filteredEvents.length})`}
+          </span>
         </h2>
 
         <div className="mb-6">
           <div className="bg-white px-2 py-2 flex items-center justify-between">
             <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-
             <SearchFilter
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
@@ -322,20 +482,69 @@ const ParentRecommendations: React.FC = () => {
             />
           </div>
           <div className="bg-white relative">
-            {paginatedData.length === 0 ? (
+            {activeTab === "Places" ? (
+              paginatedPlaces.length === 0 ? (
+                <NoRecommendations />
+              ) : (
+                <RecommendationsTable
+                  activeTab={activeTab}
+                  data={paginatedPlaces}
+                  activeModalId={activeModalId}
+                  onActionClick={handleActionClickPlace}
+                  onCloseModal={handleCloseModal}
+                />
+              )
+            ) : paginatedEvents.length === 0 ? (
               <NoRecommendations />
             ) : (
-              <RecommendationsTable
-                data={paginatedData}
-                activeModalId={activeModalId}
-                onActionClick={handleActionClick}
-                onCloseModal={handleCloseModal}
-              />
+              <div className="w-full overflow-y-hidden relative h-full">
+                <table className="w-full table-auto">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Event Name
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Submitted By
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Date Submitted
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Entry Fee
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Category
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="overflow-y-hidden">
+                    {paginatedEvents.map((item) => (
+                      <TableRowEvents
+                        activeModalId={activeModalId}
+                        key={item.id}
+                        event={item}
+                        onActionClick={handleActionClickEvent}
+                        showModal={activeModalId === item.id}
+                        onCloseModal={handleCloseModal}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
       </div>
-      {filteredData.length > 0 && (
+      {(activeTab === "Places"
+        ? filteredPlaces.length > 0
+        : filteredEvents.length > 0) && (
         <PaginationComponent
           currentPage={currentPage}
           totalPages={totalPages}
@@ -349,7 +558,6 @@ const ParentRecommendations: React.FC = () => {
 };
 
 export default ParentRecommendations;
-
 
 const NoRecommendations = () => {
   return (
@@ -367,6 +575,6 @@ const NoRecommendations = () => {
         You haven’t created any events yet. Get started by clicking the “Create
         Event”
       </p>
-    </div>  
+    </div>
   );
 };

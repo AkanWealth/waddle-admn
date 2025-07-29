@@ -45,7 +45,7 @@ export default function EventManagement() {
     "Pending",
     "Draft",
     "Non-compliant",
-    "Crown sourcing",
+    "Crowd sourced",
   ];
 
   // Handle page change

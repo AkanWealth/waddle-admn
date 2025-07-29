@@ -5,6 +5,7 @@ import StatusBadge from "./StatusBadge";
 import CrownSourcingModal from "../ModalPages/Events/CrownSourcingModal";
 import EventApproveDetailsModal from "../ModalPages/Events/viewDeactivateEventModal";
 import EventDetailsModal from "../ModalPages/Events/EventDetailsModal";
+import { useRecommendationsStore } from '@/stores/useRecommendationStore';
 
 export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView, isLoading }) {
     console.log(data, "This is the data");
@@ -14,7 +15,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
 
     // Modal state management
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedevent, setSelectedevent] = useState(null);
+    const { selectedEvent, setSelectedEvent } = useRecommendationsStore();
 
     // Pagination logic - data is already filtered from parent component
     const itemsPerPage = 7; // Changed back to 7 to match parent component calculation
@@ -73,14 +74,14 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
     // Function to open event details modal
     const openeventDetails = (event) => {
         if (!event) return;
-        setSelectedevent(event);
+        setSelectedEvent(event);
         setIsModalOpen(true);
     };
 
     // Function to close modal
     const closeModal = () => {
+        setSelectedEvent(null);
         setIsModalOpen(false);
-        setSelectedevent(null);
     };
 
     // Function to handle event approval (toggle published status)
@@ -121,11 +122,11 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
 
     // Render modal based on event status
     const renderModal = () => {
-        if (!selectedevent || !isModalOpen) return null;
+        if (!selectedEvent || !isModalOpen) return null;
 
-        const eventStatus = getEventStatus(selectedevent);
+        const eventStatus = getEventStatus(selectedEvent);
         const modalProps = {
-            event: selectedevent,
+            event: selectedEvent,
             isOpen: isModalOpen,
             onClose: closeModal,
         };
@@ -134,7 +135,6 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
             case "Draft":
                 return (
                     <EventDetailsModal
-                    event={selectedevent}
                         {...modalProps}
                         onApprove={handleApprove}
                         onReject={handleReject}

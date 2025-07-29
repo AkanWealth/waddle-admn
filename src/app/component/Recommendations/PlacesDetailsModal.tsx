@@ -1,24 +1,82 @@
 import React from "react";
-import {
-  MapPin,
-  Tag,
-  X,
-  PoundSterling,
-  UserRound,
-  Mail,
-  CircleCheck,
-} from "lucide-react";
+import { MapPin, Tag, X, UserRound, CircleCheck } from "lucide-react";
 import Image from "next/image";
-import { ImageData, sampleImages } from "./sampleData";
+import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 
 const PlacesDetailsModal = () => {
   const handleImageClick = (image: ImageData, index: number) => {
     console.log("Image clicked:", image, "at index:", index);
   };
-  const amenities = ["Parking", "Toilets", "Café", "Playground"];
-  const {openShowApproveDetailsModal, closeShowApproveDetailsModal, closeShowPlaceDetailsModal, selectedPlace}=useRecommendationsStore()
-  console.log(selectedPlace, "This is the selected")
+  // Define a local type for the event structure
+  type Creator = { name: string; email?: string; profile_picture?: string };
+  type EventDetails = {
+    name: string;
+    description?: string;
+    address?: string;
+    category?: string;
+    images?: string[];
+    facilities?: string[];
+    tips?: string;
+    creator?: Creator;
+    status?: string;
+    isDeleted?: boolean;
+    isVerified?: boolean;
+  };
+  const {
+    openShowApproveDetailsModal,
+    closeShowApproveDetailsModal,
+    closeShowPlaceDetailsModal,
+    selectedPlace,
+  } = useRecommendationsStore() as {
+    selectedPlace: EventDetails;
+    openShowApproveDetailsModal: () => void;
+    closeShowApproveDetailsModal: () => void;
+    closeShowPlaceDetailsModal: () => void;
+  };
+
+  if (!selectedPlace) {
+    return (
+      <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
+        <div className="px-5 py-4 bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
+          <div>Loading event details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const amenities =
+    selectedPlace.facilities && selectedPlace.facilities.length > 0
+      ? selectedPlace.facilities
+      : [];
+  const images: ImageData[] =
+    selectedPlace.images && selectedPlace.images.length > 0
+      ? selectedPlace.images.map((img: string, idx: number) => ({
+          id: idx + 1,
+          src: img,
+          alt: selectedPlace.name || "Event image",
+        }))
+      : [];
+
+  // Use creator for submitted by, avatar, and email
+  const creator: Creator = selectedPlace.creator ?? {
+    name: "",
+    email: "",
+    profile_picture: "",
+  };
+  const submittedBy = creator?.name || "Unknown";
+  const submittedByAvatar = creator?.profile_picture
+    ? creator.profile_picture.startsWith("http")
+      ? creator.profile_picture
+      : `https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/${creator.profile_picture}`
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(submittedBy)}`;
+  const submittedByEmail = creator?.email || "No email";
+
+  // Determine status using the same logic as in recommendations/page.tsx
+  let derivedStatus: "Pending" | "Rejected" | "Approved" = "Pending";
+  if (selectedPlace?.isDeleted) derivedStatus = "Rejected";
+  else if (selectedPlace?.isVerified) derivedStatus = "Approved";
+
   return (
     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
       <div className="px-5 py-4 bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
@@ -27,59 +85,69 @@ const PlacesDetailsModal = () => {
             <h3 className="text-[#404040] font-semibold text-xl">
               Place Details
             </h3>
-            <X onClick={()=>closeShowPlaceDetailsModal()} className="text-[#404040]" />
+            <X
+              onClick={() => closeShowPlaceDetailsModal()}
+              className="text-[#404040]"
+            />
           </div>
-          <div className="flex   justify-end my-2.5">
-            <div className="w-[80%] flex items-center gap-6">
-              <button
-             onClick={closeShowApproveDetailsModal}
-                type="button"
-                className="flex-1 border border-[#CC0000] px-3 py-2 text-[#CC0000] rounded-xl"
-              >
-                Reject
-              </button>
-              <button
-                className="flex-1 bg-[#2853A6] px-3 py-2 rounded-xl text-[#F8F2EC]"
-                type="button"
-                onClick={openShowApproveDetailsModal}
-              >
-                Approve
-              </button>
+          {derivedStatus !== "Approved" && (
+            <div className="flex   justify-end my-2.5">
+              <div className="w-[80%] flex items-center gap-6">
+                <button
+                  onClick={closeShowApproveDetailsModal}
+                  type="button"
+                  className="flex-1 border border-[#CC0000] px-3 py-2 text-[#CC0000] rounded-xl"
+                >
+                  Reject
+                </button>
+                <button
+                  className="flex-1 bg-[#2853A6] px-3 py-2 rounded-xl text-[#F8F2EC]"
+                  type="button"
+                  onClick={openShowApproveDetailsModal}
+                >
+                  Approve
+                </button>
+              </div>
             </div>
-          </div>
+          )}
           <div className="">
             <h3 className="text-[#404040] font-semibold text-xl">
-              Fun Forest Walk – Highwoods Country Park
+              {selectedPlace.name || "Event Name"}
             </h3>
             <p className="text-[#565C69] font-normal">
-              Great open space for kids to run free. Lots of nature trails and
-              picnic spots!
+              {selectedPlace.description || "No description provided."}
             </p>
             <div className="">
               <div className="flex items-center gap-4 my-1.5">
                 <div className="flex items-center gap-2">
                   <MapPin className=" text-[15px] h-[15px]" />
                   <p className="text-[#303237] font-semibold text-[15px]">
-                    Colchester, 6km away
+                    {selectedPlace.address || "No address"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Tag className="text-[#D45815] text-[14px] h-[14px]" />
-                  <p className="text-[#404040] text-[14px]">Outdoor</p>
+                  <p className="text-[#404040] text-[14px]">
+                    {selectedPlace.category || "No category"}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="border px-0.5 border-green-300 py-1.5 rounded-full">
-                    <PoundSterling className="text-[14px] h-[14px] text-green-300" />
-                  </span>
-                  <p className="text-[#404040] text-[14px]">Free</p>
-                </div>
+                {/* No fee in Place, so skip PoundSterling/fee */}
               </div>
               <div className="">
-                <ParentsVisited />
+                <ParentsVisited
+                  parents={[
+                    {
+                      id: "1",
+                      name: submittedBy,
+                      avatar: submittedByAvatar,
+                    },
+                  ]}
+                  totalCount={1}
+                />
               </div>
               <div className="">
                 <ImageGallery
-                  images={sampleImages}
+                  images={images}
                   maxVisible={4}
                   onImageClick={handleImageClick}
                 />
@@ -90,11 +158,10 @@ const PlacesDetailsModal = () => {
                   <div className="flex items-center gap-5 text-[#1D1D1E]">
                     <div className="flex items-center gap-2">
                       <UserRound className="h-[15px]" />
-                      <p className="text-[14px]">Janet Doe</p>
+                      <p className="text-[14px]">{submittedBy}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mail className="h-[15px]" />
-                      <p className="text-[14px]">janetdoe@gmail.com</p>
+                      <p className="text-[14px]">{submittedByEmail}</p>
                     </div>
                   </div>
                 </div>
@@ -103,19 +170,26 @@ const PlacesDetailsModal = () => {
                     Parent’s Tip
                   </h3>
                   <p className="text-[#565C69]">
-                    Brings your child rainboot if it’s raining, the environment
-                    get very muddy
+                    {selectedPlace.tips
+                      ? selectedPlace.tips
+                      : "No tips provided."}
                   </p>
                 </div>
                 <div className="">
                   <h3 className="text-[#1D1D1E] font-bold">Facilities</h3>
                   <div className="flex flex-wrap items-center gap-6">
-                    {amenities.map((item) => (
-                      <div key={item} className="flex items-center gap-2">
-                        <CircleCheck className="h-[15px] text-[#1E9A64]" />
-                        <p className="text-[15px] text-[#565C69]">{item}</p>
-                      </div>
-                    ))}
+                    {amenities.length > 0 ? (
+                      amenities.map((item: string) => (
+                        <div key={item} className="flex items-center gap-2">
+                          <CircleCheck className="h-[15px] text-[#1E9A64]" />
+                          <p className="text-[15px] text-[#565C69]">{item}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[15px] text-[#565C69]">
+                        No facilities listed.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

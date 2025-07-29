@@ -291,6 +291,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
   const selectedFrequency = frequencyOptions.find(
     (freq) => freq.value === eventData.frequency
   );
+  const [eventType, setEventType] = useState("details");
 
   return (
     <BaseModal
@@ -309,7 +310,10 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
         safety and compliance guidelines.
       </div>
 
-      <div className="space-y-6">
+
+{
+  eventType === "details" && (
+     <div className="space-y-6">
         {/* Event Name & Location - Responsive Row/Column */}
         <div className="flex flex-col gap-4 md:flex-row">
           {/* Event Name */}
@@ -813,6 +817,8 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
           </div>
         </div>
       </div>
+  )
+  }
 
       {/* Footer Buttons */}
       <div className="flex mt-8 space-x-4">

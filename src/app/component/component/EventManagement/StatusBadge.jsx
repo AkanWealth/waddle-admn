@@ -32,11 +32,11 @@ export default function StatusBadge({ status }) {
                     <span className="text-orange-600 text-xs px-3 py-2">Draft</span>
                 </div>
             );
-        case "Crown sourcing":
+        case "Crowd sourced":
             return (
                 <div className="flex items-center bg-blue-100 rounded-lg px-2">
                     <TrendingUpDown className="w-4 h-4 text-blue-500 mr-1" />
-                    <span className="text-blue-600 text-xs px-3 py-2">Crown sourcing</span>
+                    <span className="text-blue-600 text-xs px-3 py-2">Crowd sourced</span>
                 </div>
             );
         default:

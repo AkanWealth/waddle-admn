@@ -3,22 +3,21 @@ import { recommendationService } from "@/utils/recommendationService";
 import { CircleCheck } from "lucide-react";
 
 const ApprovePlaceModal = () => {
-  const { closeShowApproveDetailsModal, selectedPlace } =
-    useRecommendationsStore();
+  const {
+    closeShowApproveDetailsModal,
+    closeShowPlaceDetailsModal,
+    refreshEvents,
+    selectedPlace,
+  } = useRecommendationsStore();
   const handleApprovePlace = async () => {
-    // Logic to approve the place goes here
-    console.log("Place approved");
-    closeShowApproveDetailsModal();
-
-    // Example usage
-    
     if (!selectedPlace) return;
     const result = await recommendationService.approveRecommendationPlace(
-      selectedPlace?.id
+      selectedPlace.id
     );
-
     if (result.success) {
-      console.log("Place approved:", result.data);
+      await refreshEvents();
+      closeShowApproveDetailsModal();
+      closeShowPlaceDetailsModal();
     } else {
       console.error("Error approving place:", result.error);
     }

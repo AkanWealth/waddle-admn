@@ -134,7 +134,7 @@ const CrownSourcingModal = ({
                         <div className="flex items-center ">
 
                             <span className="inline-flex items-center justify-end px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                <TrendingUpDown className="w-4 h-4 text-blue-600 mr-1" /> Crown Sourcing
+                                <TrendingUpDown className="w-4 h-4 text-blue-600 mr-1" /> Crowd sourced
                             </span>
                         </div>
                     </div>
