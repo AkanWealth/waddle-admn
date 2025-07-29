@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Clock, TriangleAlert, AlertCircle, CircleCheck, XCircle, TrendingUpDown } from "lucide-react";
 import DisputeDetailModal from "../ModalPages/Dispute/DisputeDetailModal";
 import { disputeService } from "@/utils/disputeService";
@@ -8,52 +8,64 @@ import { disputeService } from "@/utils/disputeService";
 export default function DisputeTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, setHasDisputeData, setTotalDisputes }) {
     // State management
     const [allDisputes, setAllDisputes] = useState([]);
-    const [filteredDisputes, setFilteredDisputes] = useState([]);
     const [paginatedDisputes, setPaginatedDisputes] = useState([]);
     const [selectedDispute, setSelectedDispute] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500); // 500ms delay
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
     // Fetch disputes data on component mount
-    useEffect(() => {
-        const fetchDisputes = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                // Prepare query params
-                const params = {
-                    page: currentPage,
-                    limit: 7,
-                    status: statusFilter && statusFilter.length === 1 ? statusFilter[0].toUpperCase().replace(/ /g, '_') : undefined,
-                    startDate: dateFilter?.from ? new Date(dateFilter.from).toISOString() : undefined,
-                    endDate: dateFilter?.to ? new Date(dateFilter.to).toISOString() : undefined,
-                    // category: ... // Add if you have category filter
-                };
-                const result = await disputeService.getAllDisputes(params);
-                if (result.success && result.data) {
-                    // Transform the API data to match your component's expected format
-                    const transformedData = transformApiData(result.data.data || []);
-                    setAllDisputes(transformedData);
-                    
-                    // Update pagination info from server response
-                    if (typeof setTotalDisputes === 'function' && result.data.pagination) {
-                        setTotalDisputes(result.data.pagination.total);
-                    }
-                } else {
-                    setError(result.error || "Failed to fetch disputes");
-                    setAllDisputes([]);
+    const fetchDisputes = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            // Prepare query params
+            const params = {
+                page: currentPage,
+                limit: 7,
+                status: statusFilter && statusFilter.length === 1 ? statusFilter[0].toUpperCase().replace(/ /g, '_') : undefined,
+                startDate: dateFilter?.from ? new Date(dateFilter.from).toISOString() : undefined,
+                endDate: dateFilter?.to ? new Date(dateFilter.to).toISOString() : undefined,
+                search: debouncedSearchTerm || undefined,
+                // category: ... // Add if you have category filter
+            };
+            const result = await disputeService.getAllDisputes(params);
+            if (result.success && result.data) {
+                // Transform the API data to match your component's expected format
+                const transformedData = transformApiData(result.data.data || []);
+                setAllDisputes(transformedData);
+                
+                // Update pagination info from server response
+                if (typeof setTotalDisputes === 'function' && result.data.pagination) {
+                    setTotalDisputes(result.data.pagination.total);
                 }
-            } catch (err) {
-                setError("An unexpected error occurred while fetching disputes");
-                console.error("Error fetching disputes:", err);
+            } else {
+                setError(result.error || "Failed to fetch disputes");
                 setAllDisputes([]);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (err) {
+            setError("An unexpected error occurred while fetching disputes");
+            console.error("Error fetching disputes:", err);
+            setAllDisputes([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [currentPage, statusFilter, dateFilter, debouncedSearchTerm]);
+
+    // Fetch disputes when dependencies change
+    useEffect(() => {
         fetchDisputes();
-    }, [currentPage, statusFilter, dateFilter]);
+    }, [fetchDisputes]);
 
     // Map API status to display status
     const mapStatus = (apiStatus) => {
@@ -143,46 +155,8 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
         );
     };
 
-    // Apply search and filters
-    useEffect(() => {
-        let results = [...allDisputes];
-
-        // Apply search - make it more comprehensive
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase().trim();
-            results = results.filter(
-                dispute =>
-                    dispute.id.toLowerCase().includes(term) ||
-                    dispute.customer.toLowerCase().includes(term) ||
-                    dispute.vendor.toLowerCase().includes(term) ||
-                    dispute.reason.toLowerCase().includes(term) ||
-                    dispute.status.toLowerCase().includes(term)
-            );
-        }
-
-        // Apply status filter
-        if (statusFilter && statusFilter.length > 0) {
-            results = results.filter(dispute => statusFilter.includes(dispute.status));
-        }
-
-        // Apply date filter
-        if (dateFilter.from) {
-            const fromDate = new Date(dateFilter.from);
-            results = results.filter(dispute => {
-                const disputeDate = parseDisputeDate(dispute.lastUpdated);
-                return disputeDate >= fromDate;
-            });
-        }
-        if (dateFilter.to) {
-            const toDate = new Date(dateFilter.to);
-            results = results.filter(dispute => {
-                const disputeDate = parseDisputeDate(dispute.lastUpdated);
-                return disputeDate <= toDate;
-            });
-        }
-
-        setFilteredDisputes(results);
-    }, [allDisputes, searchTerm, statusFilter, dateFilter]);
+    // Since we're using server-side filtering and pagination, we don't need client-side filtering
+    // The server handles all filtering including search, status, and date filters
 
     const parseDisputeDate = (dateString) => {
         const [day, month, year] = dateString.split('-');

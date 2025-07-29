@@ -17,6 +17,7 @@ class DisputeService {
       status?: string;
       limit?: number;
       page?: number;
+      search?: string;
     } = {}
   ): Promise<{
     success: boolean;
@@ -33,6 +34,7 @@ class DisputeService {
     if (params.status) query.append("status", params.status);
     if (params.limit) query.append("limit", String(params.limit));
     if (params.page) query.append("page", String(params.page));
+    if (params.search) query.append("search", params.search);
     if ([...query].length > 0) endpoint += `?${query.toString()}`;
     try {
       const response = await authService.makeAuthenticatedRequest(endpoint, {
