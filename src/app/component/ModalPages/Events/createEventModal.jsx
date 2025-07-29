@@ -206,10 +206,10 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
 
     const ageRangeString = `${frontendData.ageRange.min}-${frontendData.ageRange.max}`;
 
-    const price =
-      frontendData.fee && frontendData.fee.trim() !== ""
-        ? frontendData.fee
-        : "0.0";
+    // Fix price handling - use the actual fee value
+    const price = frontendData.fee && frontendData.fee.trim() !== ""
+      ? frontendData.fee
+      : "0.0";
 
     const total_ticket =
       frontendData.ticketNumber && frontendData.ticketNumber.trim() !== ""
@@ -220,11 +220,10 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
           : frontendData.capacity
         : "0";
 
-    // Instruction - from safetyMeasures or default ""
-    const instruction =
-      frontendData.safetyMeasures && frontendData.safetyMeasures.length > 0
-        ? frontendData.safetyMeasures.join(", ")
-        : "";
+    // Convert safetyMeasures array to instructions array
+    const instructions = frontendData.safetyMeasures && frontendData.safetyMeasures.length > 0
+      ? frontendData.safetyMeasures
+      : [];
 
     const category = frontendData.category || "";
 
@@ -237,16 +236,29 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
       date: frontendData.date,
       time: convertTime12to24(frontendData.time),
       age_range: ageRangeString,
-      instruction,
+      instructions,
       category,
-      isPublished: "false",
+      isPublished: false,
+      distance: 10, // Default distance
+      facilities: [], // Default empty facilities array
+      tags: [], // Default empty tags array
+      eventType: "INDOOR" // Default event type
     };
   }
 
   const handleSubmit = async () => {
-    const backendData = transformFrontendToBackend(eventData);
+    // Merge the separate state variables with eventData
+    const completeEventData = {
+      ...eventData,
+      fee: eventFee,
+      ticketNumber: ticketNumber,
+      capacity: capacity
+    };
+
+    const backendData = transformFrontendToBackend(completeEventData);
     console.log("Sending to backend:", backendData);
 
+    // Send JSON data instead of FormData
     const result = await eventService.createEventAsAdmin(backendData);
 
     if (result.success) {

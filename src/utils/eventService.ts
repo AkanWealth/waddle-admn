@@ -1,6 +1,5 @@
 import { authService } from "./authService";
 import { baseUrl } from "../lib/envfile";
-import { CreateEventType } from "@/types/Events";
 
 class EventService {
   private baseURL: string;
@@ -9,22 +8,34 @@ class EventService {
     this.baseURL = baseUrl;
   }
 
-  async createEventAsAdmin(createEventData: CreateEventType): Promise<{
+  async createEventAsAdmin(eventData: Record<string, unknown>): Promise<{
     success: boolean;
     data?: unknown;
     error?: string;
   }> {
     try {
-      const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/events/host`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(createEventData),
-        }
-      );
+      const accessToken = authService.getAccessToken();
 
-      return { success: true, data: response };
+      if (!accessToken) {
+        throw new Error("No access token available");
+      }
+
+      const response = await fetch(`${this.baseURL}/api/v1/events/host`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Request failed");
+      }
+
+      const data = await response.json();
+      return { success: true, data };
     } catch (error: unknown) {
       return {
         success: false,

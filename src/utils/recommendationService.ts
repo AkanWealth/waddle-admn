@@ -9,10 +9,11 @@ class RecommendationService {
     this.baseURL = baseUrl;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getAllRecommendationsEvents(page: number = 1, pageSize: number = this.defaultPageSize) {
     try {
       const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/crowd-sourcing/events/${page}/${pageSize}`
+        `/api/v1/crowd-sourcing/events/admin`
       );
       console.log("Testing a couple", response);
       return { success: true, data: response };

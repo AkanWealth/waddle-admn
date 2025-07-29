@@ -15,34 +15,65 @@ const EventDetailsModal = ({
     onEdit
 }) => {
     console.log("This is the event that is selected",event)
-    // Merge with default data if needed or use provided event data
-    const eventData = {
-        title: "Dance Class by Aura Jean",
-        description: "Very nice event organised to teach and entertain family both parents and children. this is very nice this rich and enjoyable. Bring your kids\nVery nice event organised to teach and entertain family both parents and children. this is very nice this rich and enjoyable. Bring your kids",
-        safetyMeasures: [
-            "Snacks included",
-            "Parental supervision required"
-        ],
-        details: [
-            { label: "Date", value: "14th February 2024", icon: "calendar" },
-            { label: "Time", value: "8am - 2pm", icon: "clock" },
-            { label: "Location", value: "Wivehoe, 6 miles away", icon: "location" },
-            { label: "Age Range", value: "2-10 years old", icon: "person" },
-            { label: "Price", value: "£20/person", icon: "money" }
-        ],
-        organizer: {
-            name: "Aura Jean",
-            company: "Chef Food Limited",
-            email: "aurajean@cheffood.com",
-            phone: "+4498274774"
-        },
-        images: [
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" },
-            { name: "Thrive in Uncertain...", size: "200kb", url: "/editImage.jpg" }
-        ],
-        status: "Pending" // This would come from props
+    
+    // Helper function to format date
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch {
+            return 'Invalid Date';
+        }
+    };
+
+    // Helper function to format time
+    const formatTime = (timeString) => {
+        if (!timeString) return 'N/A';
+        try {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+            return `${displayHour}:${minutes} ${ampm}`;
+        } catch {
+            return 'Invalid Time';
+        }
+    };
+
+    // Helper function to get organizer info
+    const getOrganizerInfo = (event) => {
+        if (event.organiser) {
+            return {
+                name: event.organiser.name || 'N/A',
+                company: event.organiser.business_name || 'N/A',
+                email: event.organiser.email || 'N/A',
+                phone: event.organiser.phone_number || 'N/A'
+            };
+        } else if (event.admin) {
+            return {
+                name: `${event.admin.first_name || ''} ${event.admin.last_name || ''}`.trim(),
+                company: 'Admin',
+                email: event.admin.email || 'N/A',
+                phone: 'N/A'
+            };
+        }
+        return {
+            name: 'N/A',
+            company: 'N/A',
+            email: 'N/A',
+            phone: 'N/A'
+        };
+    };
+
+    // Helper function to get event status
+    const getEventStatus = (event) => {
+        if (event.isDeleted) return "Deleted";
+        if (event.isPublished) return "Published";
+        return "Draft";
     };
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -75,7 +106,42 @@ const EventDetailsModal = ({
     };
 
     // Merge with actual event data if provided
-    const mergedEvent = { ...eventData, ...event };
+    const mergedEvent = event ? {
+        title: event.name || 'N/A',
+        description: event.description || 'No description available',
+        safetyMeasures: event.instruction ? [event.instruction] : [],
+        details: [
+            { label: "Date", value: formatDate(event.date), icon: "calendar" },
+            { label: "Time", value: formatTime(event.time), icon: "clock" },
+            { label: "Location", value: event.address || 'N/A', icon: "location" },
+            { label: "Age Range", value: event.age_range || 'N/A', icon: "person" },
+            { label: "Price", value: `£${event.price || '0'}/person`, icon: "money" }
+        ],
+        organizer: getOrganizerInfo(event),
+        images: event.images ? (typeof event.images === 'string' ? [{ name: "Event Image", size: "Unknown", url: event.images }] : []) : [],
+        status: getEventStatus(event)
+    } : {
+        title: 'N/A',
+        description: 'No description available',
+        safetyMeasures: [],
+        details: [
+            { label: "Date", value: 'N/A', icon: "calendar" },
+            { label: "Time", value: 'N/A', icon: "clock" },
+            { label: "Location", value: 'N/A', icon: "location" },
+            { label: "Age Range", value: 'N/A', icon: "person" },
+            { label: "Price", value: 'N/A', icon: "money" }
+        ],
+        organizer: { name: 'N/A', company: 'N/A', email: 'N/A', phone: 'N/A' },
+        images: [],
+        status: 'N/A'
+    };
+    
+    // Ensure images is always an array
+    if (mergedEvent.images && typeof mergedEvent.images === 'string') {
+        mergedEvent.images = [{ name: "Event Image", size: "Unknown", url: mergedEvent.images }];
+    } else if (!mergedEvent.images || !Array.isArray(mergedEvent.images)) {
+        mergedEvent.images = [];
+    }
 
     const modalActions = {
         edit: {
@@ -140,7 +206,7 @@ const EventDetailsModal = ({
     </button> */}
                     <div className="flex items-center">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200">
-                            <span className="mr-1"><Clock className='w-4 h-4 text-gray-500 mr-1' /></span> Pending
+                            <span className="mr-1"><Clock className='w-4 h-4 text-gray-500 mr-1' /></span> {mergedEvent.status}
                         </span>
                     </div>
                 </div>
@@ -221,7 +287,7 @@ const EventDetailsModal = ({
                 <section>
                     <h3 className="text-lg font-medium mb-2">Images</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {mergedEvent.images.map((image, index) => (
+                        {mergedEvent?.images.map((image, index) => (
                             <div key={index} className="bg-gray-50 p-2 rounded">
                                 <img
                                     src={image.url}

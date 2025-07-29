@@ -30,6 +30,7 @@ export default function EventManagement() {
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
 
   const [eventList, setEventList] = useState([]);
+  const [filteredEventList, setFilteredEventList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Create Event Modal state
@@ -61,7 +62,11 @@ export default function EventManagement() {
 
   // Handle status filter change
   const handleStatusChange = (status) => {
-    setStatusFilter(status);
+    if (status === "All") {
+      setStatusFilter([]);
+    } else {
+      setStatusFilter([status]);
+    }
     setStatusOpen(false);
     setCurrentPage(1); // Reset to first page when filtering
   };
@@ -80,7 +85,7 @@ export default function EventManagement() {
 
   // Reset filters
   const resetFilters = () => {
-    setStatusFilter("");
+    setStatusFilter([]);
     setDateFilter({ from: "", to: "" });
   };
 
@@ -90,10 +95,13 @@ export default function EventManagement() {
   };
 
   // Handle saving event
-  const handleSaveEvent = (eventData) => {
+  const handleSaveEvent = async (eventData) => {
     console.log("Saving event:", eventData);
-    // Here you would typically make an API call to save the event
+    // Close the modal first
     setIsCreateModalOpen(false);
+    
+    // Refresh the events list to show the newly created event
+    await fetchEvents();
   };
 
   // Check window size for responsive design
@@ -113,21 +121,75 @@ export default function EventManagement() {
   }, []);
   
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setIsLoading(true);
-      const result = await eventService.getPaginatedEvents(currentPage, 7);
-      if (result.success && Array.isArray(result.data?.events)) {
-        setEventList(result.data.events);
-        setTotalPages(result.data.totalPages || 1); // If your API returns total pages
-      } else {
-        console.error(result.error || "Failed to fetch events");
-      }
-      setIsLoading(false);
-    };
+  // Function to fetch events
+  const fetchEvents = async () => {
+    setIsLoading(true);
+    const result = await eventService.getPaginatedEvents();
+    if (result.success && Array.isArray(result.data?.events)) {
+      setEventList(result.data.events);
+    } else {
+      console.error(result.error || "Failed to fetch events");
+      setEventList([]);
+    }
+    setIsLoading(false);
+  };
 
+  useEffect(() => {
     fetchEvents();
-  }, [currentPage]);
+  }, []); // Remove currentPage dependency since we're doing client-side pagination
+
+  // Client-side filtering logic
+  useEffect(() => {
+    let filtered = [...eventList];
+
+    // Search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(event => 
+        event.name?.toLowerCase().includes(searchLower) ||
+        event.description?.toLowerCase().includes(searchLower) ||
+        event.organiser?.name?.toLowerCase().includes(searchLower) ||
+        event.admin?.name?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Status filter
+    if (statusFilter && statusFilter.length > 0) {
+      filtered = filtered.filter(event => {
+        const eventStatus = getEventStatusForFilter(event);
+        return statusFilter.includes(eventStatus);
+      });
+    }
+
+    // Date filter
+    if (dateFilter.from || dateFilter.to) {
+      filtered = filtered.filter(event => {
+        const eventDate = new Date(event.date);
+        const fromDate = dateFilter.from ? new Date(dateFilter.from) : null;
+        const toDate = dateFilter.to ? new Date(dateFilter.to) : null;
+
+        if (fromDate && toDate) {
+          return eventDate >= fromDate && eventDate <= toDate;
+        } else if (fromDate) {
+          return eventDate >= fromDate;
+        } else if (toDate) {
+          return eventDate <= toDate;
+        }
+        return true;
+      });
+    }
+
+    setFilteredEventList(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+    setTotalPages(Math.ceil(filtered.length / 7));
+  }, [eventList, searchTerm, statusFilter, dateFilter]);
+
+  // Helper function to get event status for filtering
+  const getEventStatusForFilter = (event) => {
+    if (event.isDeleted) return "Non-compliant";
+    if (event.isPublished) return "Approved";
+    return "Draft";
+  };
 
   return (
     <div>
@@ -328,10 +390,10 @@ export default function EventManagement() {
               </div>
             ) : (
               <EventTable
-                data={eventList}
+                data={filteredEventList}
                 currentPage={currentPage}
                 searchTerm={searchTerm}
-                statusFilter={statusFilter === "All" ? "" : statusFilter}
+                statusFilter={statusFilter}
                 dateFilter={dateFilter}
                 mobileView={mobileView}
                 isLoading={isLoading}

@@ -10,26 +10,28 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
     console.log(data, "This is the data");
     
     // State management
-    const [allevents, setAllevents] = useState(data || []);
-    const [filteredevents, setFilteredevents] = useState([]);
     const [paginatedevents, setPaginatedevents] = useState([]);
 
     // Modal state management
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedevent, setSelectedevent] = useState(null);
 
-    // Update allevents when data prop changes
+    // Pagination logic - data is already filtered from parent component
+    const itemsPerPage = 7; // Changed back to 7 to match parent component calculation
+
     useEffect(() => {
-        setAllevents(data || []);
-    }, [data]);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        setPaginatedevents(data.slice(startIndex, endIndex));
+    }, [currentPage, data]);
 
     // Helper function to get event status
     const getEventStatus = (event) => {
         if (event.isDeleted) return "Deleted";
         
         if (event.isPublished) return "Published";
-        if (event.isPublished) return "Draft";
-        return "Unknown";
+        
+        return "Draft";
     };
 
     // Helper function to format date
@@ -68,66 +70,6 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         };
     };
 
-    // Apply search and filters
-    useEffect(() => {
-        let results = [...allevents];
-
-        // Apply search filter
-        if (searchTerm && searchTerm.trim()) {
-            const term = searchTerm.toLowerCase().trim();
-            results = results.filter(event => {
-                const organizer = getOrganizerInfo(event);
-                return (
-                    (event.name && event.name.toLowerCase().includes(term)) ||
-                    (event.description && event.description.toLowerCase().includes(term)) ||
-                    (event.category && event.category.toLowerCase().includes(term)) ||
-                    (organizer.name && organizer.name.toLowerCase().includes(term)) ||
-                    (organizer.email && organizer.email.toLowerCase().includes(term)) ||
-                    (event.address && event.address.toLowerCase().includes(term))
-                );
-            });
-        }
-
-        // Apply status filter
-        if (statusFilter && Array.isArray(statusFilter) && statusFilter.length > 0) {
-            results = results.filter(event => {
-                const eventStatus = getEventStatus(event);
-                return statusFilter.includes(eventStatus);
-            });
-        }
-
-        // Apply date filter
-        if (dateFilter) {
-            if (dateFilter.from) {
-                results = results.filter(event => {
-                    if (!event.date) return false;
-                    const eventDate = new Date(event.date);
-                    const fromDate = new Date(dateFilter.from);
-                    return eventDate >= fromDate;
-                });
-            }
-            if (dateFilter.to) {
-                results = results.filter(event => {
-                    if (!event.date) return false;
-                    const eventDate = new Date(event.date);
-                    const toDate = new Date(dateFilter.to);
-                    return eventDate <= toDate;
-                });
-            }
-        }
-
-        setFilteredevents(results);
-    }, [allevents, searchTerm, statusFilter, dateFilter]);
-
-    // Pagination logic
-    const itemsPerPage = 7;
-
-    useEffect(() => {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        setPaginatedevents(filteredevents.slice(startIndex, endIndex));
-    }, [currentPage, filteredevents]);
-
     // Function to open event details modal
     const openeventDetails = (event) => {
         if (!event) return;
@@ -145,51 +87,36 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
     const handleApprove = (eventId) => {
         if (!eventId) return;
         
-        setAllevents(prevEvents =>
-            prevEvents.map(event =>
-                event.id === eventId ? { ...event, isPublished: true } : event
-            )
-        );
+        // This function is now handled by the parent component, so no direct state update here
+        // The parent component will re-fetch or update the data
+        console.log(`Event ${eventId} approved/published (handled by parent)`);
         
         // Close modal after approval
         closeModal();
-        
-        // API call would go here
-        console.log(`Event ${eventId} approved/published`);
     };
 
     // Function to handle event rejection (unpublish)
     const handleReject = (eventId) => {
         if (!eventId) return;
         
-        setAllevents(prevEvents =>
-            prevEvents.map(event =>
-                event.id === eventId ? { ...event, isPublished: false } : event
-            )
-        );
+        // This function is now handled by the parent component, so no direct state update here
+        // The parent component will re-fetch or update the data
+        console.log(`Event ${eventId} rejected/unpublished (handled by parent)`);
         
         // Close modal after rejection
         closeModal();
-        
-        // API call would go here
-        console.log(`Event ${eventId} rejected/unpublished`);
     };
 
     // Function to handle event deletion
     const handleDelete = (eventId) => {
         if (!eventId) return;
         
-        setAllevents(prevEvents =>
-            prevEvents.map(event =>
-                event.id === eventId ? { ...event, isDeleted: true } : event
-            )
-        );
+        // This function is now handled by the parent component, so no direct state update here
+        // The parent component will re-fetch or update the data
+        console.log(`Event ${eventId} deleted (handled by parent)`);
         
         // Close modal after deletion
         closeModal();
-        
-        // API call would go here
-        console.log(`Event ${eventId} deleted`);
     };
 
     // Render modal based on event status
@@ -349,7 +276,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                                         >
                                         {console.log(event, "This is the event we have")}
                                             <td className="py-4 px-4">{event.name || 'N/A'}</td>
-                                            <td className="py-4 px-4">{event.organiser.name || 'Waddle'}</td>
+                                            <td className="py-4 px-4">{event?.organiser?.name || 'Waddle'}</td>
                                             <td className="py-4 px-4">{formatDate(event.date)}</td>
                                             <td className="py-4 px-4">{event.address || 'N/A'}</td>
                                             <td className="py-4 px-4"><StatusBadge status={eventStatus} /></td>
