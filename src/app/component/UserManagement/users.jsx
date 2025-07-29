@@ -36,7 +36,7 @@ export default function UserManagement() {
 
     // Define status options for each tab
     const statusOptions = {
-        "Vendors": ["Approved", "Pending", "Rejected", "Deactivated", "Inactive", "Suspended"],
+        "Vendors": ["Approved", "Pending", "Rejected", "Suspended"],
         "Guardians": ["Active", "Inactive"],
         "Admin Users": ["Active", "Inactive", "Pending"]
     };
@@ -209,7 +209,7 @@ export default function UserManagement() {
                                 </button>
 
                                 {/* Filter dropdown */}
-                                {filterOpen && (
+                                {filterOpen && activeTab !== "Vendors" && (
                                     <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
                                         <h3 className="font-medium text-gray-700 mb-3">Filter by Status</h3>
                                         <div className="space-y-2 mb-4">
@@ -255,6 +255,38 @@ export default function UserManagement() {
                                             <button
                                                 onClick={applyFilters}
                                                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                            >
+                                                Apply
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                {filterOpen && activeTab === "Vendors" && (
+                                    <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 ">
+                                        {/* <h3 className="font-medium text-gray-700 mb-3">Filter by Status</h3> */}
+                                        <div className="space-y-2 flex flex-col gap-2  mb-6">
+                                            {getCurrentStatusOptions().map((status) => (
+                                                <label key={status} className="flex items-center border-b border-gray-200 p-4">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={statusFilter.includes(status)}
+                                                        onChange={() => handleStatusChange(status)}
+                                                        className="rounded text-blue-600 mr-2" />
+                                                    <span className="text-gray-700">{status}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex justify-between items-center gap-5 px-5 pb-5">
+                                            <button
+                                                onClick={resetFilters}
+                                                className="px-4 py-2 flex-1 text-[#2853A6] cursor-pointer border border-[#2853A6] rounded-md hover:text-[#fff] hover:bg-[#2853A6]"
+                                            >
+                                                Reset
+                                            </button>
+                                            <button
+                                                onClick={applyFilters}
+                                                className="px-4 py-2 bg-[#2853A6] flex-1 text-white rounded-md hover:bg-blue-700"
                                             >
                                                 Apply
                                             </button>
