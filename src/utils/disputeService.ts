@@ -50,6 +50,54 @@ class DisputeService {
       };
     }
   }
+
+  async moveToInReview(disputeId: string): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      const endpoint = `/api/v1/disputes/admin/${disputeId}/status`;
+      const response = await authService.makeAuthenticatedRequest(endpoint, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "IN_REVIEW" }),
+      });
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while moving to in review",
+      };
+    }
+  }
+
+  async moveToResolved(disputeId: string): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      const endpoint = `/api/v1/disputes/admin/${disputeId}/status`;
+      const response = await authService.makeAuthenticatedRequest(endpoint, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "RESOLVED" }),
+      });
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while resolving dispute",
+      };
+    }
+  }
 }
 
 export const disputeService = new DisputeService();

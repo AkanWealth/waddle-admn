@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { authService } from "@/utils/authService";
+import { useAuth } from "@/context/AuthContext";
 import { 
   User,
   Settings, 
@@ -24,66 +25,19 @@ function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
-  // User profile state
-  const [userProfile, setUserProfile] = useState({
+  // Use AuthContext for user data
+  const { user, loading: authLoading } = useAuth();
+  
+  // Generate user profile data from AuthContext
+  const userProfile = user ? {
+    name: user.admin?.first_name + " " + user.admin?.last_name || "User",
+    role: user.admin?.role || user.role || "Admin",
+    initials: (user.admin?.first_name?.charAt(0) + user.admin?.last_name?.charAt(0) || "U").toUpperCase()
+  } : {
     name: "Loading...",
     role: "Loading...",
     initials: "L"
-  });
-  const [profileLoading, setProfileLoading] = useState(true);
-  
-  // Fetch user profile on component mount
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        setProfileLoading(true);
-        const profileData = await authService.getUserProfile();
-        // console.log('User Profile Data:', profileData);
-        
-        // Extract user information from the response
-        // Adjust these field names based on your API response structure
-        const name = profileData.admin.first_name + " " + profileData.admin.last_name || profileData.full_name || profileData.firstName + ' ' + profileData.lastName || "User";
-        const role = profileData.admin.role || profileData.user_type || "Admin";
-        
-        // Generate initials from the name
-        const initials = name
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase())
-          .join('')
-          .substring(0, 2);
-        
-        setUserProfile({
-          name,
-          role,
-          initials
-        });
-      } catch (error) {
-        console.error('Failed to fetch user profile:', error);
-        // Keep default values or handle error appropriately
-        setUserProfile({
-          name: "User",
-          role: "Admin",
-          initials: "U"
-        });
-        
-        // If authentication fails, you might want to redirect to login
-        if (error.message.includes('Authentication expired')) {
-          // The authService.logout() will handle the redirect
-          return;
-        }
-      } finally {
-        setProfileLoading(false);
-      }
-    };
-
-    // Only fetch if user is authenticated
-    if (authService.isAuthenticated()) {
-      fetchUserProfile();
-    } else {
-      // Redirect to login if not authenticated
-      authService.logout();
-    }
-  }, []);
+  };
   
   // Check if mobile on mount and on resize
   useEffect(() => {
@@ -236,11 +190,11 @@ function Layout({ children }) {
               <div className="hidden md:block ml-2 text-black">
                 <div className="flex items-center">
                   <span className="font-inter text-sm font-semibold">
-                    {profileLoading ? "Loading..." : userProfile.name}
+                    {authLoading ? "Loading..." : userProfile.name}
                   </span>
                 </div>
                 <span className="text-xs text-gray-500 block">
-                  {profileLoading ? "Loading..." : userProfile.role}
+                  {authLoading ? "Loading..." : userProfile.role}
                 </span>
               </div>
             </div>
@@ -248,7 +202,7 @@ function Layout({ children }) {
         </header>
         
         {/* Main content area */}
-        <main className="flex-1 p-10 overflow-auto rounded-xl bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-8">
           {children}
         </main>
       </div>

@@ -7,7 +7,7 @@ import DisputeTable from "./DisputeRender";
 export default function DisputeManagement() {
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(4);
+    const [totalPages, setTotalPages] = useState(1);
 
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState("");
@@ -21,7 +21,8 @@ export default function DisputeManagement() {
     const [mobileView, setMobileView] = useState(false);
 
     // Add a state to track if there is data
-    const [hasDisputeData, setHasDisputeData] = useState(true);
+    const [hasDisputeData, setHasDisputeData] = useState(false);
+    const [totalDisputes, setTotalDisputes] = useState(0);
 
     // Status options
     const statusOptions = ["All", "In Review", "Resolved","Pending"];
@@ -61,6 +62,18 @@ export default function DisputeManagement() {
         setStatusFilter([]);
         setDateFilter({ from: "", to: "" });
     };
+
+    // Update total pages when dispute data changes
+    useEffect(() => {
+        // Calculate total pages based on total disputes from server
+        const newTotalPages = Math.ceil(totalDisputes / 7);
+        setTotalPages(newTotalPages);
+        
+        // Reset to page 1 if current page is greater than total pages
+        if (currentPage > newTotalPages && newTotalPages > 0) {
+            setCurrentPage(1);
+        }
+    }, [totalDisputes, currentPage]);
 
     // Check window size for responsive design
     useEffect(() => {
@@ -203,6 +216,7 @@ export default function DisputeManagement() {
                             dateFilter={dateFilter}
                             mobileView={mobileView}
                             setHasDisputeData={setHasDisputeData}
+                            setTotalDisputes={setTotalDisputes}
                         />
                     </div>
 

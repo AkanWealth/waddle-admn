@@ -5,7 +5,7 @@ import { Clock, TriangleAlert, AlertCircle, CircleCheck, XCircle, TrendingUpDown
 import DisputeDetailModal from "../ModalPages/Dispute/DisputeDetailModal";
 import { disputeService } from "@/utils/disputeService";
 
-export default function DisputeTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, setHasDisputeData }) {
+export default function DisputeTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, setHasDisputeData, setTotalDisputes }) {
     // State management
     const [allDisputes, setAllDisputes] = useState([]);
     const [filteredDisputes, setFilteredDisputes] = useState([]);
@@ -31,10 +31,15 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                     // category: ... // Add if you have category filter
                 };
                 const result = await disputeService.getAllDisputes(params);
-                if (result.success && result.data && Array.isArray(result.data.data)) {
+                if (result.success && result.data) {
                     // Transform the API data to match your component's expected format
-                    const transformedData = transformApiData(result.data.data);
+                    const transformedData = transformApiData(result.data.data || []);
                     setAllDisputes(transformedData);
+                    
+                    // Update pagination info from server response
+                    if (typeof setTotalDisputes === 'function' && result.data.pagination) {
+                        setTotalDisputes(result.data.pagination.total);
+                    }
                 } else {
                     setError(result.error || "Failed to fetch disputes");
                     setAllDisputes([]);
@@ -189,14 +194,11 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
         setIsModalOpen(true);
     };
 
-    // Pagination logic
-    const itemsPerPage = 7;
-
+    // Since we're using server-side pagination, we don't need client-side pagination logic
+    // The API returns the correct page of data
     useEffect(() => {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        setPaginatedDisputes(filteredDisputes.slice(startIndex, endIndex));
-    }, [currentPage, filteredDisputes]);
+        setPaginatedDisputes(allDisputes);
+    }, [allDisputes]);
 
     // Always call hooks at the top level
     useEffect(() => {

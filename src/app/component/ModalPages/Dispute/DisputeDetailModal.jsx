@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import BaseModal from '../../Element/BaseModal';
 import { useToastContext } from '@/context/toast';
+import { disputeService } from '@/utils/disputeService';
 
 const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
   const [response, setResponse] = useState('');
@@ -26,22 +27,79 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
     setAttachments([...attachments, ...files]);
   };
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
+    if (!dispute?.id) {
+      showMessage("Error", "Dispute ID is required", "error");
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const result = await disputeService.moveToResolved(dispute.id);
+      
+      if (result.success) {
+        showMessage("Refund Approved", "Customer and vendor have been notified.", "success");
+        // Update the dispute status locally
+        dispute.status = "Resolved";
+        onClose();
+      } else {
+        showMessage("Error", result.error || "Failed to approve refund", "error");
+      }
+    } catch (error) {
+      showMessage("Error", "An unexpected error occurred", "error");
+    } finally {
       setIsLoading(false);
-      onClose();
-      showMessage("Refund Approved", "Customer and vendor have been notified.", "success");
-    }, 1000);
+    }
   };
 
-  const handleDeny = () => {
+  const handleDeny = async () => {
+    if (!dispute?.id) {
+      showMessage("Error", "Dispute ID is required", "error");
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const result = await disputeService.moveToResolved(dispute.id);
+      
+      if (result.success) {
+        showMessage("Denied Refund", "Vendor and customer have been notified.", "success");
+        // Update the dispute status locally
+        dispute.status = "Resolved";
+        onClose();
+      } else {
+        showMessage("Error", result.error || "Failed to deny refund", "error");
+      }
+    } catch (error) {
+      showMessage("Error", "An unexpected error occurred", "error");
+    } finally {
       setIsLoading(false);
-      onClose();
-      showMessage("Denied Refund", "Vendor and customer have been notified.", "success");
-    }, 1000);
+    }
+  };
+
+  const handleMoveToInReview = async () => {
+    if (!dispute?.id) {
+      showMessage("Error", "Dispute ID is required", "error");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await disputeService.moveToInReview(dispute.id);
+      
+      if (result.success) {
+        showMessage("Success", "Dispute moved to In Review status", "success");
+        // Update the dispute status locally
+        dispute.status = "In Review";
+        onClose();
+      } else {
+        showMessage("Error", result.error || "Failed to move dispute to In Review", "error");
+      }
+    } catch (error) {
+      showMessage("Error", "An unexpected error occurred", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!dispute) return null;
@@ -189,18 +247,27 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
       {
         dispute.status === "Pending" && (
           <div className="mb-6 flex gap-4">
-            <button className="border flex-1 border-[#2853A6] text-[#2853A6] px-4 py-2 rounded-md" type="button">
+            <button 
+              onClick={onClose}
+              className="border flex-1 border-[#2853A6] text-[#2853A6] px-4 py-2 rounded-md hover:bg-blue-50 transition-colors" 
+              type="button"
+            >
               Cancel
             </button>
-            <button className="bg-[#2853A6] flex-1 cursor-pointer text-white px-4 py-2 rounded-md" type="button">
-              Move to In Review
+            <button 
+              onClick={handleMoveToInReview}
+              disabled={isLoading}
+              className="bg-[#2853A6] flex-1 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              type="button"
+            >
+              {isLoading ? "Processing..." : "Move to In Review"}
             </button>
           </div>
         )
       }
 
       {/* Only render admin response section and buttons if dispute is "In Review" */}
-      {isActionable && (
+      {false && (
         <>
           <hr className="border-gray-100 mb-6" />
           {/* Admin Response */}
@@ -269,8 +336,8 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
           <hr className="border-gray-100 mb-6" />
           <h3 className="font-bold text-lg text-gray-800 mb-2">Resolution Summary</h3>
           <div className="bg-gray-50 p-4 rounded-md text-sm text-gray-700">
-            {disputeDetails.status === "Resolved" && "This dispute has been resolved. The refund request was approved on March 18, 2025."}
-            {disputeDetails.status === "Closed" && "This dispute has been closed. The refund request was denied on March 18, 2025."}
+            {disputeDetails.status === "Resolved" && "This dispute has been resolved."}
+            {disputeDetails.status === "Closed" && "This dispute has been closed."}
             {disputeDetails.status === "Active" && "This dispute is currently active. The dispute is being handled by the vendor directly."}
             {disputeDetails.status === "Inactive" && "This dispute is currently inactive. No further action is required at this time."}
           </div>
