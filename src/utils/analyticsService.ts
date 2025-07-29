@@ -60,6 +60,36 @@ class AnalyticsService {
       };
     }
   }
+
+  async exportReport(startDate?: string, endDate?: string) {
+    try {
+      // Define the base URL
+      let url = `/api/v1/host/analytics/export/csv`;
+
+      // Build query parameters if available
+      const params = new URLSearchParams();
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
+
+      // Append params to URL
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await authService.makeAuthenticatedRequest(url, {
+        method: "GET",
+      });
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error);
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to export report",
+      };
+    }
+  }
 }
 const analyticsService = new AnalyticsService();
 export default analyticsService;

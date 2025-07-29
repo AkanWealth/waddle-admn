@@ -4,6 +4,97 @@ import { Calendar, ArrowBigUpDash } from "lucide-react";
 import { useToastContext } from "@/context/toast";
 import UserActivity from "./UserActivity";
 import Events from "./Events";
+import analyticsService from "@/utils/analyticsService";
+
+// Mock dashboard data for CSV export (replace with real data source)
+const mockDashboardData = {
+  userStats: [
+    {
+      type: "total_users",
+      title: "Total Users",
+      count: 0,
+      change: "0%",
+      isPositive: true
+    },
+    {
+      type: "parents",
+      title: "Parents",
+      count: 0,
+      change: "0%",
+      isPositive: true
+    },
+    {
+      type: "organisers",
+      title: "Event Organisers",
+      count: 0,
+      change: "0%",
+      isPositive: true
+    },
+    {
+      type: "inactive",
+      title: "Inactive Users",
+      count: 0,
+      change: "0%",
+      isPositive: true
+    }
+  ],
+  monthlyData: [
+    { name: "Jan", parents: 0, organizers: 0 },
+    { name: "Feb", parents: 0, organizers: 0 },
+    { name: "Mar", parents: 0, organizers: 0 },
+    { name: "Apr", parents: 0, organizers: 0 },
+    { name: "May", parents: 0, organizers: 0 },
+    { name: "Jun", parents: 0, organizers: 0 },
+    { name: "Jul", parents: 0, organizers: 0 },
+    { name: "Aug", parents: 0, organizers: 0 },
+    { name: "Sep", parents: 0, organizers: 0 },
+    { name: "Oct", parents: 0, organizers: 0 },
+    { name: "Nov", parents: 0, organizers: 0 },
+    { name: "Dec", parents: 0, organizers: 0 }
+  ],
+  hasData: false,
+  headings: {
+    userStats: ["type", "title", "count", "change", "isPositive"],
+    monthlyData: ["name", "parents", "organizers"]
+  }
+};
+
+// Utility to convert dashboard data to CSV
+function convertToCSV({ userStats, monthlyData, headings }) {
+  // User Stats
+  const userStatsHeader = headings.userStats.join(",");
+  const userStatsRows = userStats
+    .map(stat => headings.userStats.map(h => stat[h]).join(","))
+    .join("\n");
+
+  // Monthly Data
+  const monthlyDataHeader = headings.monthlyData.join(",");
+  const monthlyDataRows = monthlyData
+    .map(row => headings.monthlyData.map(h => row[h]).join(","))
+    .join("\n");
+
+  // Combine as two tables in one CSV (with a blank line between)
+  return (
+    userStatsHeader + "\n" +
+    userStatsRows + "\n\n" +
+    monthlyDataHeader + "\n" +
+    monthlyDataRows
+  );
+}
+
+// Function to trigger CSV download
+function downloadCSV(data) {
+  const csv = convertToCSV(data);
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dashboard-data.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 export default function Dashboard() {
   // Tab state
@@ -19,12 +110,25 @@ export default function Dashboard() {
   });
 
   // Function to handle export report
-  const handleExport = () => {
+  const handleExport = async () => {
     console.log("Exporting report...");
     showMessage("Report Exported", " Your report as been exported as a pdf file", "success");
+    try {
+      const response = await analyticsService.exportReport(dateRange.startDate, dateRange.endDate);
+      console.log(response);
+      if (response.success) {
+        showMessage("Report Exported", " Your report as been exported as a pdf file", "success");
+        downloadCSV(response.data)
 
+      } else {
+        showMessage("Error", response.error, "error");
+      }
    
     // In a real app, this would trigger an API call to generate a report
+  } catch(error) {
+    console.log(error);
+    showMessage("Error", error.message, "error");
+  }
   };
 
   return (
@@ -62,6 +166,7 @@ export default function Dashboard() {
             <ArrowBigUpDash className="h-5 w-5 mr-2" />
             <span>Export Report</span>
           </button>
+          
         </div>
       </div>
 
