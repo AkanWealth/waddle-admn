@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CalendarClock, Clock, CalendarX, Users, ChevronDown } from "lucide-react";
+import { CalendarClock, Clock, CalendarX, Users, ChevronDown, Check, Calendar } from "lucide-react";
 import Image from "next/image";
 import { useEventAnalyticsStore } from "@/stores/useAnalyticsStore";
 
@@ -32,6 +32,7 @@ export default function Events({ dateRange }) {
   // State for chart time filter
   const [timeFilter, setTimeFilter] = useState("Monthly");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("Monthly");
 
   // Fetch data on component mount
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function Events({ dateRange }) {
   // Handle time filter change
   const handleTimeFilterChange = (filter) => {
     setTimeFilter(filter);
+    setSelectedFilter(filter);
     setShowDropdown(false);
     
     // Calculate date ranges based on filter
@@ -175,29 +177,39 @@ export default function Events({ dateRange }) {
             <div className="relative">
               <button 
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center text-[#1D1D1E] text-sm border rounded-lg px-3 py-1"
+                className="flex items-center text-[#303237] text-sm border border-[#E4E4E7] rounded-lg px-3 py-2"
               >
+                <Calendar className="mr-2 h-4 w-4" />
                 {timeFilter} <ChevronDown className="ml-2 h-4 w-4" />
               </button>
               {showDropdown && (
-                <div className="absolute right-0 mt-1 text-[#1D1D1E] bg-white border rounded-lg shadow-lg z-10">
-                  <div className="py-1">
+                <div className="absolute right-0 mt-1 text-[#1D1D1E] bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-10 min-w-[150px]">
+                  <div className="py-1 text-[16px">
                     <button 
                       onClick={() => handleTimeFilterChange('7 Last Days')}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      className="flex items-center w-full text-left px-4 py-3 text-sm border-b border-[#E5E5E5] hover:bg-gray-100"
                     >
-                      7 Last Days
+                      <div className={`w-4 h-4 border rounded-full mr-3 flex items-center justify-center ${selectedFilter === '7 Last Days' ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                        {selectedFilter === '7 Last Days' && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                       Last 7 Days
                     </button>
                     <button 
                       onClick={() => handleTimeFilterChange('Monthly')}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      className="flex items-center w-full text-left px-4 py-3 text-sm border-b border-[#E5E5E5] hover:bg-gray-100"
                     >
+                      <div className={`w-4 h-4 border rounded-full mr-3 flex items-center justify-center ${selectedFilter === 'Monthly' ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                        {selectedFilter === 'Monthly' && <Check className="w-3 h-3 text-white" />}
+                      </div>
                       Monthly
                     </button>
                     <button 
                       onClick={() => handleTimeFilterChange('Yearly')}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      className="flex items-center w-full text-left px-4 py-3 text-sm  hover:bg-gray-100"
                     >
+                      <div className={`w-4 h-4 border rounded-full mr-3 flex items-center justify-center ${selectedFilter === 'Yearly' ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                        {selectedFilter === 'Yearly' && <Check className="w-3 h-3 text-white" />}
+                      </div>
                       Yearly
                     </button>
                   </div>
