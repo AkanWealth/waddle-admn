@@ -31,6 +31,7 @@ export default function UserManagement() {
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
     const { showMessage } = useToastContext();
     
     // Mobile responsive states
@@ -303,6 +304,7 @@ export default function UserManagement() {
                     <div className="overflow-x-auto">
                         {activeTab === "Vendors" && (
                             <VendorsTable
+                                key={`vendors-${refreshKey}`}
                                 currentPage={currentPage}
                                 onPageChange={handlePageChange}
                                 searchTerm={searchTerm}
@@ -312,6 +314,7 @@ export default function UserManagement() {
                         )}
                         {activeTab === "Guardians" && (
                             <GuardiansTable
+                                key={`guardians-${refreshKey}`}
                                 currentPage={currentPage}
                                 onPageChange={handlePageChange}
                                 searchTerm={searchTerm}
@@ -321,6 +324,7 @@ export default function UserManagement() {
                         )}
                         {activeTab === "Admin Users" && (
                             <AdminUsersTable
+                                key={`admin-${refreshKey}`}
                                 currentPage={currentPage}
                                 onPageChange={handlePageChange}
                                 searchTerm={searchTerm}
@@ -342,8 +346,10 @@ export default function UserManagement() {
                  />
                  {showDeletedUsers && (
                     <DeletedUsers
-                        isOpen={showDeletedUsers}
                         onClose={() => setShowDeletedUsers(false)}
+                        onUserRestored={() => {
+                            setRefreshKey(prev => prev + 1);
+                        }}
                     />
                  )}
         </>

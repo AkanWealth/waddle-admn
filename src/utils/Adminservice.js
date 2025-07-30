@@ -153,6 +153,38 @@ class AdminService {
         }
     }
 
+    async deleteUser(userId) {
+        try {
+            await authService.makeAuthenticatedRequest(`/api/v1/users/${userId}`, { method: "DELETE" });
+            return {
+                success: true,
+                message: "User deleted successfully"
+            };
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            return {
+                success: false,
+                error: error.message || "Failed to delete user"
+            };
+        }
+    }   
+
+    async restoreUser(userId) {
+        try {
+            await authService.makeAuthenticatedRequest(`/api/v1/users/restore/${userId}`, { method: "PATCH" });
+            return {
+                success: true,
+                message: "User restored successfully"
+            };
+        } catch (error) {
+            console.error("Error restoring user:", error);
+            return {
+                success: false,
+                error: error.message || "Failed to restore user"
+            };
+        }
+    }
+
     /**
      * Resend invitation to admin user (recreate with new password)
      * @param {Object} adminData - The admin user data
