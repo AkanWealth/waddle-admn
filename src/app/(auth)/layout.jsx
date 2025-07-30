@@ -62,14 +62,14 @@ function AuthLayout({ children }) {
           </div>
           
           {/* Main illustration positioned at the bottom */}
-          <div className="absolute bottom-0 left-16 w-full">
+          <div className="absolute  right-16 bottom-0 left-16 w-full">
             <Image 
               src="/login_layout.png"
               alt="Login illustration"
-              width={300}
-              height={200}
+              width={400}
+              height={400}
               priority
-              className="w-full md:w-auto"
+              className="w-full h-[500px] md:w-auto"
             />
           </div>
         </div>

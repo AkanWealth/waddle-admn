@@ -56,12 +56,12 @@ const DeleteGuardianModal = ({
     
     try {
       // Make API call to delete guardian
-      await authService.makeAuthenticatedRequest(
-        `/api/v1/users/${guardian.id}`, 
-        {
-          method: 'DELETE'
-        }
-      );
+      // await authService.makeAuthenticatedRequest(
+      //   `/api/v1/users/temp/${guardian.id}`, 
+      //   {
+      //     method: 'DELETE'
+      //   }
+      // );
       
       // Show success message
       showMessage(

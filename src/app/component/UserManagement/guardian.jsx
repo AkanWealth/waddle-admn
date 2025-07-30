@@ -291,6 +291,7 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
                 vendor={selectedGuardian}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
+                onDelete={handleDeleteGuardian}
             />
             {paginatedGuardians.length > 0 && (
                 <PaginationComponent
