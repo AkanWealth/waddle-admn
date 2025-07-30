@@ -126,9 +126,9 @@ export default function Events({ dateRange }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex gap-8">
         {/* Top Performing Events Table */}
-        <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <div className="w-[40%] bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-lg text-black font-semibold mb-4">Top Performing Events</h2>
           
           {hasData && topEvents.length > 0 ? (
@@ -153,7 +153,7 @@ export default function Events({ dateRange }) {
               </table>
             </div>
           ) : (
-            <div className="text-center py-6">
+            <div className="text-center h-72 flex items-center justify-center flex-col py-6">
               <div className="w-50 rounded-full flex items-center justify-center mb-4">
                 <Image 
                   src="/Empty.png"
@@ -169,7 +169,7 @@ export default function Events({ dateRange }) {
         </div>
 
         {/* Event Booking Rate Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <div className="w-[60%] bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-black">Event Booking Rate</h2>
             <div className="relative">
@@ -219,7 +219,7 @@ export default function Events({ dateRange }) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-6">
+            <div className="text-center h-64 flex items-center justify-center flex-col py-6">
               <div className="w-50 rounded-full flex items-center justify-center mb-4">
                 <Image 
                   src="/Empty.png"
@@ -229,7 +229,7 @@ export default function Events({ dateRange }) {
                   className="w-full h-full text-white" 
                 />
               </div>
-              <h3 className="text-lg font-medium mb-2">No Event Bookings Yet</h3>
+              <h3 className="text-lg text-[#272727] font-medium mb-2">No Event Bookings Yet</h3>
             </div>
           )}
         </div>

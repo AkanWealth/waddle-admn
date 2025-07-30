@@ -120,15 +120,15 @@ export default function UserActivity({ dateRange }) {
 
       {/* User Growth Chart */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold mb-4 text-black">User Growth</h2>
-          <div className="flex space-x-6 mb-4">
+          <div className="flex space-x-6 items-center justify-between mt-5 mb-4">
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-blue-600 mr-2"></div>
+              <div className="w-3 h-3 rounded-full bg-[#2853A6] mr-2"></div>
               <span className="text-sm text-black">Parents</span>
             </div>
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-orange-500 mr-2"></div>
+              <div className="w-3 h-3 rounded-full bg-[#D45815] mr-2"></div>
               <span className="text-sm text-black">Event Organisers</span>
             </div>
           </div>
