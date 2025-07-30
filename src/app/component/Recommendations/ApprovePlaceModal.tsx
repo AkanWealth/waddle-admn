@@ -15,7 +15,7 @@ const ApprovePlaceModal = () => {
       selectedPlace.id
     );
     if (result.success) {
-      await refreshEvents();
+      await refreshEvents("Places");
       closeShowApproveDetailsModal();
       closeShowPlaceDetailsModal();
     } else {

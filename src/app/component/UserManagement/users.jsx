@@ -13,6 +13,7 @@ import AdminUsersTable from "./adminUser";
 import PaginationComponent from "../Element/PaginationComponent";
 import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
 import { useRouter, useSearchParams } from 'next/navigation';
+import DeletedUsers from "./DeletedUsers";
 
 export default function UserManagement() {
     // State for active tab
@@ -21,6 +22,7 @@ export default function UserManagement() {
     const tabFromUrl = searchParams.get('tab');
     const pageFromUrl = parseInt(searchParams.get('page'), 10);
     const [activeTab, setActiveTab] = useState(tabFromUrl || "Vendors");
+    const [showDeletedUsers, setShowDeletedUsers] = useState(false);
     const [currentPage, setCurrentPage] = useState(pageFromUrl > 0 ? pageFromUrl : 1);
     
     // Search and filter states
@@ -158,7 +160,7 @@ export default function UserManagement() {
                         <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Add New User
                     </button>
-                    <button className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+                    <button onClick={() => setShowDeletedUsers(true)} className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
                         <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Deleted Users
                     </button>
@@ -338,6 +340,12 @@ export default function UserManagement() {
                 onClose={() => setIsCreateAdminModalOpen(false)}
                 onSuccess={handleAdminUserSuccess}
                  />
+                 {showDeletedUsers && (
+                    <DeletedUsers
+                        isOpen={showDeletedUsers}
+                        onClose={() => setShowDeletedUsers(false)}
+                    />
+                 )}
         </>
     );
 }
