@@ -26,13 +26,17 @@ function Layout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   
   // Use AuthContext for user data
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading } = useAuth();
   
   // Generate user profile data from AuthContext
   const userProfile = user ? {
-    name: user.admin?.first_name + " " + user.admin?.last_name || "User",
+    name: user.admin?.first_name && user.admin?.last_name 
+      ? `${user.admin.first_name} ${user.admin.last_name}`
+      : user.admin?.first_name || user.name || "User",
     role: user.admin?.role || user.role || "Admin",
-    initials: (user.admin?.first_name?.charAt(0) + user.admin?.last_name?.charAt(0) || "U").toUpperCase()
+    initials: user.admin?.first_name && user.admin?.last_name
+      ? (user.admin.first_name.charAt(0) + user.admin.last_name.charAt(0)).toUpperCase()
+      : user.admin?.first_name?.charAt(0)?.toUpperCase() || "U"
   } : {
     name: "Loading...",
     role: "Loading...",
@@ -190,11 +194,11 @@ function Layout({ children }) {
               <div className="hidden md:block ml-2 text-black">
                 <div className="flex items-center">
                   <span className="font-inter text-sm font-semibold">
-                    {authLoading ? "Loading..." : userProfile.name}
+                    {loading ? "Loading..." : userProfile.name}
                   </span>
                 </div>
                 <span className="text-xs text-gray-500 block">
-                  {authLoading ? "Loading..." : userProfile.role}
+                  {loading ? "Loading..." : userProfile.role}
                 </span>
               </div>
             </div>

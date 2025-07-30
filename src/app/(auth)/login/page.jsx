@@ -1,17 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ToastContext, useToastContext } from "@/context/toast";
-import { AuthProvider, useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/context/AuthContext"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
   return (
-    <AuthProvider>
-      <ToastContext>
-        <Login />
-      </ToastContext>
-    </AuthProvider>
+    <ToastContext>
+      <Login />
+    </ToastContext>
   );
 }
 
