@@ -349,7 +349,9 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
         {event.name}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">{event.submittedBy}</td>
-      <td className="py-3 px-4 text-sm text-gray-600">{event.dateSubmitted}</td>
+      <td className="py-3 px-4 text-sm text-gray-600">
+        {formatCustomDate(event.dateSubmitted, "DD-MM-YYYY")}
+      </td>
       <td className="py-3 px-4 text-sm text-gray-600">{event.entryFee}</td>
       <td className="py-3 px-4 text-sm text-gray-600">{event.category}</td>
       <td className="py-3 px-4">

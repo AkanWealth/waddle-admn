@@ -89,7 +89,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
                       <span className="font-semibold block md:hidden">
                         Date:
                       </span>
-                      {formatCustomDate(booking.event.date, "DD-MM-YYYY")}
+                      {formatCustomDate(booking.createdAt, "DD-MM-YYYY")}
                     </td>
                     <td className="px-4 py-2 md:py-4 md:table-cell block">
                       <span className="font-semibold block md:hidden">

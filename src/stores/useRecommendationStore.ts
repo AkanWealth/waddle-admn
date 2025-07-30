@@ -166,7 +166,7 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
             id: place.id,
             name: place.name,
             creator: place.creator || { name: place.creatorName || "Unknown" },
-            date: place.createdAt || place.date || "",
+            date: place.date,
             address: place.address || "",
             category: place.category || "",
             status: place.isDeleted
