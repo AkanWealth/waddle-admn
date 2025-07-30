@@ -5,8 +5,9 @@ import StatusBadge from "./StatusBadge";
 import { authService } from "@/utils/authService";
 import VendorDetailsModal from "../ModalPages/Users/viewPendingDetail";
 import VendorApproveDetailsModal from "../ModalPages/Users/viewApprovemodal";
+import PaginationComponent from "../Element/PaginationComponent";
 
-export default function VendorsTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView }) {
+export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
     const [allVendors, setAllVendors] = useState([]);
     const [filteredVendors, setFilteredVendors] = useState([]);
     const [paginatedVendors, setPaginatedVendors] = useState([]);
@@ -131,12 +132,17 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
 
     // Pagination logic
     const itemsPerPage = 7;
+    const totalPages = Math.max(1, Math.ceil(filteredVendors.length / itemsPerPage));
 
     useEffect(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         setPaginatedVendors(filteredVendors.slice(startIndex, endIndex));
-    }, [currentPage, filteredVendors]);
+        // If currentPage is out of range, reset to 1
+        if (currentPage > totalPages) {
+            onPageChange(1);
+        }
+    }, [currentPage, filteredVendors, totalPages, onPageChange]);
 
     // Function to open vendor details modal
     const openVendorDetails = (vendor) => {
@@ -357,6 +363,13 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                         isRejecting={rejectingVendors.has(selectedVendor?.id)}
                     />
                 )}
+                {paginatedVendors.length > 0 && (
+                    <PaginationComponent
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={onPageChange}
+                    />
+                )}
             </div>
         );
     }
@@ -445,6 +458,13 @@ export default function VendorsTable({ currentPage, searchTerm, statusFilter, da
                     onRefresh={refreshVendors}
                     isApproving={approvingVendors.has(selectedVendor?.id)}
                     isRejecting={rejectingVendors.has(selectedVendor?.id)}
+                />
+            )}
+            {paginatedVendors.length > 0 && (
+                <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
                 />
             )}
         </>
