@@ -76,7 +76,7 @@ const SuspendVendorModal = ({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={isMobile ? "" : "Disable Account?"}
+      title={isMobile ? "" : "Suspend Account?"}
       actions={modalActions}
       size={{ width: isMobile ? "100%" : "500px", maxWidth: isMobile ? "100%" : "500px" }}
       className={isMobile ? "m-0 rounded-none h-full" : ""}
