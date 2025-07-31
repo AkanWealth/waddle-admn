@@ -112,23 +112,25 @@ export default function Dashboard() {
   // Function to handle export report
   const handleExport = async () => {
     try {
+      console.log("Starting export...");
       const response = await analyticsService.exportReport(dateRange.startDate, dateRange.endDate);
-      console.log(response);
+      console.log("Export response:", response);
+      
       if (response.success) {
-        downloadCSV(response.data)
-        
-        setTimeout(() => {
-          showMessage("Report Exported", " Your report as been exported as a CSV file", "success");
-        }, 3000);
+          downloadCSV(response.data)
+          setTimeout(() => {
+            showMessage("Report Exported", "Your report has been exported as a CSV file", "success");
+          }, 1000);
         
 
       } else {
+        console.log("Showing error message...");
         showMessage("Error", response.error, "error");
       }
    
     // In a real app, this would trigger an API call to generate a report
   } catch(error) {
-    console.log(error);
+    console.log("Caught error:", error);
     showMessage("Error", error.message, "error");
   }
   };
