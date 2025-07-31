@@ -310,6 +310,15 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const [isRoleOpen, setIsRoleOpen] = useState(false);
+
+  const roles = ["Admin", "Editor"];
+
+  const handleSelect = (role) => {
+    handleInputChange("roleType", role);
+    setIsRoleOpen(false);
+  };
     
     const [formData, setFormData] = useState({
         firstName: '',
@@ -586,7 +595,7 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                     Profile Information
                 </span>
             </button>
-            {mode === 'edit' && (
+            
                 <button
                     className={`flex-1 py-1 px-4 text-center font-medium ${activeTab === 'permissions'
                             ? 'text-[#2853A6] border-b-2 border-blue-600'
@@ -599,7 +608,7 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                         Permission Management
                     </span>
                 </button>
-            )}
+            
         </div>
     );
 
@@ -672,6 +681,37 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                     disabled={loading}
                     required
                 />
+            </div>
+
+            <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Role <span className="text-red-700">*</span>
+                </label>
+                <div className="relative inline-block w-full">
+      <button
+        type="button"
+        onClick={() => setIsRoleOpen((prev) => !prev)}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-blue-500"
+      >
+        {formData.roleType || "Select role type"}
+      </button>
+
+      {isRoleOpen && (
+        <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-md">
+          {roles.map((role) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => handleSelect(role)}
+              className="w-full px-4 py-2 text-left hover:bg-blue-100"
+            >
+              {role}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+
             </div>
 
             <div className="p-4 rounded-lg">

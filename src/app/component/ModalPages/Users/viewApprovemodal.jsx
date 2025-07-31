@@ -81,6 +81,23 @@ const VendorApproveDetailsModal = ({
     console.log(`Suspending vendor ${vendorId}: ${reason}`);
   };
 
+   const handleReactivateVendor = async(vendorId, reason) => {
+    if(vendorId === selectedVendor.id) {
+      const response = await userService.reactivateVendor(vendorId);
+      if (response.success) {
+          showMessage("Vendor Activated!", "The vendor has been notified of the activation.", "success");
+        if (typeof onStatusChange === "function") {
+          onStatusChange(vendorId, "APPROVED");
+        }
+        onClose();
+      } else{
+        console.error("Error suspending vendor:", response.error);
+        showMessage("Error", "Failed to suspend vendor", "error");
+        }
+    }
+    console.log(`Suspending vendor ${vendorId}: ${reason}`);
+  };
+
   const getActions = useMemo(() => {
     if (!vendor) return {};
 
@@ -89,12 +106,13 @@ const VendorApproveDetailsModal = ({
 
     switch (vendor.status) {
       case "Inactive":
+      case "SUSPENDED":
         return {
           approve: {
             label: "Reactivate",
             onClick: () => handleModalOpen("activate", vendor),
             className:
-              "bg-blue-600 hover:bg-green-700 text-white " + commonBtnStyle,
+              "bg-[#2853A6] rounded-[12px] hover:bg-green-700 text-white " + commonBtnStyle,
           },
           reject: {
             label: "Send Re-engagement Email",
@@ -102,7 +120,7 @@ const VendorApproveDetailsModal = ({
               onReject(vendor.id);
               onClose();
             },
-            className: "border border-blue-600 text-blue-600 " + commonBtnStyle,
+            className: "border rounded-[12px] border-[#2853A6] text-[#2853A6] " + commonBtnStyle,
           },
         };
       case "APPROVED":
@@ -123,6 +141,7 @@ const VendorApproveDetailsModal = ({
         };
 
       case "Deactivated":
+      case "REJECTED":
         return {
           suspend: {
             label: "Enable Account",
@@ -165,6 +184,7 @@ const VendorApproveDetailsModal = ({
         size={{ width: "99%", maxWidth: "600px", height: "90vh" }}
         className="overflow-y-auto"
         showDividers={false}
+        
       >
         <div>
           {console.log(vendor, "This is the vendor")}
@@ -236,9 +256,13 @@ const VendorApproveDetailsModal = ({
               ))}
           </div>
 
+
+
           {(vendor.status == "Approved" ||
             vendor.status === "Active" ||
             vendor.status === "APPROVED" ||
+            vendor.status==="SUSPENDED"||
+            vendor.status==="REJECTED"||
             vendor.status === "Inactive") && (
             <>
               <h4 className="text-lg font-medium text-gray-800 mb-4">
@@ -271,7 +295,11 @@ const VendorApproveDetailsModal = ({
                 ))}
               </div>
 
-              <h4 className="text-lg font-medium text-gray-800 mb-4">
+              {
+                vendor.status!=="REJECTED" &&(
+                            <>
+                            
+                                          <h4 className="text-lg font-medium text-gray-800 mb-4">
                 Past Events
               </h4>
               <div className="overflow-x-auto mb-6">
@@ -320,6 +348,16 @@ const VendorApproveDetailsModal = ({
                   </table>
                                 )}
                 </div>
+                            
+                            </>
+
+
+                )
+
+                
+              }
+
+
 
             </>
           )}
@@ -336,7 +374,7 @@ const VendorApproveDetailsModal = ({
         vendor={selectedVendor}
         isOpen={modals.activate}
         onClose={() => handleModalClose("activate")}
-        onConfirm={handleSuspendVendor}
+        onConfirm={handleReactivateVendor}
       />
       <EnableVendorModal
         vendor={selectedVendor}

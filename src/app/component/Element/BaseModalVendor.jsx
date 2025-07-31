@@ -14,7 +14,7 @@ import { createPortal } from 'react-dom';
  * @param {boolean} props.closeOnBackdropClick - Whether clicking the backdrop closes the modal
  * @param {string} props.className - Additional classes for the modal
  */
-const BaseModal = ({
+const BaseModalVendor = ({
     isOpen,
     onClose,
     title,
@@ -30,7 +30,6 @@ const BaseModal = ({
     className = "",
     showDividers,
     description,
-    showDividerMain=false
 
 
 }) => {
@@ -142,4 +141,4 @@ const BaseModal = ({
     );
 };
 
-export default BaseModal;
+export default BaseModalVendor;

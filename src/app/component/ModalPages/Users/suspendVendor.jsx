@@ -63,12 +63,12 @@ const SuspendVendorModal = ({
     suspend: {
       label: "Suspend Vendor",
       onClick: handleConfirm,
-      className: "bg-amber-600 text-white py-3 px-4 rounded-lg text-sm font-medium text-center flex-1"
+      className: "bg-[#CC0000] text-white py-3 px-4 rounded-lg text-sm font-medium text-center flex-1"
     },
     cancel: {
       label: "Cancel",
       onClick: onClose,
-      className: "border border-gray-300 text-gray-700 py-2 px-4 text-sm rounded-lg font-medium flex-1"
+      className: "border border-[#2853A6] text-[#2853A6] py-2 px-4 text-sm rounded-lg font-medium flex-1"
     }
   };
   
@@ -76,7 +76,7 @@ const SuspendVendorModal = ({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={isMobile ? "" : "Suspend Vendor"}
+      title={isMobile ? "" : "Disable Account?"}
       actions={modalActions}
       size={{ width: isMobile ? "100%" : "500px", maxWidth: isMobile ? "100%" : "500px" }}
       className={isMobile ? "m-0 rounded-none h-full" : ""}
@@ -85,8 +85,8 @@ const SuspendVendorModal = ({
       <div className="flex flex-col">
         {/* Icon and Title */}
         <div className="flex flex-col-2 gap-2 items-center mb-4">
-          <div className="bg-amber-100 rounded-full p-4 mb-4">
-            <PauseCircle className="h-6 w-6 text-amber-500" />
+          <div className="bg-[#F6AAA8] rounded-full p-4 mb-4">
+            <PauseCircle className="h-6 w-6 text-[#CC0000]" />
           </div>
           <p className="text-gray-700 mb-6">
             You are about to suspend {vendor?.name || 'this vendor'}. Their account will be temporarily disabled and they will be notified with your reason for suspension.

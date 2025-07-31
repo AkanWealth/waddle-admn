@@ -502,12 +502,12 @@ const VendorDetailsModal = ({
         `w-full border border-red-500 py-2 px-6 rounded-lg font-medium text-center transition-colors ${
           isProcessing 
             ? 'text-gray-400 border-gray-300 cursor-not-allowed' 
-            : 'text-red-500 hover:bg-red-50'
+            : 'text-[#CC0000] cursor-pointer hover:bg-red-50'
         }` :
         `w-full md:w-auto border border-red-500 py-2 px-6 rounded-lg font-medium text-center transition-colors ${
           isProcessing 
             ? 'text-gray-400 border-gray-300 cursor-not-allowed' 
-            : 'text-red-500 hover:bg-red-50'
+            : 'text-[#CC0000] cursor-pointer hover:bg-red-50'
         }`
     },
     approve: {
@@ -518,12 +518,12 @@ const VendorDetailsModal = ({
         `w-full py-2 px-6 rounded-lg font-medium text-center transition-colors ${
           isProcessing 
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-            : 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-[#2853A6] text-white hover:bg-blue-700'
         }` :
         `w-full md:w-auto py-2 px-6 rounded-lg font-medium text-center transition-colors ${
           isProcessing 
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-            : 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-[#2853A6] cursor-pointer text-white hover:bg-blue-700'
         }`
     }
   };
@@ -628,7 +628,7 @@ const VendorDetailsModal = ({
             
             {/* Vendor Name and Status */}
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium">{vendorData.name}</h3>
+              <h3 className="text-lg font-medium">{vendorData.name || "hELLO"}</h3>
               {vendorData.status === "Pending" && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                   <span className="mr-1.5">•</span> Pending
@@ -639,10 +639,10 @@ const VendorDetailsModal = ({
             {/* Contact Name */}
             <div className="mb-6">
               <p className="text-gray-600">{vendorData.contactName}</p>
-              <p className="mt-2 text-gray-700">{vendorData.description}</p>
+              <p className="mt-2 text-gray-700">{vendorData.description || "Random description"}</p>
             </div>
             
-            <hr className="border-gray-200 mb-6" />
+            {/* <hr className="border-gray-200 mb-6" /> */}
             
             {/* Contact Details */}
             <div className="mb-6">
@@ -670,24 +670,28 @@ const VendorDetailsModal = ({
                   {vendorData.address}
                 </div>
                 
+                {
+                  vendorData.website &&
                 <div className="bg-amber-100 rounded-full px-3 py-2 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                   </svg>
                   {vendorData.website}
                 </div>
+                }
+
               </div>
             </div>
             
             <hr className="border-gray-200 mb-6" />
             
             {/* UTR */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h4 className="text-gray-700 mb-3">Unique Taxpayer Reference (UTR)</h4>
               <div className="border rounded-lg p-3 bg-gray-50 text-gray-700">
                 {vendorData.taxId || vendorData.registrationNumber || 'N/A'}
               </div>
-            </div>
+            </div> */}
             
             {/* Business License */}
             <div className="mb-6">
@@ -776,27 +780,30 @@ const VendorDetailsModal = ({
           )}
           
           {/* Vendor Name and Status */}
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">{vendorData.name}</h3>
-            {vendorData.status === "Pending" && (
+          <div className="flex bg- items-center justify-between">
+            <h3 className="text-lg font-medium">{vendorData.name || "Hello"}</h3>
+            {vendorData.status === "Pending" ||"PENDING" && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                 <span className="mr-1.5">•</span> Pending
               </span>
             )}
           </div>
-          <hr className="border-gray-300 mb-6" />
-          
+
+          {/* <hr className="border-gray-300 mb-6" /> */}
+                    {/* <hr className="border-gray-300 mb-6" /> */}
+
           {/* Contact Name */}
           <div>
             <p className="text-gray-600">{vendorData.contactName}</p>
-            <p className="mt-2 text-gray-700">{vendorData.description}</p>
+            <p className="mt-2 text-gray-700">{vendorData.description || "Random description"}</p>
           </div>
-          <hr className="border-gray-300 mb-6" />
           
           {/* Contact Details */}
           <div>
             <h4 className="text-gray-700 mb-3">Contact Details</h4>
-            <div className="space-y-2">
+            {
+              vendorData.phone_number && 
+                          <div className="space-y-2">
               <div className="bg-amber-100 rounded-full px-3 py-2 inline-block">
                 <span className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -825,7 +832,8 @@ const VendorDetailsModal = ({
                 </span>
               </div>
               
-              <div className="bg-amber-100 rounded-full px-3 py-2 inline-block">
+              {
+                vendorData.website &&               <div className="bg-amber-100 rounded-full px-3 py-2 inline-block">
                 <span className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
@@ -833,17 +841,21 @@ const VendorDetailsModal = ({
                   {vendorData.website}
                 </span>
               </div>
+              }
+
             </div>
+            }
+
           </div>          
           <hr className="border-gray-300 mb-6" />
           
           {/* UTR */}
-          <div>
+          {/* <div>
             <h4 className="text-gray-700 mb-3">Unique Taxpayer Reference (UTR)</h4>
             <div className="border rounded-lg p-3 bg-gray-50 text-gray-700">
               {vendorData.taxId || vendorData.registrationNumber || 'N/A'}
             </div>
-          </div>
+          </div> */}
           
           {/* Business License */}
           <div>

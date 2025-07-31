@@ -117,6 +117,37 @@ class UserService {
     }
   }
 
+  async reactivateVendor(vendorId: string): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/organisers/${vendorId}/approve`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            isApproved: true,
+          }),
+        }
+      );
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while suspending the vendor",
+      };
+    }
+  }
+
   // You can add more user-related methods here, e.g., getUsers(), updateUser(), etc.
 }
 
