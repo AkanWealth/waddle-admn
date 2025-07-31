@@ -84,16 +84,23 @@ function convertToCSV({ userStats, monthlyData, headings }) {
 
 // Function to trigger CSV download
 function downloadCSV(data) {
-  const csv = convertToCSV(data);
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "dashboard-data.csv";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    const csv = convertToCSV(data);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dashboard-data.csv";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
+  } catch (error) {
+    console.error("Download failed:", error);
+    return false;
+  }
 }
 
 export default function Dashboard() {
@@ -117,10 +124,13 @@ export default function Dashboard() {
       console.log("Export response:", response);
       
       if (response.success) {
-          downloadCSV(response.data)
-          setTimeout(() => {
+          const downloadSuccess = downloadCSV(response.data);
+          
+          if (downloadSuccess) {
             showMessage("Report Exported", "Your report has been exported as a CSV file", "success");
-          }, 1000);
+          } else {
+            showMessage("Download Failed", "The file download failed. Please try again.", "error");
+          }
         
 
       } else {
