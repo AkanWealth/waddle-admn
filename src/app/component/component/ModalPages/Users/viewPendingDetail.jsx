@@ -613,6 +613,7 @@ const VendorDetailsModal = ({
                 disabled={modalActions.reject.disabled}
                 className={modalActions.reject.className}
               >
+                
                 {renderButtonContent('reject')}
               </button>
               <button

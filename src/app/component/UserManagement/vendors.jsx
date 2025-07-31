@@ -6,8 +6,10 @@ import { authService } from "@/utils/authService";
 import VendorDetailsModal from "../ModalPages/Users/viewPendingDetail";
 import VendorApproveDetailsModal from "../ModalPages/Users/viewApprovemodal";
 import PaginationComponent from "../Element/PaginationComponent";
+import { useToastContext } from "@/context/toast";
 
 export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
+    const { showMessage } = useToastContext();
     const [allVendors, setAllVendors] = useState([]);
     const [filteredVendors, setFilteredVendors] = useState([]);
     const [paginatedVendors, setPaginatedVendors] = useState([]);
@@ -22,40 +24,9 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
     const [approvingVendors, setApprovingVendors] = useState(new Set());
     const [rejectingVendors, setRejectingVendors] = useState(new Set());
 
-    // Function to transform API data to match your component structure
-    const transformVendorData = (organiser) => {
-        console.log(organiser, "This is the organiser that we have selected")
-        return {
-            id: organiser.id,
-            name: organiser.business_name || organiser.name,
-            mobile: organiser.phone_number,
-            email: organiser.email,
-            date: new Date(organiser.createdAt).toISOString().split('T')[0], // Format: YYYY-MM-DD
-            status: organiser.isSuspended
-                ? "Suspended"
-                : organiser.isApproved
-                    ? "Approved"
-                    : "Pending",
-            contactName: organiser.name,
-            description:organiser.description,
-            contactDetails: {
-                phone: organiser.phone_number,
-                email: organiser.email,
-                address: organiser.address,
-                website: organiser.website_url || 'N/A'
-            },
-            taxId: organiser.registration_number,
-            businessLicense: organiser.business_logo,
-            // Additional fields from API
-            businessLogo: organiser.business_logo,
-            businessCategory: organiser.business_category,
-            registrationNumber: organiser.registration_number,
-            facebookUrl: organiser.facebook_url,
-            isLocked: organiser.isLocked,
-            isDeleted: organiser.isDeleted,
-            emailVerified: organiser.email_verify
-        };
-    };
+
+
+
 
     // Fetch vendors from API
     const fetchVendors = async () => {
@@ -66,8 +37,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             const response = await authService.makeAuthenticatedRequest('/api/v1/organisers/all');
             
             if (response && response.organiser) {
-                const transformedVendors = response.organiser.map(transformVendorData);
-                setAllVendors(transformedVendors);
+                setAllVendors(response.organiser);
             } else {
                 setError('No vendors data received');
             }
@@ -97,15 +67,11 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                     return false;
                 }
                 try {
-                    // Log the types for debugging
-                    if (typeof vendor.mobile !== 'string') {
-                        console.log('Non-string vendor.mobile:', vendor.mobile, 'Type:', typeof vendor.mobile, 'Vendor:', vendor);
-                    }
                     return (
-                        String(vendor.name || '').toLowerCase().includes(term) ||
+                        String(vendor.business_name || vendor.name || '').toLowerCase().includes(term) ||
                         String(vendor.email || '').toLowerCase().includes(term) ||
-                        String(vendor.mobile || '').includes(term) ||
-                        String(vendor.contactName || '').toLowerCase().includes(term)
+                        String(vendor.phone_number || '').includes(term) ||
+                        String(vendor.name || '').toLowerCase().includes(term)
                     );
                 } catch (e) {
                     console.log('Error in vendor filter:', vendor, e);
@@ -116,15 +82,42 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
 
         // Apply status filter
         if (statusFilter && statusFilter.length > 0) {
-            results = results.filter(vendor => statusFilter.includes(vendor.status));
+            results = results.filter(vendor => {
+                // Map database status to display status
+                let displayStatus = "Pending";
+                if (vendor.status) {
+                    switch (vendor.status.toUpperCase()) {
+                        case "APPROVED":
+                            displayStatus = "Approved";
+                            break;
+                        case "REJECTED":
+                            displayStatus = "Rejected";
+                            break;
+                        case "SUSPENDED":
+                            displayStatus = "Suspended";
+                            break;
+                        case "PENDING":
+                        default:
+                            displayStatus = "Pending";
+                            break;
+                    }
+                }
+                return statusFilter.includes(displayStatus);
+            });
         }
 
         // Apply date filter
         if (dateFilter.from) {
-            results = results.filter(vendor => vendor.date >= dateFilter.from);
+            results = results.filter(vendor => {
+                const vendorDate = new Date(vendor.createdAt).toISOString().split('T')[0];
+                return vendorDate >= dateFilter.from;
+            });
         }
         if (dateFilter.to) {
-            results = results.filter(vendor => vendor.date <= dateFilter.to);
+            results = results.filter(vendor => {
+                const vendorDate = new Date(vendor.createdAt).toISOString().split('T')[0];
+                return vendorDate <= dateFilter.to;
+            });
         }
 
         setFilteredVendors(results);
@@ -174,11 +167,13 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             
             console.log(`Vendor ${vendorId} approved successfully`);
             
-            // Show success message (you can implement a toast notification here)
+            // Show success message
+            showMessage("Success", "Vendor approved successfully", "success");
             setError(null);
             
         } catch (error) {
             console.error('Error approving vendor:', error);
+            showMessage("Error", `Failed to approve vendor: ${error.message}`, "error");
             setError(`Failed to approve vendor: ${error.message}`);
         } finally {
             // Remove vendor from approving set
@@ -222,11 +217,13 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             
             console.log(`Vendor ${vendorId} rejected successfully`);
             
-            // Show success message (you can implement a toast notification here)
+            // Show success message
+            showMessage("Success", "Vendor rejected successfully", "success");
             setError(null);
             
         } catch (error) {
             console.error('Error rejecting vendor:', error);
+            showMessage("Error", `Failed to reject vendor: ${error.message}`, "error");
             setError(`Failed to reject vendor: ${error.message}`);
         } finally {
             // Remove vendor from rejecting set
@@ -297,7 +294,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                             <tbody>
                                 {paginatedVendors.map((vendor, index) => (
                                     <tr key={vendor.id} className="text-gray-800 text-sm border-b">
-                                        <td className="py-4 pr-2">{vendor.name}</td>
+                                        <td className="py-4 pr-2">{vendor.business_name || vendor.name}</td>
                                         <td className="py-4 px-2 text-center">
                                             <StatusBadge status={vendor.status} />
                                         </td>
@@ -339,7 +336,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                 </table>
 
                 {/* Vendor Details Modal */}
-                {selectedVendor && selectedVendor.status === "Pending" ? (
+                {selectedVendor && selectedVendor.status === "PENDING" ? (
                     <VendorDetailsModal
                         vendor={selectedVendor}
                         isOpen={isModalOpen}
@@ -393,10 +390,10 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                         <tbody>
                             {paginatedVendors.map((vendor, index) => (
                                 <tr key={vendor.id} className="odd:bg-white even:bg-gray-50 text-gray-500 text-sm hover:bg-gray-50">
-                                    <td className="py-4 px-4">{vendor.name}</td>
-                                    <td className="py-4 px-4">{vendor.mobile}</td>
+                                    <td className="py-4 px-4">{vendor.business_name || vendor.name}</td>
+                                    <td className="py-4 px-4">{vendor.phone_number}</td>
                                     <td className="py-4 px-4">{vendor.email}</td>
-                                    <td className="py-4 px-4">{vendor.date}</td>
+                                    <td className="py-4 px-4">{new Date(vendor.createdAt).toISOString().split('T')[0]}</td>
                                     <td className="py-4 px-4"><StatusBadge status={vendor.status} /></td>
                                     <td className="py-4 px-4">
                                         <button
@@ -436,7 +433,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             </table>
 
             {/* Vendor Details Modal */}
-            {selectedVendor && selectedVendor.status === "Pending" ? (
+            {selectedVendor && selectedVendor.status === "PENDING" ? (
                 <VendorDetailsModal
                     vendor={selectedVendor}
                     isOpen={isModalOpen}

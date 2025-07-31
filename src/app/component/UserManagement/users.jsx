@@ -14,6 +14,7 @@ import PaginationComponent from "../Element/PaginationComponent";
 import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
 import { useRouter, useSearchParams } from 'next/navigation';
 import DeletedUsers from "./DeletedUsers";
+import { useRef } from "react";
 
 export default function UserManagement() {
     // State for active tab
@@ -36,6 +37,9 @@ export default function UserManagement() {
     
     // Mobile responsive states
     const [mobileView, setMobileView] = useState(false);
+
+    // Add ref for filter dropdown
+    const filterDropdownRef = useRef(null);
 
     // Define status options for each tab
     const statusOptions = {
@@ -146,6 +150,20 @@ export default function UserManagement() {
         if (pageFromUrl && pageFromUrl !== currentPage) setCurrentPage(pageFromUrl);
     }, [tabFromUrl, pageFromUrl]);
 
+    // Close filter dropdown on outside click
+    useEffect(() => {
+        if (!filterOpen) return;
+        function handleClickOutside(event) {
+            if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+                setFilterOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [filterOpen]);
+
     return (
         <><div>
             <div className="font-inter flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
@@ -213,7 +231,7 @@ export default function UserManagement() {
 
                                 {/* Filter dropdown */}
                                 {filterOpen && activeTab !== "Vendors" && (
-                                    <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
+                                    <div ref={filterDropdownRef} className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
                                         <h3 className="font-medium text-gray-700 mb-3">Filter by Status</h3>
                                         <div className="space-y-2 mb-4">
                                             {getCurrentStatusOptions().map((status) => (
@@ -265,7 +283,7 @@ export default function UserManagement() {
                                     </div>
                                 )}
                                 {filterOpen && activeTab === "Vendors" && (
-                                    <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 ">
+                                    <div ref={filterDropdownRef} className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 ">
                                         {/* <h3 className="font-medium text-gray-700 mb-3">Filter by Status</h3> */}
                                         <div className="space-y-2 flex flex-col gap-2  mb-6">
                                             {getCurrentStatusOptions().map((status) => (
@@ -281,18 +299,19 @@ export default function UserManagement() {
                                         </div>
 
                                         <div className="flex justify-between items-center gap-5 px-5 pb-5">
-                                            <button
-                                                onClick={resetFilters}
-                                                className="px-4 py-2 flex-1 text-[#2853A6] cursor-pointer border border-[#2853A6] rounded-md hover:text-[#fff] hover:bg-[#2853A6]"
-                                            >
-                                                Reset
-                                            </button>
-                                            <button
+                                                                                       <button
                                                 onClick={applyFilters}
                                                 className="px-4 py-2 bg-[#2853A6] flex-1 text-white rounded-md hover:bg-blue-700"
                                             >
                                                 Apply
                                             </button>
+                                            <button
+                                                onClick={resetFilters}
+                                                className="px-4 py-2 flex-1 text-[#2853A6] cursor-pointer border border-[#2853A6] rounded-md hover:text-[#fff] hover:bg-[#2853A6]"
+                                            >
+                                                Cancel
+                                            </button>
+
                                         </div>
                                     </div>
                                 )}

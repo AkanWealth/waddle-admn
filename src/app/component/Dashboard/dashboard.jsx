@@ -5,6 +5,7 @@ import { useToastContext } from "@/context/toast";
 import UserActivity from "./UserActivity";
 import Events from "./Events";
 import analyticsService from "@/utils/analyticsService";
+import { toast as reactToast, ToastContainer } from "react-toastify";
 
 // Mock dashboard data for CSV export (replace with real data source)
 const mockDashboardData = {
@@ -147,6 +148,7 @@ export default function Dashboard() {
 
   return (
     <div className="font-inter flex flex-col">
+      <ToastContainer />
       {/* Dashboard header */}
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center justify-between mb-6 gap-4">
         <div>
@@ -156,6 +158,7 @@ export default function Dashboard() {
 
         {/* Date range and export */}
         <div className="flex flex-col sm:flex-row lg:justify-end gap-4">
+
           <div className="flex items-center border border-gray-300 rounded-lg bg-white px-2 max-w-md">
             {/* <Calendar className="w-4 h-4 text-blue-700 mr-2" /> */}
             <span className="text-xs text-gray-600 mr-1">From:</span>

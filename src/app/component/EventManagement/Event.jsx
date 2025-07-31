@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Plus,
@@ -38,6 +38,10 @@ export default function EventManagement() {
 
   // Mobile responsive states
   const [mobileView, setMobileView] = useState(false);
+
+  // Add refs for dropdowns
+  const statusDropdownRef = useRef(null);
+  const filterDropdownRef = useRef(null);
 
   // Status options
   const statusOptions = [
@@ -184,6 +188,34 @@ export default function EventManagement() {
     setTotalPages(Math.ceil(filtered.length / 7));
   }, [eventList, searchTerm, statusFilter, dateFilter]);
 
+  // Close status filter dropdown on outside click
+  useEffect(() => {
+    if (!statusOpen) return;
+    function handleClickOutside(event) {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target)) {
+        setStatusOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [statusOpen]);
+
+  // Close date filter dropdown on outside click
+  useEffect(() => {
+    if (!filterOpen) return;
+    function handleClickOutside(event) {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+        setFilterOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [filterOpen]);
+
   // Helper function to get event status for filtering
   const getEventStatusForFilter = (event) => {
     if (event.isDeleted) return "Non-compliant";
@@ -247,7 +279,7 @@ export default function EventManagement() {
                 </button>
 
                 {statusOpen && (
-                  <div className="absolute mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 z-10 p-4">
+                  <div ref={statusDropdownRef} className="absolute mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 z-10 p-4">
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
@@ -324,7 +356,7 @@ export default function EventManagement() {
 
                 {/* Filter dropdown */}
                 {filterOpen && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
+                  <div ref={filterDropdownRef} className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
                     <h3 className="font-medium text-gray-700 mb-3">
                       Filter by Date
                     </h3>

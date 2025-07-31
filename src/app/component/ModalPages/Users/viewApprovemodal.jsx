@@ -6,9 +6,10 @@ import StatusBadge from "../../UserManagement/StatusBadge";
 import SuspendVendorModal from "./suspendVendor";
 import ActivateVendorModal from "./activateVendor";
 import EnableVendorModal from "./EnableVendor";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, Phone, Mail, MapPin, Globe } from "lucide-react";
 import { userService } from "@/utils/userService";
 import formatCustomDate from "@/lib/formatDate";
+import { useToastContext } from "@/context/toast";
 
 const VendorApproveDetailsModal = ({
   vendor,
@@ -18,6 +19,7 @@ const VendorApproveDetailsModal = ({
   onReject,
   onStatusChange, // <-- Add this prop
 }) => {
+  const { showMessage } = useToastContext();
   const [modals, setModals] = useState({
     suspend: false,
     activate: false,
@@ -25,6 +27,7 @@ const VendorApproveDetailsModal = ({
   });
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [prevEvents, setPrevEvents] = useState([]);
+  console.log(vendor, "This is the vendor")
 
   useEffect(() => {
     if (!vendor) return;
@@ -63,16 +66,17 @@ const VendorApproveDetailsModal = ({
 
   const handleSuspendVendor = async(vendorId, reason) => {
     if(vendorId === selectedVendor.id) {
-      const response = await userService.suspendVendor(vendorId);
+      const response = await userService.suspendVendor(vendorId, reason);
       if (response.success) {
-        toast.success("Vendor suspended successfully");
+          showMessage("Success", "Vendor suspended successfully", "success");
         if (typeof onStatusChange === "function") {
           onStatusChange(vendorId, "Suspended");
         }
         onClose();
       } else{
         console.error("Error suspending vendor:", response.error);
-      }
+        showMessage("Error", "Failed to suspend vendor", "error");
+        }
     }
     console.log(`Suspending vendor ${vendorId}: ${reason}`);
   };
@@ -101,7 +105,7 @@ const VendorApproveDetailsModal = ({
             className: "border border-blue-600 text-blue-600 " + commonBtnStyle,
           },
         };
-
+      case "APPROVED":
       case "Approved":
       case "Active":
         return {
@@ -146,7 +150,7 @@ const VendorApproveDetailsModal = ({
 
   if (!vendor) return null;
 
-  const modalTitle = ["Active", "Inactive", "Approve"].includes(vendor.status)
+  const modalTitle = ["Active", "Inactive", "Approve", "APPROVED"].includes(vendor.status)
     ? "Organiser's Profile"
     : "Vendor's Profile";
 
@@ -158,15 +162,15 @@ const VendorApproveDetailsModal = ({
         title={modalTitle}
         actions={getActions}
         buttonPlacement="bottom"
-        size={{ width: "99%", maxWidth: "600px" }}
+        size={{ width: "99%", maxWidth: "600px", height: "90vh" }}
         className="overflow-y-auto"
         showDividers={false}
       >
         <div>
           {console.log(vendor, "This is the vendor")}
-          {(vendor.status === "Approved" || vendor.status === "Active") && (
-            <div className="mb-4 text-gray-700">
-              <p>Last Login at :April 24th, 2025, 9:16 pm</p>
+          {(vendor.status === "Approved" || vendor.status === "Active" || vendor.status === "APPROVED") && (
+            <div className="mb-4 text-gray-700 border-t border-gray-200 pt-4">
+              <p>Last Login at: {formatCustomDate(vendor.lastLoginAt, "DD-MM-YYYY")}</p>
             </div>
           )}
 
@@ -183,65 +187,58 @@ const VendorApproveDetailsModal = ({
           )}
 
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-semibold text-[#303237]">{vendor.name}</h3>
+            <h3 className="text-xl font-semibold text-[#303237]">{vendor.business_name}</h3>
             <StatusBadge status={vendor.status} />
           </div>
 {            console.log(vendor, "This is the vendor that we have selected")}
 
           <p className="text-[#7E8494] text-lg font-semibold mb-4">
-            {vendor.contactName || "Mary White"}
+            {vendor.name || "Mary White"}
           </p>
 
           <p className="text-gray-700 mb-6">
             {vendor.description || "Designed to teach and train family..."}
           </p>
 
-          <h4 className="text-lg font-medium text-gray-800 mb-4">
-            Contact Details
+          <h4 className="text-lg font-medium border-t border-gray-200 pt-4 text-gray-800 mb-4">
+            Contact Detailsoooo
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {[
               {
-                icon: (
-                  <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493..." />
-                ),
-                value: vendor.contactDetails?.phone || "+4498274774",
+                icon: <Phone className="h-5 w-5 text-gray-600" />,
+                value: vendor.phone_number,
               },
               {
-                icon: <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8..." />,
-                value: vendor.contactDetails?.email || "mary@abcorg.com",
+                icon: <Mail className="h-5 w-5 text-gray-600" />,
+                value: vendor.email,
               },
               {
-                icon: <path d="M17.657 16.657L13.414 20.9a1.998..." />,
-                value:
-                  vendor.contactDetails?.address ||
-                  "362 Sycamore St, Detroit, MI",
+                icon: <MapPin className="h-5 w-5 text-gray-600" />,
+                value: vendor.address,
               },
               {
-                icon: <path d="M21 12a9 9 0 01-9 9m9-9a9 9..." />,
-                value: vendor.contactDetails?.website || "www.abcorg.com",
+                icon: <Globe className="h-5 w-5 text-gray-600" />,
+                value: vendor.website,
               },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center bg-gray-100 rounded-full px-4 py-2 w-fit"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-600 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+            ]
+              .filter(item => item.value != null && item.value !== "")
+              .map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center bg-[#F2F2F2] rounded-full px-5 py-1  w-fit"
                 >
-                  {item.icon}
-                </svg>
-                <span className="text-gray-700">{item.value}</span>
-              </div>
-            ))}
+                  <div className="mr-2">
+                    {item.icon}
+                  </div>
+                  <span className="text-gray-700 text-nowrap">{item.value}</span>
+                </div>
+              ))}
           </div>
 
-          {(vendor.status === "Approved" ||
+          {(vendor.status == "Approved" ||
             vendor.status === "Active" ||
+            vendor.status === "APPROVED" ||
             vendor.status === "Inactive") && (
             <>
               <h4 className="text-lg font-medium text-gray-800 mb-4">

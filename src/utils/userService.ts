@@ -83,21 +83,24 @@ class UserService {
     }
   }
 
-  async suspendVendor(vendorId: string): Promise<{
+  async suspendVendor(
+    vendorId: string,
+    reason: string
+  ): Promise<{
     success: boolean;
     data?: unknown;
     error?: string;
   }> {
     try {
       const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/organisers/${vendorId}/approve`,
+        `/api/v1/organisers/${vendorId}/suspend`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            isApproved: false,
+            suspensionReason: reason,
           }),
         }
       );

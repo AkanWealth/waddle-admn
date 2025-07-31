@@ -4,6 +4,7 @@ import { CircleCheck, CircleXIcon, Clock, TriangleAlert } from "lucide-react";
 
 export default function StatusBadge({ status }) {
   switch (status) {
+    case "APPROVED":
     case "Approved":
       return (
         <div className="flex items-center bg-green-100 rounded-lg px-2">
@@ -11,6 +12,7 @@ export default function StatusBadge({ status }) {
           <span className="text-green-600 text-xs px-3 py-2">Approved</span>
         </div>
       );
+    case "REJECTED":
     case "Rejected":
       return (
         <div className="flex items-center bg-red-100 rounded-lg px-2">
@@ -54,6 +56,14 @@ export default function StatusBadge({ status }) {
         <div className="flex items-center bg-orange-100 rounded-lg px-2">
           <TriangleAlert className="w-4 h-4 text-orange-500 mr-1" />
           <span className="text-orange-600 text-xs px-3 py-2">Spam</span>
+        </div>
+      );
+    case "SUSPENDED":
+    case "Suspended":
+      return (
+        <div className="flex items-center bg-orange-100 rounded-lg px-2">
+          <TriangleAlert className="w-4 h-4 text-orange-500 mr-1" />
+          <span className="text-orange-600 text-xs px-3 py-2">Suspended</span>
         </div>
       );
     case "Deactivated":
