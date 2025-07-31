@@ -289,18 +289,21 @@ export default function AdminUsersTable({
   const handleDeleteAdmin = async (adminId) => {
     try {
       // Make API call to delete admin
-      await authService.makeAuthenticatedRequest(
-        `/api/v1/host/web/${adminId}`,
+     const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/host/${adminId}`,
         {
           method: "DELETE",
         }
       );
-
-      // Update local state
+      console.log(response);
+      if(response.success){
       setAdminUsers((prevUsers) =>
         prevUsers.filter((user) => user.id !== adminId)
       );
       showMessage("success", `Admin with ID ${adminId} deleted`, "success");
+      }
+      // Update local state
+
     } catch (error) {
       console.error("Error deleting admin:", error);
       showMessage("Error", "Error deleting admin: " + error, "error");

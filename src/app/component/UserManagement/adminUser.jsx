@@ -292,26 +292,13 @@ export default function AdminUsersTable({
     }
   };
 
-  const handleDeleteAdmin = async (adminId) => {
-    try {
-      // Make API call to delete admin
-      await authService.makeAuthenticatedRequest(
-        `/api/v1/host/web/${adminId}`,
-        {
-          method: "DELETE",
-        }
-      );
+ const handleDeleteAdmin = (adminId) => {
+  // Update local state - remove the admin from the list
+  setAdminUsers((prevUsers) =>
+    prevUsers.filter((user) => user.id !== adminId)
+  );
+};
 
-      // Update local state
-      setAdminUsers((prevUsers) =>
-        prevUsers.filter((user) => user.id !== adminId)
-      );
-      showMessage("success", `Admin with ID ${adminId} deleted`, "success");
-    } catch (error) {
-      console.error("Error deleting admin:", error);
-      showMessage("Error", "Error deleting admin: " + error, "error");
-    }
-  };
 
   const handleModalClose = () => {
     setIsEditModalOpen(false);
@@ -675,16 +662,16 @@ export default function AdminUsersTable({
           setSelectedAdmin(null);
         }}
       />
-      <DeleteAdminModal
-        admin={deletingAdmin}
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => {
-          handleDeleteAdmin(deletingAdmin?.id);
-          setIsDeleteModalOpen(false);
-          setDeletingAdmin(null);
-        }}
-      />
+<DeleteAdminModal
+  admin={deletingAdmin}
+  isOpen={isDeleteModalOpen}
+  onClose={() => {
+    setIsDeleteModalOpen(false);
+    setDeletingAdmin(null);
+  }}
+  onConfirm={handleDeleteAdmin} // This will receive the adminId after successful deletion
+/>
+
       {paginatedAdmin.length > 0 && (
         <PaginationComponent
           currentPage={currentPage}

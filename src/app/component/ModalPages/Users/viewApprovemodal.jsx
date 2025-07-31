@@ -201,7 +201,7 @@ const VendorApproveDetailsModal = ({
           </p>
 
           <h4 className="text-lg font-medium border-t border-gray-200 pt-4 text-gray-800 mb-4">
-            Contact Detailsoooo
+            Contact 
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {[
@@ -275,6 +275,10 @@ const VendorApproveDetailsModal = ({
                 Past Events
               </h4>
               <div className="overflow-x-auto mb-6">
+              {prevEvents.length === 0 && (
+                <p className="text-gray-500 text-sm">No past events found</p>
+              )}
+              {prevEvents.length > 0 && (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
@@ -312,9 +316,11 @@ const VendorApproveDetailsModal = ({
                         </td>
                       </tr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                    </tbody>
+                  </table>
+                                )}
+                </div>
+
             </>
           )}
         </div>

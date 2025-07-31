@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import BaseModal from '@/app/component/Element/BaseModal';
-
-import { XCircle,LucideInfo } from 'lucide-react';
+import { XCircle, LucideInfo } from 'lucide-react';
 import { useToastContext } from '@/context/toast';
 import { authService } from '@/utils/authService';
+
 /**
- * DeleteadminModal Component
+ * DeleteAdminModal Component
  * 
  * @param {Object} props
- * @param {Object} props.admin - admin data with id
+ * @param {Object} props.admin - admin data with id and fullName
  * @param {boolean} props.isOpen - Controls modal visibility
  * @param {function} props.onClose - Function to call when modal closes
  * @param {function} props.onConfirm - Function to handle successful deletion
@@ -45,45 +45,34 @@ const DeleteAdminModal = ({
       setIsDeleting(false);
     }
   }, [isOpen]);
-  
-  // Handle delete confirmation with API call
-  const handleConfirm = async () => {
-    if (!admin?.id) {
-      showMessage("Error", "admin ID is missing", "error");
-      return;
-    }
+
+  // Handle the deletion process
+  const handleDelete = async () => {
+    if (!admin?.id || isDeleting) return;
 
     setIsDeleting(true);
     
     try {
       // Make API call to delete admin
-    //   await authService.makeAuthenticatedRequest(
-    //     `/api/v1/users/${admin.id}`, 
-    //     {
-    //       method: 'DELETE'
-    //     }
-    //   );
-      
-      // Show success message
-      showMessage(
-        "Account Deleted", 
-        "The admin account was deleted successfully.", 
-        "success"
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/host/web/${admin.id}`,
+        {
+          method: "DELETE",
+        }
       );
+
+      showMessage("success", `Admin ${admin.fullName} deleted successfully`, "success");
       
-      // Close modal and trigger success callback
+      // Call the onConfirm callback to update the parent component's state
+      if (onConfirm) {
+        onConfirm(admin.id);
+      }
+      
+      // Close the modal
       onClose();
-      if (onConfirm) onConfirm();
-      
     } catch (error) {
-      console.error('Delete admin error:', error);
-      
-      // Show error message
-      showMessage(
-        "Delete Failed", 
-        error.message || "Failed to delete admin account. Please try again.", 
-        "error"
-      );
+      console.error("Error deleting admin:", error);
+      showMessage("Error", `Failed to delete admin: ${error.message}`, "error");
     } finally {
       setIsDeleting(false);
     }
@@ -99,7 +88,7 @@ const DeleteAdminModal = ({
   const modalActions = {
     approve: {
       label: isDeleting ? "Deleting..." : "Delete Admin",
-      onClick: handleConfirm,
+      onClick: handleDelete,
       className: `${
         isDeleting 
           ? "bg-red-400 cursor-not-allowed" 
@@ -143,26 +132,18 @@ const DeleteAdminModal = ({
             <h3 className='text-gray-800 font-bold text-xl'>Delete Admin</h3>
             <p className="text-gray-700 text-lg">
               Are you sure you want to permanently delete 
-              admin This action cannot be undone, and all their access will be revoked. 
-            </p>
-            
-              <p className="text-gray-600 text-sm mt-2">
-                
-              </p>
-            <p className="text-gray-500 text-sm mt-2">
-              
+              <span className="font-semibold"> {admin?.fullName || 'this admin'}</span>? 
+              This action cannot be undone, and all their access will be revoked. 
             </p>
           </div>
-
-
         </div>
-        <div className="flex items-center justify-between flex-cols-2 text-center gap-2">
-            
-           <LucideInfo className="h-6 w-6 text-red-500 mb-2" />
-            <p className="text-gray-500  text-left text-sm mt-2">
-              Deleting an admin will remove their access completely. If they need access again, they will need to be reinvited
-            </p>
-          </div>
+        
+        <div className="flex items-center justify-between flex-cols-2 text-center gap-2 mt-4">
+          <LucideInfo className="h-6 w-6 text-red-500 mb-2" />
+          <p className="text-gray-500 text-left text-sm mt-2">
+            Deleting an admin will remove their access completely. If they need access again, they will need to be reinvited
+          </p>
+        </div>
       </div>
     </BaseModal>
   );

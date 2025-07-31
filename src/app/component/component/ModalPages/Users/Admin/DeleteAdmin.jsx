@@ -46,48 +46,7 @@ const DeleteAdminModal = ({
     }
   }, [isOpen]);
   
-  // Handle delete confirmation with API call
-  const handleConfirm = async () => {
-    if (!admin?.id) {
-      showMessage("Error", "admin ID is missing", "error");
-      return;
-    }
-
-    setIsDeleting(true);
-    
-    try {
-      // Make API call to delete admin
-    //   await authService.makeAuthenticatedRequest(
-    //     `/api/v1/users/${admin.id}`, 
-    //     {
-    //       method: 'DELETE'
-    //     }
-    //   );
-      
-      // Show success message
-      showMessage(
-        "Account Deleted", 
-        "The admin account was deleted successfully.", 
-        "success"
-      );
-      
-      // Close modal and trigger success callback
-      onClose();
-      if (onConfirm) onConfirm();
-      
-    } catch (error) {
-      console.error('Delete admin error:', error);
-      
-      // Show error message
-      showMessage(
-        "Delete Failed", 
-        error.message || "Failed to delete admin account. Please try again.", 
-        "error"
-      );
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+ 
 
   // Handle cancel
   const handleCancel = () => {
@@ -99,7 +58,7 @@ const DeleteAdminModal = ({
   const modalActions = {
     approve: {
       label: isDeleting ? "Deleting..." : "Delete Admin",
-      onClick: handleConfirm,
+      onClick: onConfirm,
       className: `${
         isDeleting 
           ? "bg-red-400 cursor-not-allowed" 
