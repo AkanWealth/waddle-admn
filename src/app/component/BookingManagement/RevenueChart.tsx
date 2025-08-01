@@ -9,6 +9,8 @@ export default function RevenueChart() {
     const { data, fetchData } = useRevenueStore();
       const [isOpen, setIsOpen] = useState(false);
       const dropdownRef = useRef();
+      const [selectedOption, setSelectedOption] = useState("LAST YEAR");
+
 
       // Close dropdown when clicking outside
       useEffect(() => {
@@ -48,7 +50,7 @@ export default function RevenueChart() {
               onClick={() => setIsOpen(!isOpen)}
               className="bg-blue-100 text-blue-700 px-4 py-2 rounded-[12px] focus:outline-none"
             >
-              LAST YEAR ▾
+              {selectedOption} ▾
             </button>
 
             {isOpen && (
@@ -59,6 +61,7 @@ export default function RevenueChart() {
                     onClick={() => {
                       console.log(`Selected: ${option}`);
                       setIsOpen(false);
+                      setSelectedOption(option);
                     }}
                     className="block w-full text-left px-4 py-2 bg-white border border-gray-200 rounded-sm mt-3 text-sm text-[#2853A6] hover:bg-blue-50"
                   >
