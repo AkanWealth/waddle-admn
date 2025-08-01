@@ -12,7 +12,7 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose, onRefund }) => 
             case 'successful':
                 return 'text-green-600 bg-green-100';
             case 'pending':
-                return 'text-yellow-600 bg-yellow-100';
+                return 'text-[#272727] bg-[#E5E5E5]';
             case 'failed':
                 return 'bg-[#FFDEDE] text-[#CB1A14]';
             case 'cancelled':
