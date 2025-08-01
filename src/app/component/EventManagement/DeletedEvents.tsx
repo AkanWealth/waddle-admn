@@ -186,7 +186,7 @@ const DeletedEvents = ({
                 </tr>
               </thead>
               <tbody>
-                {deletedUsersList.map((user) => (
+                {/* {deletedUsersList.map((user) => (
                   <tr key={user.id} className="border-b border-[#E0E0E0]">
                     <td className="py-3 px-2 text-[#303237] text-center text-sm font-medium max-w-[200px] truncate">
                       {user.name}
@@ -212,7 +212,7 @@ const DeletedEvents = ({
                       </button>
                     </td>
                   </tr>
-                ))}
+                ))} */}
               </tbody>
             </table>
           ) : (
