@@ -38,9 +38,9 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose, onRefund }) => 
         if (transaction.status?.toLowerCase() === 'cancelled') {
             return {
                 refund: {
-                    label: 'Confrim Refund',
+                    label: 'Confirm Refund',
                     onClick: () => setShowRefundModal(true),
-                    className: 'w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
+                    className: 'w-full px-6 py-2 bg-[#2853A6] cursor-pointer text-white rounded-lg hover:bg-blue-700 transition-colors'
                 }
             };
         }
