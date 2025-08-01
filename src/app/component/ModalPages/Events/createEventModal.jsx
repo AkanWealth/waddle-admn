@@ -2,6 +2,8 @@ import React, { useState, useRef } from "react";
 import BaseModal from "../../Element/BaseModal";
 import { Calendar, Clock, Upload, ChevronDown, X } from "lucide-react";
 import { eventService } from "@/utils/eventService";
+import { useEffect } from "react";
+
 
 const EventCreationModal = ({ isOpen, onClose, onSave }) => {
   const [eventData, setEventData] = useState({
@@ -19,6 +21,57 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
     frequency: "",
     images: [],
   });
+  const categoryRef = useRef(null);
+const locationRef = useRef(null);
+const timeRef = useRef(null);
+const capacityRef = useRef(null);
+const frequencyRef = useRef(null);
+
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      categoryRef.current &&
+      !categoryRef.current.contains(event.target)
+    ) {
+      setShowCategoryDropdown(false);
+    }
+
+    if (
+      locationRef.current &&
+      !locationRef.current.contains(event.target)
+    ) {
+      setShowLocationDropdown(false);
+    }
+
+    if (
+      timeRef.current &&
+      !timeRef.current.contains(event.target)
+    ) {
+      setShowTimeDropdown(false);
+    }
+
+    if (
+      capacityRef.current &&
+      !capacityRef.current.contains(event.target)
+    ) {
+      setShowCapacityDropdown(false);
+    }
+
+    if (
+      frequencyRef.current &&
+      !frequencyRef.current.contains(event.target)
+    ) {
+      setShowFrequencyDropdown(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
+
 
   const [locationResults, setLocationResults] = useState([
     { id: 1, address: "JG64+94H, Colchester London", city: "London, UK" },
@@ -336,7 +389,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           {/* Location */}
-          <div className="flex-1 relative">
+          <div ref={locationRef} className="flex-1 relative">
             <label
               htmlFor="location"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -433,7 +486,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
         </div>
 
         {/* Date and Time */}
-        <div className="grid grid-cols-2 gap-4">
+        <div ref={timeRef} className="grid grid-cols-2 gap-4">
           <div>
             <label
               htmlFor="eventDate"
@@ -486,11 +539,12 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
         </div>
 
         {/* Event Category */}
-        <div className="relative mb-6">
+        <div ref={categoryRef}  className="relative mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Event Category <span className="text-red-500">*</span>
           </label>
           <div
+          
             className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
             onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
           >
@@ -533,7 +587,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 Tickets Available
               </label>
               <div className="flex">
-                <div className="relative min-w-22">
+                <div ref={capacityRef} className="relative min-w-22">
                   <div
                     className="flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-md cursor-pointer"
                     onClick={() =>
@@ -592,7 +646,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="relative">
+          <div ref={frequencyRef} className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Event Frequency <span className="text-gray-400">(Optional)</span>
             </label>
