@@ -34,6 +34,8 @@ const BookingTable: React.FC<BookingTableProps> = ({
     setSelectedEvent(event);
     openBookingDetailsModal();
   };
+
+  console.log(bookings, "This is bookings itself");
   return (
     <div className="overflow-x-auto w-full">
       <>
