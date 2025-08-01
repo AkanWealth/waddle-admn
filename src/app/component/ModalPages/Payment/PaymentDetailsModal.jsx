@@ -14,9 +14,9 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose, onRefund }) => 
             case 'pending':
                 return 'text-yellow-600 bg-yellow-100';
             case 'failed':
-                return 'text-red-600 bg-red-100';
+                return 'bg-[#FFDEDE] text-[#CB1A14]';
             case 'cancelled':
-                return 'text-orange-600 bg-orange-100';
+                return 'bg-[#FFDEDE] text-[#CB1A14]';
             case 'refunded':
                 return 'text-blue-600 bg-blue-100';
             default:
