@@ -153,7 +153,7 @@ const BookingDetailsModal = () => {
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900">
-                  {selectedEvent.event.organiser.business_name}
+                  {selectedEvent?.event?.organiser?.business_name}
                 </div>
                 <div className="text-sm text-gray-600">Mary Jane</div>
               </div>
@@ -161,11 +161,11 @@ const BookingDetailsModal = () => {
             <div className="mt-2 flex items-center gap-4">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Mail size={14} />
-                <span>{selectedEvent.event.organiser.email}</span>
+                <span>{selectedEvent?.event?.organiser?.email}</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Phone size={14} />
-                <span>{selectedEvent.event.organiser.phone_number}</span>
+                <span>{selectedEvent?.event?.organiser?.phone_number}</span>
               </div>
             </div>
           </div>
