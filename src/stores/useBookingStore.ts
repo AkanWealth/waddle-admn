@@ -316,10 +316,10 @@ export const useFilteredBookings = () => {
   return React.useMemo(() => {
     return bookings.filter((booking) => {
       const matchesSearch =
-        booking.event.name
+        booking?.event?.name
           .toLowerCase()
           .includes(filters.searchTerm.toLowerCase()) ||
-        booking.organiser
+        booking?.event?.organiser?.name
           .toLowerCase()
           .includes(filters.searchTerm.toLowerCase());
 
