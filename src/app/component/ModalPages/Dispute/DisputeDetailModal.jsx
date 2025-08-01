@@ -101,6 +101,30 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
       setIsLoading(false);
     }
   };
+   const handleMoveToResolved = async () => {
+    if (!dispute?.id) {
+      showMessage("Error", "Dispute ID is required", "error");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await disputeService.moveToResolved(dispute.id);
+      
+      if (result.success) {
+        showMessage("Success", "Dispute moved to Resolved status", "success");
+        // Update the dispute status locally
+        dispute.status = "Resolved";
+        onClose();
+      } else {
+        showMessage("Error", result.error || "Failed to move dispute to Resolved", "error");
+      }
+    } catch (error) {
+      showMessage("Error", "An unexpected error occurred", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!dispute) return null;
 
@@ -261,6 +285,28 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
               type="button"
             >
               {isLoading ? "Processing..." : "Move to In Review"}
+            </button>
+          </div>
+        )
+      }
+
+            {
+        dispute.status === "In Review" && (
+          <div className="mb-6 flex gap-4">
+            <button 
+              onClick={onClose}
+              className="border flex-1 border-[#2853A6] text-[#2853A6] px-4 py-2 rounded-md hover:bg-blue-50 transition-colors" 
+              type="button"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleMoveToResolved}
+              disabled={isLoading}
+              className="bg-[#2853A6] flex-1 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              type="button"
+            >
+              {isLoading ? "Processing..." : "Move to Resolved"}
             </button>
           </div>
         )

@@ -4,12 +4,17 @@
 import { useRevenueStore } from "@/stores/useBookingStore";
 import { useEffect, useState, useRef } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-
+enum RevenueMonths {
+  last3months = "3months",
+  last6months = "6months",
+  last9months = "9months",
+  last12months = "12months",
+}
 export default function RevenueChart() {
     const { data, fetchData } = useRevenueStore();
       const [isOpen, setIsOpen] = useState(false);
       const dropdownRef = useRef();
-      const [selectedOption, setSelectedOption] = useState("LAST YEAR");
+      const [selectedOption, setSelectedOption] = useState(RevenueMonths.last12months);
 
 
       // Close dropdown when clicking outside
@@ -28,12 +33,17 @@ export default function RevenueChart() {
       }, []);
   
     useEffect(() => {
-      fetchData();
-    }, [fetchData]);
-  
+      fetchData(selectedOption);
+    }, [fetchData, selectedOption]);
+ 
     const totalRevenue = data.reduce((acc, item) => acc + item.amount, 0);
-    const percentGrowth = 27; // You can calculate this dynamically as needed
-    const options = ["LAST WEEK", "LAST MONTH", "LAST YEAR"];
+    const percentGrowth = 0; // You can calculate this dynamically as needed
+    const options = [
+      {name: "LAST 3 MONTHS", value: RevenueMonths.last3months},
+      {name: "LAST 6 MONTHS", value: RevenueMonths.last6months},
+      {name: "LAST 9 MONTHS", value: RevenueMonths.last9months},
+      {name: "LAST 12 MONTHS", value: RevenueMonths.last12months},
+    ];
 
     return (
       <div className="bg-white p-6 rounded-xl shadow">
@@ -50,7 +60,7 @@ export default function RevenueChart() {
               onClick={() => setIsOpen(!isOpen)}
               className="bg-blue-100 text-blue-700 px-4 py-2 rounded-[12px] focus:outline-none"
             >
-              {selectedOption} ▾
+              {options.find((option) => option.value === selectedOption)?.name} ▾
             </button>
 
             {isOpen && (
@@ -61,11 +71,11 @@ export default function RevenueChart() {
                     onClick={() => {
                       console.log(`Selected: ${option}`);
                       setIsOpen(false);
-                      setSelectedOption(option);
+                      setSelectedOption(option.value);
                     }}
                     className="block w-full text-left px-4 py-2 bg-white border border-gray-200 rounded-sm mt-3 text-sm text-[#2853A6] hover:bg-blue-50"
                   >
-                    {option}
+                    {option.name}
                   </button>
                 ))}
               </div>

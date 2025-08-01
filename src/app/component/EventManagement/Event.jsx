@@ -13,6 +13,7 @@ import EventTable from "./EventRender";
 import PaginationComponent from "../Element/PaginationComponent";
 import EventCreationModal from "../ModalPages/Events/createEventModal";
 import { eventService } from "@/utils/eventService";
+import DeletedEvents from "./DeletedEvents";
 
 export default function EventManagement() {
   // State for active tab
@@ -25,6 +26,8 @@ export default function EventManagement() {
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [statusOpen, setStatusOpen] = useState(false);
+      const [showDeletedEvents, setShowDeletedEvents] = useState(false);
+
   const [filterOpen, setFilterOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState([]);
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
@@ -238,7 +241,7 @@ export default function EventManagement() {
                         <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                         Create Event
                     </button>
-          <button className="cursor-pointer flex items-center gap-2 border border-[#CC0000] text-[#CC0000] px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+          <button onClick={()=> setShowDeletedEvents(true)} className="cursor-pointer flex items-center gap-2 border border-[#CC0000] text-[#CC0000] px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
             <span className="text-[#CC0000]">
             Deleted Events
             </span>
@@ -450,6 +453,15 @@ export default function EventManagement() {
           onSave={handleSaveEvent}
         />
       )}
+
+      {showDeletedEvents && (
+                    <DeletedEvents
+                        onClose={() => setShowDeletedEvents(false)}
+                        onUserRestored={() => {
+                            setRefreshKey(prev => prev + 1);
+                        }}
+                    />
+                 )}
     </div>
   );
 }

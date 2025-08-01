@@ -71,6 +71,22 @@ class BookingsService {
     }
   }
   
+  async getBookingRevenueData(period:string, status?:string){
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/payments/revenue/admin?period=${period}&status=${status}`
+      );
+      console.log("Testing a couple right here",response)
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error")
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to fetch bookings",
+      };
+    }
+  }
 }
 
 export const bookingsService = new BookingsService();
