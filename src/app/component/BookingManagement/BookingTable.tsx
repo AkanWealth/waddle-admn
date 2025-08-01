@@ -83,13 +83,13 @@ const BookingTable: React.FC<BookingTableProps> = ({
                       <span className="font-semibold block md:hidden">
                         Organiser Name:
                       </span>
-                      {booking.event.organiser.name}
+                      {booking?.event?.organiser?.name || "NA"}
                     </td>
                     <td className="px-4 py-2 md:py-4 font-normal text-sm text-[#515151] text-nowrap md:table-cell block">
                       <span className="font-semibold block md:hidden">
                         Date:
                       </span>
-                      {formatCustomDate(booking.createdAt, "DD-MM-YYYY")}
+                      {formatCustomDate(booking?.createdAt, "DD-MM-YYYY")}
                     </td>
                     <td className="px-4 py-2 md:py-4 md:table-cell block">
                       <span className="font-semibold block md:hidden">
@@ -100,8 +100,8 @@ const BookingTable: React.FC<BookingTableProps> = ({
                           booking.status
                         )} flex items-center gap-1`}
                       >
-                        {renderStatusIcon(booking.status)}
-                        <span className="text-sm">{booking.status}</span>
+                        {renderStatusIcon(booking?.status)}
+                        <span className="text-sm">{booking?.status}</span>
                       </div>
                     </td>
                     <td className="px-4 py-2 md:py-4 text-base font-medium text-[#2853A6] md:table-cell block">

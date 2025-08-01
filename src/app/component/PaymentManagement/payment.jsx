@@ -141,7 +141,7 @@ export default function Payment() {
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-5 px-2 rounded-lg">
                         {/* Tabs - always visible, even on mobile */}
                         <div className="flex mb-4 lg:mb-0 border-1 rounded-lg border-gray-200 px-2 overflow-x-auto">
-                            {["Transaction", "vendorPayment"].map((tab) => (
+                            {["Transaction", "Vendor Payment"].map((tab) => (
                                 <button
                                     key={tab}
                                     className={`mr-4 md:mr-8 py-2 text-xs md:text-sm whitespace-nowrap ${activeTab === tab
