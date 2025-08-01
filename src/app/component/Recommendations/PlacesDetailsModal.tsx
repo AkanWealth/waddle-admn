@@ -3,54 +3,57 @@ import { MapPin, Tag, X, UserRound, CircleCheck } from "lucide-react";
 import Image from "next/image";
 import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
+  type Creator = { name: string; email?: string; profile_picture?: string };
 
-const PlacesDetailsModal = () => {
+ type EventDetails = {
+   name: string;
+   description?: string;
+   address?: string;
+   category?: string;
+   images?: string[];
+   facilities?: string[];
+   tips?: string;
+   creator?: Creator;
+   status?: string;
+   isDeleted?: boolean;
+   isVerified?: boolean;
+ };
+const PlacesDetailsModal = ({
+  selectedPlace,
+}: {
+  selectedPlace: EventDetails;
+}) => {
   const handleImageClick = (image: ImageData, index: number) => {
     console.log("Image clicked:", image, "at index:", index);
   };
   // Define a local type for the event structure
-  type Creator = { name: string; email?: string; profile_picture?: string };
-  type EventDetails = {
-    name: string;
-    description?: string;
-    address?: string;
-    category?: string;
-    images?: string[];
-    facilities?: string[];
-    tips?: string;
-    creator?: Creator;
-    status?: string;
-    isDeleted?: boolean;
-    isVerified?: boolean;
-  };
+ ;
   const {
     openShowApproveDetailsModal,
     closeShowApproveDetailsModal,
     closeShowPlaceDetailsModal,
-    selectedPlace,
   } = useRecommendationsStore() as {
-    selectedPlace: EventDetails;
     openShowApproveDetailsModal: () => void;
     closeShowApproveDetailsModal: () => void;
     closeShowPlaceDetailsModal: () => void;
   };
 
-  if (!selectedPlace) {
-    return (
-      <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
-        <div className="px-5 py-4 bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
-          <div>Loading event details...</div>
-        </div>
-      </div>
-    );
-  }
+  // if (!selectedPlace) {
+  //   return (
+  //     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
+  //       <div className="px-5 py-4 bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
+  //         <div>Loading event details...</div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   const amenities =
-    selectedPlace.facilities && selectedPlace.facilities.length > 0
-      ? selectedPlace.facilities
+    selectedPlace?.facilities && selectedPlace?.facilities.length > 0
+      ? selectedPlace?.facilities
       : [];
   const images: ImageData[] =
-    selectedPlace.images && selectedPlace.images.length > 0
+    selectedPlace?.images && selectedPlace?.images.length > 0
       ? selectedPlace.images.map((img: string, idx: number) => ({
           id: idx + 1,
           src: img,
@@ -59,7 +62,7 @@ const PlacesDetailsModal = () => {
       : [];
 
   // Use creator for submitted by, avatar, and email
-  const creator: Creator = selectedPlace.creator ?? {
+  const creator: Creator = selectedPlace?.creator ?? {
     name: "",
     email: "",
     profile_picture: "",
@@ -74,8 +77,11 @@ const PlacesDetailsModal = () => {
 
   // Determine status using the same logic as in recommendations/page.tsx
   let derivedStatus: "Pending" | "Rejected" | "Approved" = "Pending";
-  if (selectedPlace?.isDeleted) derivedStatus = "Rejected";
-  else if (selectedPlace?.isVerified) derivedStatus = "Approved";
+  if (selectedPlace?.isDeleted) {
+    derivedStatus = "Rejected";
+  } else if (selectedPlace?.isVerified) {
+    derivedStatus = "Approved";
+  }
 
   return (
     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
@@ -112,23 +118,23 @@ const PlacesDetailsModal = () => {
           )}
           <div className="">
             <h3 className="text-[#404040] font-semibold text-xl">
-              {selectedPlace.name || "Event Name"}
+              {selectedPlace?.name || "Event Name"}
             </h3>
             <p className="text-[#565C69] font-normal">
-              {selectedPlace.description || "No description provided."}
+              {selectedPlace?.description || "No description provided."}
             </p>
             <div className="">
               <div className="flex items-center gap-4 my-1.5">
                 <div className="flex items-center gap-2">
                   <MapPin className=" text-[15px] h-[15px]" />
                   <p className="text-[#303237] font-semibold text-[15px]">
-                    {selectedPlace.address || "No address"}
+                    {selectedPlace?.address || "No address"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Tag className="text-[#D45815] text-[14px] h-[14px]" />
                   <p className="text-[#404040] text-[14px]">
-                    {selectedPlace.category || "No category"}
+                    {selectedPlace?.category || "No category"}
                   </p>
                 </div>
                 {/* No fee in Place, so skip PoundSterling/fee */}
@@ -170,8 +176,8 @@ const PlacesDetailsModal = () => {
                     Parent’s Tip
                   </h3>
                   <p className="text-[#565C69]">
-                    {selectedPlace.tips
-                      ? selectedPlace.tips
+                      {selectedPlace?.tips
+                      ? selectedPlace?.tips
                       : "No tips provided."}
                   </p>
                 </div>

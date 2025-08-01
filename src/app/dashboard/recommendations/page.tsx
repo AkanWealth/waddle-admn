@@ -390,6 +390,7 @@ const ParentRecommendations: React.FC = () => {
     setSelectedEvent,
     showPlaceDetailsModal,
     showApproveDetailsModal,
+    selectedPlace,
   } = useRecommendationsStore();
   const [activeTab, setActiveTab] = useState<string>("Places");
   const [searchTerm, setSearchTerm] = useState("");
@@ -553,7 +554,7 @@ const ParentRecommendations: React.FC = () => {
           onPageChange={setCurrentPage}
         />
       )}
-      {showPlaceDetailsModal && <PlacesDetailsModal />}
+      {showPlaceDetailsModal && <PlacesDetailsModal selectedPlace={selectedPlace} />}
       {showApproveDetailsModal && <ApprovePlaceModal />}
     </div>
   );
