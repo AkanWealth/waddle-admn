@@ -99,38 +99,37 @@ const BookingManagement: React.FC = () => {
 
       {isOpenBookingDetails && <BookingDetailsModal />}
       <>
-      {
-        isLoading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <LoadingSkeleton />
           </div>
         ) : (
           <>
-          <main className="min-h-[400px] w-full">
-          {activeTab === "Bookings" && (
-            <BookingTable
-              bookings={paginatedBookings}
-              getStatusBadge={getStatusBadge}
-            />
-          )}
+            <main className="min-h-[400px] w-full">
+              {activeTab === "Bookings" && (
+                <BookingTable
+                  bookings={paginatedBookings}
+                  getStatusBadge={getStatusBadge}
+                />
+              )}
 
-          {activeTab === "Revenue" && (
-            <section className="w-full">
-              <RevenueChart />
-              <RevenueVendorTable />
-            </section>
-          )}
-        </main>
+              {activeTab === "Revenue" && (
+                <section className="w-full">
+                  <RevenueChart />
+                  <RevenueVendorTable />
+                </section>
+              )}
+            </main>
 
-        {shouldShowPagination() && (
-          <footer className="px-6 py-4 border-t border-gray-200">
-            <PaginationComponent
-              currentPage={currentPage}
-              totalPages={getCurrentTotalPages()}
-              onPageChange={setCurrentPage}
-            />
-          </footer>
-        )}
+            {shouldShowPagination() && (
+              <footer className="px-6 py-4 border-t border-gray-200">
+                <PaginationComponent
+                  currentPage={currentPage}
+                  totalPages={getCurrentTotalPages()}
+                  onPageChange={setCurrentPage}
+                />
+              </footer>
+            )}
           </>
         )}
       </>

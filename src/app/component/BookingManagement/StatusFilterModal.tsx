@@ -58,8 +58,10 @@ export default function StatusFilterModal({
     setStatusModalOpen(false);
   };
 
-  const handleCancel = () => {
-    setStatusModalOpen(false);
+  const handleCancel = () => { 
+    setSelected([]); // Reset selection when Cancel is clicked
+    onApply([]); // Update parent component with empty filter
+    setStatusModalOpen(false); 
   };
 
   if (!isOpen) return null;
