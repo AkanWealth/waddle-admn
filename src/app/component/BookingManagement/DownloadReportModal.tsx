@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { saveAs } from "file-saver";
+import { useToastContext } from "@/context/toast";
 
 // Define the type for vendor booking data
 interface VendorBookingDataType {
@@ -17,6 +18,7 @@ interface VendorBookingDataType {
 
 const DownloadReportModal = () => { 
   const [vendorsBookingData, setVendorsBookingData] = useState<VendorBookingDataType[]>([]); 
+  const { showMessage } = useToastContext();
 
   // Format currency for display
   const formatCurrency = (amount: number) => {
@@ -77,6 +79,12 @@ const DownloadReportModal = () => {
       
       // Save the PDF
       doc.save("booking-report.pdf");
+      showMessage(
+        "Report Exported",
+        "Your report has been exported as a PDF file",
+        "success"
+      );
+
     } else if (type === 'csv') {
       // Generate CSV
       const headers = ['Name,Date,Status,Revenue\n'];
@@ -87,6 +95,11 @@ const DownloadReportModal = () => {
       const csvContent = headers.concat(csvRows.join('\n')).join('');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       saveAs(blob, "booking-report.csv");
+      showMessage(
+        "Report Exported",
+        "Your report has been exported as a CSV file",
+        "success"
+      );
     }
     
     // Close modal after download
