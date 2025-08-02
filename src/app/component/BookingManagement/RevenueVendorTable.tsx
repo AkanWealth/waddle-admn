@@ -20,7 +20,7 @@ const RevenueVendorTable: React.FC = () => {
   const { paginatedVendors } = usePaginatedVendors(vendorList);
 
   return (
-    <div className="w-full max-w-6xl mx-auto m-4">
+    <div className="w-full  my-4">
       {/* Desktop Table - Hidden on small screens */}
       <div className="hidden md:block">
         <div className="bg-white rounded-lg shadow overflow-hidden">
