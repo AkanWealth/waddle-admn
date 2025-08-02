@@ -19,6 +19,7 @@ import {
   X,
   BarChart
 } from "lucide-react";
+import { FaBell } from "react-icons/fa6";
 
 function Layout({ children }) {
   const pathname = usePathname();
@@ -179,8 +180,8 @@ function Layout({ children }) {
           {/* Right side elements */}
           <div className="ml-auto flex items-center space-x-6">
             {/* Notification bell */}
-            <button className="w-7 h-7 relative p-1 rounded-full bg-blue-100 hover:bg-gray-100 focus:outline-none">
-              <Bell className="h-5 w-5 text-blue-800" />
+            <button className="w-9 h-9 flex items-center  cursor-pointer justify-center relative p-1 rounded-full bg-[#E5E5E5] hover:bg-gray-100 focus:outline-none">
+              <FaBell className="h-5 w-5 text-[#2853A6]" />
               <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-2 h-2 flex items-center justify-center text-xs">
                 
               </span>
