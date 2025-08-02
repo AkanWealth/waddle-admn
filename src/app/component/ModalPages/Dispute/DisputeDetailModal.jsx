@@ -226,7 +226,9 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
           </div>
           <div className='flex items-center justify-between'>
             <p className="text-sm text-gray-500 mb-1">Booking Reference</p>
-            <p className="font-medium">{disputeDetails.reference}</p>
+            <p className="font-medium">
+  {disputeDetails.reference?.slice(0, 10)}
+</p>
           </div>
           <div className='flex items-center justify-between'>
             <p className="text-sm text-gray-500 mb-1">Date Escalated</p>
