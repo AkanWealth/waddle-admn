@@ -20,11 +20,30 @@ import {
   BarChart
 } from "lucide-react";
 import { FaBell } from "react-icons/fa6";
+import EmptyNotification from "../component/Notification/EmptyNotification";
 
 function Layout({ children }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+const notificationRef = useRef(null);
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      showNotification &&
+      notificationRef.current &&
+      !notificationRef.current.contains(event.target)
+    ) {
+      setShowNotification(false);
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [showNotification]);
+
   
   // Use AuthContext for user data
   const { user, loading } = useAuth();
@@ -164,7 +183,7 @@ function Layout({ children }) {
       </nav>
       
       {/* Main content */}
-      <div className={`flex-1 flex flex-col ${isMobile ? 'ml-0' : 'ml-70'} transition-all duration-300`}>
+      <div className={`flex-1 relative flex flex-col ${isMobile ? 'ml-0' : 'ml-70'} transition-all duration-300`}>
         {/* Top navigation */}
         <header className="bg-white border-b border-gray-200 h-20 md:h-22 flex items-center px-10 sticky top-0 z-10">
           {/* Mobile menu button */}
@@ -180,7 +199,7 @@ function Layout({ children }) {
           {/* Right side elements */}
           <div className="ml-auto flex items-center space-x-6">
             {/* Notification bell */}
-            <button className="w-9 h-9 flex items-center  cursor-pointer justify-center relative p-1 rounded-full bg-[#E5E5E5] hover:bg-gray-100 focus:outline-none">
+            <button   onClick={() => setShowNotification((prev) => !prev)} className="w-9 h-9 flex items-center  cursor-pointer justify-center relative p-1 rounded-full bg-[#E5E5E5] hover:bg-gray-100 focus:outline-none">
               <FaBell className="h-5 w-5 text-[#2853A6]" />
               <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-2 h-2 flex items-center justify-center text-xs">
                 
@@ -205,12 +224,28 @@ function Layout({ children }) {
             </div>
           </div>
         </header>
-        
+
+
         {/* Main content area */}
         <main className="flex-1 overflow-y-auto p-8">
           {children}
         </main>
       </div>
+      {showNotification && (
+  <>
+    {/* Dark background overlay */}
+    <div className="fixed inset-0 bg-[#00000080] bg-opacity-30 z-40" />
+
+    {/* Notification modal */}
+    <div
+      ref={notificationRef}
+      className="absolute top-[5.2rem] right-10 z-50 w-[480px] bg-white rounded-lg shadow-lg py-4"
+    >
+      <EmptyNotification />
+    </div>
+  </>
+)}
+
     </div>
   );
 }
