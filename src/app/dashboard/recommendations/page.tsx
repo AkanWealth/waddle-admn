@@ -137,26 +137,17 @@ const TableRow: React.FC<TableRowProps> = ({
 }) => {
   const isActive = activeModalId === recommendation.id;
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [openAbove, setOpenAbove] = useState(false);
 
   const handleActionClick = (item: Recommendation) => {
     if (isActive) {
       onCloseModal();
     } else {
-      // Calculate available space for modal
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect();
-        const modalHeight = 220; // Adjust to your modal's height
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const spaceAbove = rect.top;
-        setOpenAbove(spaceBelow < modalHeight && spaceAbove > modalHeight);
-      }
       onActionClick(item);
     }
   };
 
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50 ">
+    <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-3 px-4 text-sm text-[#515151] font-semibold">
         {recommendation.name}
       </td>
@@ -180,20 +171,10 @@ const TableRow: React.FC<TableRowProps> = ({
           ref={buttonRef}
           onClick={() => handleActionClick(recommendation)}
           className="text-gray-400 hover:text-gray-600"
+          data-id={recommendation.id}
         >
           <MoreVertical className="w-4 h-4" />
         </button>
-
-        {isActive && (
-          <div
-            className={`absolute right-0 z-20 min-w-[180px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 ${
-              openAbove ? "bottom-full mb-2" : "top-full mt-2"
-            }`}
-            style={{ minWidth: 180 }}
-          >
-            <RecommendationActionModal onClose={onCloseModal} />
-          </div>
-        )}
       </td>
     </tr>
   );
@@ -324,7 +305,6 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
 }) => {
   const isActive = activeModalId === event.id;
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [openAbove, setOpenAbove] = useState(false);
 
   const handleActionClick = (
     item: import("@/types/IRecommendations").Event
@@ -332,19 +312,12 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
     if (isActive) {
       onCloseModal();
     } else {
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect();
-        const modalHeight = 220;
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const spaceAbove = rect.top;
-        setOpenAbove(spaceBelow < modalHeight && spaceAbove > modalHeight);
-      }
       onActionClick(item);
     }
   };
 
   return (
-    <tr className="relative border-b border-gray-100 hover:bg-gray-50">
+    <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-3 px-4 text-sm text-[#515151] font-semibold">
         {event.name}
       </td>
@@ -362,20 +335,11 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
           ref={buttonRef}
           onClick={() => handleActionClick(event)}
           className="text-gray-400 hover:text-gray-600"
+          data-id={event.id}
         >
           <MoreVertical className="w-4 h-4" />
         </button>
       </td>
-      {isActive && (
-        <div
-          className={`absolute right-0 z-20 min-w-[180px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 ${
-            openAbove ? "bottom-full mb-2" : "top-full mt-2"
-          }`}
-          style={{ minWidth: 180 }}
-        >
-          <RecommendationActionModal onClose={onCloseModal} />
-        </div>
-      )}
     </tr>
   );
 };
@@ -395,6 +359,7 @@ const ParentRecommendations: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const itemsPerPage = 7;
 
   useEffect(() => {
@@ -433,17 +398,79 @@ const ParentRecommendations: React.FC = () => {
   const handleActionClickPlace = (item: Recommendation) => {
     setSelectedPlace(item);
     setActiveModalId(item.id);
+    positionModal(item.id);
   };
+  
   const handleActionClickEvent = (
     item: import("@/types/IRecommendations").Event
   ) => {
     setSelectedEvent(item);
     setActiveModalId(item.id);
+    positionModal(item.id);
   };
 
   const handleCloseModal = () => {
     setActiveModalId(null);
   };
+  
+  // Calculate modal position based on button position
+  const positionModal = (id: string) => {
+    setTimeout(() => {
+      const button = document.querySelector(`button[data-id="${id}"]`);
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        const modalHeight = 220; // Approximate height of modal
+        const modalWidth = 290; // Width from RecommendationActionModal
+        
+        // Check if there's enough space below
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceRight = window.innerWidth - rect.left;
+        
+        let top = rect.bottom + window.scrollY;
+        let left = rect.left;
+        
+        // Position above if not enough space below
+        if (spaceBelow < modalHeight) {
+          top = rect.top + window.scrollY - modalHeight;
+        }
+        
+        // Adjust horizontal position if needed
+        if (spaceRight < modalWidth) {
+          left = rect.right - modalWidth;
+        }
+        
+        setModalPosition({ top, left });
+      }
+    }, 0);
+  };
+  
+  // Handle clicks outside the modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // If modal is open and click is outside modal and not on the trigger button
+      if (activeModalId) {
+        const modalElement = document.querySelector('.action-modal-container');
+        const clickedButton = document.querySelector(`button[data-id="${activeModalId}"]`);
+        
+        if (modalElement && 
+            !modalElement.contains(event.target as Node) && 
+            clickedButton !== event.target && 
+            !clickedButton?.contains(event.target as Node)) {
+          handleCloseModal();
+        }
+      }
+    };
+    
+    // Add event listener when modal is open
+    if (activeModalId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    // Clean up event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeModalId]); // Re-run effect when activeModalId changes
 
   const handleFilterClick = () => {
     // Handle filter logic here
@@ -557,6 +584,19 @@ const ParentRecommendations: React.FC = () => {
         <PlacesDetailsModal selectedPlace={selectedPlace} />
       )}
       {showApproveDetailsModal && <ApprovePlaceModal />}
+      
+      {/* Centralized Action Modal */}
+      {activeModalId && (
+          <div 
+          className="fixed z-50 action-modal-container"
+          style={{
+            top: `${modalPosition.top}px`,
+            left: `${modalPosition.left}px`,
+          }}
+        >
+          <RecommendationActionModal onClose={handleCloseModal} />
+        </div>
+      )}
     </div>
   );
 };
