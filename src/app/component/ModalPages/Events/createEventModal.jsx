@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import BaseModal from "../../Element/BaseModal";
 import { Calendar, Clock, Upload, ChevronDown, X } from "lucide-react";
 import { eventService } from "@/utils/eventService";
-import { useEffect } from "react";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
 
 
 const EventCreationModal = ({ isOpen, onClose, onSave }) => {
@@ -172,17 +173,14 @@ useEffect(() => {
     setShowFrequencyDropdown(false);
   };
 
-  const handleAgeRangeChange = (e, type) => {
-    const value = parseInt(e.target.value);
-    setEventData((prev) => {
-      const newRange = { ...prev.ageRange };
-      if (type === "min") {
-        newRange.min = Math.min(value, prev.ageRange.max);
-      } else {
-        newRange.max = Math.max(value, prev.ageRange.min);
+  const handleAgeRangeChange = (values) => {
+    setEventData((prev) => ({
+      ...prev,
+      ageRange: {
+        min: values[0],
+        max: values[1]
       }
-      return { ...prev, ageRange: newRange };
-    });
+    }));
   };
 
   const handleFileSelect = (e) => {
@@ -693,74 +691,28 @@ useEffect(() => {
                 {eventData.ageRange.max} Years
               </span>
             </div>
-            <div className="relative px-3">
-              <div className="relative h-2">
-                {/* Track background */}
-                <div className="absolute w-full h-2 bg-gray-200 rounded-full"></div>
-                {/* Active track */}
-                <div
-                  className="absolute h-2 bg-green-500 rounded-full"
-                  style={{
-                    left: `${(eventData.ageRange.min / 18) * 100}%`,
-                    width: `${
-                      ((eventData.ageRange.max - eventData.ageRange.min) / 18) *
-                      100
-                    }%`,
-                  }}
-                ></div>
-                {/* Min thumb */}
-                <div
-                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                  style={{
-                    left: `calc(${(eventData.ageRange.min / 18) * 100}% - 8px)`,
-                    top: "-4px",
-                  }}
-                ></div>
-                {/* Max thumb */}
-                <div
-                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                  style={{
-                    left: `calc(${(eventData.ageRange.max / 18) * 100}% - 8px)`,
-                    top: "-4px",
-                    zIndex:
-                      eventData.ageRange.max === eventData.ageRange.min
-                        ? 20
-                        : 2, // bring to front if overlapping
-                  }}
-                ></div>
-                {/* Min thumb */}
-                <div
-                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                  style={{
-                    left: `calc(${(eventData.ageRange.min / 18) * 100}% - 8px)`,
-                    top: "-4px",
-                    zIndex:
-                      eventData.ageRange.max === eventData.ageRange.min
-                        ? 18
-                        : 2, // bring to front if overlapping
-                  }}
-                ></div>
-                {/* Min range input */}
-                <input
-                  type="range"
-                  min="0"
-                  max="18"
-                  value={eventData.ageRange.min}
-                  onChange={(e) => handleAgeRangeChange(e, "min")}
-                  className="absolute w-full h-2 opacity-0 cursor-pointer"
-                  style={{ zIndex: 3 }}
-                />
-                {/* Max range input */}
-                <input
-                  type="range"
-                  min="0"
-                  max="18"
-                  value={eventData.ageRange.max}
-                  onChange={(e) => handleAgeRangeChange(e, "max")}
-                  className="absolute w-full h-2 opacity-0 cursor-pointer"
-                  style={{ zIndex: 3 }}
-                />
-              </div>
+            <div className="px-3 py-4">
+              <Slider
+                range
+                min={0}
+                max={18}
+                value={[eventData.ageRange.min, eventData.ageRange.max]}
+                onChange={handleAgeRangeChange}
+                trackStyle={[{ backgroundColor: '#22c55e' }]} // green-500
+                handleStyle={[
+                  { 
+                    borderColor: '#22c55e',
+                    backgroundColor: 'white',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  },
+                  { 
+                    borderColor: '#22c55e',
+                    backgroundColor: 'white',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                  }
+                ]}
+                railStyle={{ backgroundColor: '#e5e7eb' }} // gray-200
+              />
             </div>
           </div>
         </div>

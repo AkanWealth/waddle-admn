@@ -124,8 +124,10 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
     setEventData((prev) => {
       const newRange = { ...prev.ageRange };
       if (type === "min") {
+        // Ensure min doesn't exceed max
         newRange.min = Math.min(value, prev.ageRange.max);
-      } else {
+      } else if (type === "max") {
+        // Ensure max doesn't go below min
         newRange.max = Math.max(value, prev.ageRange.min);
       }
       return { ...prev, ageRange: newRange };
@@ -615,7 +617,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Age Range
             </label>
-            <div className="flex justify-between mb-3">
+            <div className="flex justify-between ">
               <span className="text-xs bg-green-100 px-2 py-1 rounded-full text-green-800 font-medium">
                 {eventData.ageRange.min} Years
               </span>
@@ -638,57 +640,51 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                     }%`,
                   }}
                 ></div>
-                {/* Min thumb */}
+                {/* Min thumb - visual indicator only */}
                 <div
-                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full shadow-sm transition-shadow pointer-events-none"
                   style={{
                     left: `calc(${(eventData.ageRange.min / 18) * 100}% - 8px)`,
                     top: "-4px",
+                    zIndex: 5,
                   }}
                 ></div>
-                {/* Max thumb */}
+                {/* Max thumb - visual indicator only */}
                 <div
-                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full shadow-sm transition-shadow pointer-events-none"
                   style={{
                     left: `calc(${(eventData.ageRange.max / 18) * 100}% - 8px)`,
                     top: "-4px",
-                    zIndex:
-                      eventData.ageRange.max === eventData.ageRange.min
-                        ? 20
-                        : 2, // bring to front if overlapping
+                    zIndex: eventData.ageRange.max === eventData.ageRange.min ? 6 : 5,
                   }}
                 ></div>
-                {/* Min thumb */}
-                <div
-                  className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full cursor-pointer shadow-sm hover:shadow-md transition-shadow"
-                  style={{
-                    left: `calc(${(eventData.ageRange.min / 18) * 100}% - 8px)`,
-                    top: "-4px",
-                    zIndex:
-                      eventData.ageRange.max === eventData.ageRange.min
-                        ? 18
-                        : 2, // bring to front if overlapping
-                  }}
-                ></div>
-                {/* Min range input */}
+                {/* Min range input - positioned at left for min thumb */}
                 <input
                   type="range"
                   min="0"
                   max="18"
                   value={eventData.ageRange.min}
                   onChange={(e) => handleAgeRangeChange(e, "min")}
-                  className="absolute w-full h-2 opacity-0 cursor-pointer"
-                  style={{ zIndex: 3 }}
+                  className="absolute w-1/2 h-8 opacity-0 cursor-pointer"
+                  style={{ 
+                    left: 0,
+                    top: "-8px",
+                    zIndex: 30 
+                  }}
                 />
-                {/* Max range input */}
+                {/* Max range input - positioned at right for max thumb */}
                 <input
                   type="range"
                   min="0"
                   max="18"
                   value={eventData.ageRange.max}
                   onChange={(e) => handleAgeRangeChange(e, "max")}
-                  className="absolute w-full h-2 opacity-0 cursor-pointer"
-                  style={{ zIndex: 3 }}
+                  className="absolute w-1/2 h-8 opacity-0 cursor-pointer"
+                  style={{ 
+                    right: 0,
+                    top: "-8px",
+                    zIndex: 30 
+                  }}
                 />
               </div>
             </div>
