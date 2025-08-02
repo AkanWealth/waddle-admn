@@ -242,7 +242,7 @@ export default function Payment() {
                                 dateFilter={dateFilter}
                                 mobileView={mobileView} />
                         )}
-                        {activeTab === "vendorPayment" && (
+                        {activeTab === "Vendor Payment" && (
                             <VendorsPaymentTable
                                 currentPage={currentPage}
                                 searchTerm={searchTerm}
