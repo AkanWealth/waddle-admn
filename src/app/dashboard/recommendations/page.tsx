@@ -344,7 +344,7 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
   };
 
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50">
+    <tr className="relative border-b border-gray-100 hover:bg-gray-50">
       <td className="py-3 px-4 text-sm text-[#515151] font-semibold">
         {event.name}
       </td>
@@ -365,18 +365,17 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
         >
           <MoreVertical className="w-4 h-4" />
         </button>
-
-        {isActive && (
-          <div
-            className={`absolute right-0 z-20 min-w-[180px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 ${
-              openAbove ? "bottom-full mb-2" : "top-full mt-2"
-            }`}
-            style={{ minWidth: 180 }}
-          >
-            <RecommendationActionModal onClose={onCloseModal} />
-          </div>
-        )}
       </td>
+      {isActive && (
+        <div
+          className={`absolute right-0 z-20 min-w-[180px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 ${
+            openAbove ? "bottom-full mb-2" : "top-full mt-2"
+          }`}
+          style={{ minWidth: 180 }}
+        >
+          <RecommendationActionModal onClose={onCloseModal} />
+        </div>
+      )}
     </tr>
   );
 };
@@ -539,9 +538,6 @@ const ParentRecommendations: React.FC = () => {
                       />
                     ))}
                   </tbody>
-
-
-                  
                 </table>
               </div>
             )}
@@ -557,7 +553,9 @@ const ParentRecommendations: React.FC = () => {
           onPageChange={setCurrentPage}
         />
       )}
-      {showPlaceDetailsModal && <PlacesDetailsModal selectedPlace={selectedPlace} />}
+      {showPlaceDetailsModal && (
+        <PlacesDetailsModal selectedPlace={selectedPlace} />
+      )}
       {showApproveDetailsModal && <ApprovePlaceModal />}
     </div>
   );
