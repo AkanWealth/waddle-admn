@@ -545,7 +545,7 @@ const NotificationModal = () => {
               }
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              All ({notifications.length})
+              All
             </motion.button>
             <motion.button
               className={`px-[10px] py-[3.5px] rounded-[4px] text-sm font-medium transition-colors ${
@@ -560,7 +560,7 @@ const NotificationModal = () => {
               }
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Unread ({unreadCount})
+              Unread 
             </motion.button>
           </div>
 
