@@ -1,5 +1,5 @@
 import { useBookingStore } from "@/stores/useBookingStore";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import clsx from "clsx";
 import { format } from "date-fns"; 
@@ -26,6 +26,28 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
     applyMainFilter,
     clearFilters,
   } = useBookingStore();
+
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [isOpen, onClose]);
+
 
   if (!isOpen) return null;
 
@@ -60,7 +82,10 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
 
   return (
     <div className="min-w-[563px] absolute right-0 z-50 flex items-center justify-center">
-      <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-md">
+      <div
+        ref={filterRef}
+        className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
+      >
         <div className="text-[#303237] flex items-center justify-between">
           <h2 className="text-lg font-semibold mb-4">Filter By</h2>
           <X onClick={onClose} />
@@ -91,7 +116,6 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
                 className="w-full mt-1 outline-none text-[#303237] border border-gray-300 rounded-md px-3 py-2"
                 placeholder="Start Date"
               />
-             
             </div>
           </div>
 

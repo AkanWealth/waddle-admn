@@ -1,6 +1,6 @@
 "use client";
 import { useBookingStore } from "@/stores/useBookingStore";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type StatusFilterModalProps = {
   isOpen: boolean;
@@ -30,6 +30,28 @@ export default function StatusFilterModal({
         : [...prev, status]
     );
   };
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const handleOutsideClick = (event: MouseEvent) => {
+        if (
+          modalRef.current &&
+          !modalRef.current.contains(event.target as Node)
+        ) {
+          setStatusModalOpen(false);
+        }
+      };
+
+      if (isOpen) {
+        document.addEventListener("mousedown", handleOutsideClick);
+      }
+
+      return () => {
+        document.removeEventListener("mousedown", handleOutsideClick);
+      };
+    }, [isOpen, setStatusModalOpen]);
+
+
 
   const handleApply = () => {
     onApply(selected);
@@ -44,7 +66,7 @@ export default function StatusFilterModal({
 
   return (
     <div className="absolute right-0 z-50 -10 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-md w-[280px] space-y-4 py-3">
+      <div ref={modalRef} className="bg-white rounded-xl shadow-md w-[280px] space-y-4 py-3">
         <div className="">
           {statusOptions.map((status) => (
             <label
