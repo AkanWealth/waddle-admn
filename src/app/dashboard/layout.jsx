@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { FaBell } from "react-icons/fa6";
 import EmptyNotification from "../component/Notification/EmptyNotification";
+import NotificationModal from "../component/Notification/NotificationModal";
 
 function Layout({ children }) {
   const pathname = usePathname();
@@ -241,7 +242,7 @@ useEffect(() => {
       ref={notificationRef}
       className="absolute top-[5.2rem] right-10 z-50 w-[480px] bg-white rounded-lg shadow-lg py-4"
     >
-      <EmptyNotification />
+      <NotificationModal />
     </div>
   </>
 )}

@@ -181,7 +181,7 @@ export default function Dashboard() {
             className="flex items-center justify-center bg-blue-800 text-white rounded-lg p-2 px-4 hover:bg-blue-700 transition-colors"
           >
             <ArrowBigUpDash className="h-5 w-5 mr-2" />
-            <span>Export Report</span>
+            <span className="text-nowrap">Export Report</span>
           </button>
           
         </div>
