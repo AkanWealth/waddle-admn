@@ -106,7 +106,7 @@ const BookingManagement: React.FC = () => {
           </div>
         ) : (
           <>
-          <main className="min-h-[400px]">
+          <main className="min-h-[400px] w-full">
           {activeTab === "Bookings" && (
             <BookingTable
               bookings={paginatedBookings}

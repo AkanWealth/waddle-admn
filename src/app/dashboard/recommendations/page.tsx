@@ -539,6 +539,9 @@ const ParentRecommendations: React.FC = () => {
                       />
                     ))}
                   </tbody>
+
+
+                  
                 </table>
               </div>
             )}
