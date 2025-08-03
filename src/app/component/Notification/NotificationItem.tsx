@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 interface NotificationItemProps {
+  isRead: boolean;
   title: string;
   description: string;
   date: string;
@@ -11,13 +12,14 @@ interface NotificationItemProps {
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
+  isRead,
   title,
   description,
   date,
   timeAgo,
 }) => {
   return (
-    <motion.div 
+    <motion.div
       className="flex gap-3 p-4 border-b"
       whileHover={{ backgroundColor: "#f9fafb" }}
       transition={{ duration: 0.2 }}
@@ -25,24 +27,26 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     >
       {/* Icon */}
       <div className="shrink-0 relative">
-        <motion.div 
+        <motion.div
           className="w-10 h-10 rounded-full bg-[#F8F2EC] flex items-center justify-center"
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
           <Image width={24} height={24} src="/WaddleImg.png" alt="avatar" />
         </motion.div>
-        <motion.div 
-          className="bg-[#1E9A64] h-[8px] w-[8px] absolute top-0 left-0 rounded-full"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2 }}
-        ></motion.div>
+        {!isRead && (
+          <motion.div
+            className="bg-[#1E9A64] h-[8px] w-[8px] absolute top-0 left-0 rounded-full"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2 }}
+          ></motion.div>
+        )}
       </div>
 
       {/* Content */}
       <div className="flex-1">
-        <motion.h3 
+        <motion.h3
           className="font-semibold text-gray-900"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -50,7 +54,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         >
           {title}
         </motion.h3>
-        <motion.p 
+        <motion.p
           className="text-sm text-gray-600"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -58,7 +62,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         >
           {description}
         </motion.p>
-        <motion.div 
+        <motion.div
           className="text-sm text-gray-400 mt-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

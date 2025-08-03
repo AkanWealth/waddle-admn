@@ -6,7 +6,7 @@ import StatusBadge from "../../UserManagement/StatusBadge";
 import SuspendVendorModal from "./suspendVendor";
 import ActivateVendorModal from "./activateVendor";
 import EnableVendorModal from "./EnableVendor";
-import { InfoIcon, Phone, Mail, MapPin, Globe } from "lucide-react";
+import { InfoIcon, Phone, Mail, MapPin, Globe, Loader2 } from "lucide-react";
 import { userService } from "@/utils/userService";
 import formatCustomDate from "@/lib/formatDate";
 import { useToastContext } from "@/context/toast";
@@ -27,29 +27,45 @@ const VendorApproveDetailsModal = ({
   });
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [prevEvents, setPrevEvents] = useState([]);
+const [eventStats, setEventStats] = useState({
+  totalEventsCreated: 0,
+  upcomingEvents: 0,
+  pastEvents: 0,
+  totalAttendees: 0,
+});
   console.log(vendor, "This is the vendor")
+  const [loadingEvents, setLoadingEvents] = useState(false); // NEW
 
-  useEffect(() => {
-    if (!vendor) return;
 
-    const fetchPreviousEvents = async () => {
-      try {
-        const result = await userService.fetchOrganizerPreviousEvents(
-          vendor.id
-        );
-        console.log(result);
-        if (result.success) {
-          setPrevEvents(result.data.events);
-        } else {
-          console.error("Error fetching previous events:", result.error);
-        }
-      } catch (error) {
-        console.error("Unexpected error:", error);
+useEffect(() => {
+  if (!vendor) return;
+
+  const fetchPreviousEvents = async () => {
+    setLoadingEvents(true); // START LOADING
+    try {
+      const result = await userService.fetchOrganizerPreviousEvents(vendor.id);
+      if (result.success) {
+        const stats = {
+          totalEventsCreated: result.data.totalEventsCreated || 0,
+          upcomingEvents: result.data.upcomingEvents || 0,
+          pastEvents: result.data.pastEvents || 0,
+          totalAttendees: result.data.totalAttendees || 0,
+        };
+        setEventStats(stats);
+        setPrevEvents(result.data.events);
+      } else {
+        console.error("Error fetching previous events:", result.error);
       }
-    };
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    } finally {
+      setLoadingEvents(false); // STOP LOADING
+    }
+  };
 
-    fetchPreviousEvents();
-  }, [vendor]);
+  fetchPreviousEvents();
+}, [vendor]);
+
 
   const handleModalOpen = useCallback(
     (type, vendor) => {
@@ -63,6 +79,10 @@ const VendorApproveDetailsModal = ({
   const handleModalClose = (type) => {
     setModals((prev) => ({ ...prev, [type]: false }));
   };
+  useEffect(() => {
+  setSelectedVendor(vendor);
+}, [vendor]);
+
 
   const handleSuspendVendor = async(vendorId, reason) => {
     if(vendorId === selectedVendor.id) {
@@ -70,7 +90,8 @@ const VendorApproveDetailsModal = ({
       if (response.success) {
           showMessage("Success", "Vendor suspended successfully", "success");
         if (typeof onStatusChange === "function") {
-          onStatusChange(vendorId, "Suspended");
+          onStatusChange(vendorId, "SUSPENDED");
+          
         }
         onClose();
       } else{
@@ -105,6 +126,7 @@ const VendorApproveDetailsModal = ({
     const grayBtn = `border border-gray-300 text-gray-700 ${commonBtnStyle}`;
 
     switch (vendor.status) {
+
       case "Inactive":
       case "SUSPENDED":
         return {
@@ -268,12 +290,19 @@ const VendorApproveDetailsModal = ({
               <h4 className="text-lg font-medium text-gray-800 mb-4">
                 Event Details
               </h4>
+              {loadingEvents ? (
+  <div className="flex items-center justify-center text-gray-500 py-6">
+    <Loader2 className="animate-spin h-5 w-5 mr-2" />
+    Loading stats...
+  </div>
+) : (
+
               <div className="grid grid-cols-2 gap-4 mb-6">
                 {[
-                  { label: "Total Events Created", value: "12" },
-                  { label: "Upcoming Events", value: "3" },
-                  { label: "Past Events", value: "9" },
-                  { label: "Total Attendees", value: "85" },
+{ label: "Total Events Created", value: eventStats.totalEventsCreated },
+  { label: "Upcoming Events", value: eventStats.upcomingEvents },
+  { label: "Past Events", value: eventStats.pastEvents },
+  { label: "Total Attendees", value: eventStats.totalAttendees },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex items-center">
                     <div className="mr-2">
@@ -294,62 +323,52 @@ const VendorApproveDetailsModal = ({
                   </div>
                 ))}
               </div>
-
+)}
               {
                 vendor.status!=="REJECTED" &&(
-                            <>
-                            
-                                          <h4 className="text-lg font-medium text-gray-800 mb-4">
-                Past Events
-              </h4>
-              <div className="overflow-x-auto mb-6">
-              {prevEvents.length === 0 && (
-                <p className="text-gray-500 text-sm">No past events found</p>
-              )}
-              {prevEvents.length > 0 && (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      {[
-                        "Event Name",
-                        "Date",
-                        "Location",
-                        "Total Attendees",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {prevEvents.map((event) => (
-                      <tr key={event.id}>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {event.name}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {
-                            formatCustomDate(event.date, "DD-MM-YYYY")
-                          }
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {event.address}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {event.ticket_booked}
-                        </td>
-                      </tr>
-                    ))}
-                    </tbody>
-                  </table>
-                                )}
-                </div>
-                            
-                            </>
+<>
+<h4 className="text-lg font-medium text-gray-800 mb-4">
+  Past Events
+</h4>
+<div className="overflow-x-auto mb-6">
+  {loadingEvents ? (
+    <div className="flex items-center justify-center text-gray-500 py-6">
+      <Loader2 className="animate-spin h-5 w-5 mr-2" />
+      Loading events...
+    </div>
+  ) : prevEvents.length === 0 ? (
+    <p className="text-gray-500 text-sm">No past events found</p>
+  ) : (
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead>
+        <tr>
+          {["Event Name", "Date", "Location", "Total Attendees"].map((h) => (
+            <th
+              key={h}
+              className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {prevEvents.map((event) => (
+          <tr key={event.id}>
+            <td className="px-4 py-2 whitespace-nowrap">{event.name}</td>
+            <td className="px-4 py-2 whitespace-nowrap">
+              {formatCustomDate(event.date, "DD-MM-YYYY")}
+            </td>
+            <td className="px-4 py-2 whitespace-nowrap">{event.address}</td>
+            <td className="px-4 py-2 whitespace-nowrap">{event.ticket_booked}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
+</>
 
 
                 )
@@ -380,7 +399,7 @@ const VendorApproveDetailsModal = ({
         vendor={selectedVendor}
         isOpen={modals.enable}
         onClose={() => handleModalClose("enable")}
-        onConfirm={handleSuspendVendor}
+        onConfirm={handleReactivateVendor}
       />
     </>
   );

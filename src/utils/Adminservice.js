@@ -26,11 +26,14 @@ class AdminService {
 
             // Prepare the payload with hardcoded password
             const payload = {
-                email: adminData.email,
-                password: this.HARDCODED_PASSWORD,
-                first_name: adminData.firstName,
-                last_name: adminData.lastName
-            };
+            email: adminData.email,
+            password: this.HARDCODED_PASSWORD,
+            first_name: adminData.firstName,
+            last_name: adminData.lastName,
+            role_type: adminData.roleType,
+            permissions: adminData.permissions
+        };
+
 
             // Make the authenticated request using your existing auth service
             const response = await authService.makeAuthenticatedRequest('/api/v1/host/create', {
@@ -70,16 +73,17 @@ class AdminService {
             }
 
             // Prepare the payload (exclude password for updates unless specifically needed)
-            const payload = {
-                first_name: adminData.firstName,
-                last_name: adminData.lastName,
-                email: adminData.email
-            };
+           const payload = {
+            first_name: adminData.firstName,
+            last_name: adminData.lastName,
+            email: adminData.email,
+            role_type: adminData.roleType,
+            permissions: adminData.permissions
+        };
 
-            // Remove undefined values
-            Object.keys(payload).forEach(key => 
-                payload[key] === undefined && delete payload[key]
-            );
+        Object.keys(payload).forEach(key => 
+            payload[key] === undefined && delete payload[key]
+        );
 
             const response = await authService.makeAuthenticatedRequest(`/api/v1/host/${adminId}`, {
                 method: 'PUT', // or PATCH depending on your API

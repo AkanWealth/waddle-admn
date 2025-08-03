@@ -663,6 +663,7 @@ const NotificationModal = () => {
                   }}
                 >
                   <NotificationItem
+                  isRead={notification.isRead}
                     title={notification.title}
                     description={notification.body}
                     date={new Date(notification.createdAt).toDateString()}
@@ -672,7 +673,6 @@ const NotificationModal = () => {
                         addSuffix: true,
                       }
                     )}
-                    isRead={notification.isRead}
                   />
                 </motion.div>
               ))}
