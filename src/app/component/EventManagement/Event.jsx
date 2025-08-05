@@ -35,6 +35,8 @@ export default function EventManagement() {
   const [eventList, setEventList] = useState([]);
   const [filteredEventList, setFilteredEventList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  
 
   // Create Event Modal state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -425,6 +427,7 @@ export default function EventManagement() {
               </div>
             ) : (
               <EventTable
+                key={`refreshKey-${refreshKey}`}
                 data={filteredEventList}
                 currentPage={currentPage}
                 searchTerm={searchTerm}

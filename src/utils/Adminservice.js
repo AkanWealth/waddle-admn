@@ -198,6 +198,56 @@ class AdminService {
         // This essentially creates a new invite with a fresh password
         return await this.createAdminUser(adminData);
     }
+    async permanentlyDeleteEvent(eventId) {
+        try {
+            if (!eventId) {
+                return {
+                    success: false,
+                    error: 'Event ID is required for permanent deletion'
+                };
+            }
+
+            await authService.makeAuthenticatedRequest(`/api/v1/events/${eventId}`, {
+                method: 'DELETE'
+            });
+
+            return {
+                success: true,
+                message: 'Event permanently deleted successfully'
+            };
+        } catch (error) {
+            console.error('Error permanently deleting event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to permanently delete event'
+            };
+        }
+    }
+    async restoreDeletedEvent(eventId) {
+        try {
+            if (!eventId) {
+                return {
+                    success: false,
+                    error: 'Event ID is required for restoration'
+                };
+            }
+
+            await authService.makeAuthenticatedRequest(`/api/v1/events/soft-delete/${eventId}/restore`, {
+                method: 'PATCH'
+            });
+
+            return {
+                success: true,
+                message: 'Event restored successfully'
+            };
+        } catch (error) {
+            console.error('Error restoring event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to restore event'
+            };
+        }
+    }
 }
 
 export const adminService = new AdminService();

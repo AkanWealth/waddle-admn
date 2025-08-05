@@ -380,16 +380,16 @@ const EventApproveDetailsModal = ({
  mergedEvent.files && 
             <section className="">
               <h3 className="text-[#303237] font-semibold">Images</h3>
-              <div className="">
+              <div className="flex  gap-4 mt-4">
                 {
                   mergedEvent.files.map(imageUrl=>(
-                    <div className="">
-                      <Image src={imageUrl} alt="Image links" width={35} height={35}  />
+                    <div className="flex rounded-[8px] bg-[#F4F5F8] px-1 py-2 gap-2">
+                      <Image src={imageUrl} alt="Image links" width={40} height={40} unoptimized />
                       <div className="">
-                        <h3 className="">
+                        <h3 className="text-[12px] font-medium">
                           Thrive in... 
                         </h3>
-                        <p className="">200kb</p>
+                        <p className="text-[10px] text-[#7E8494] font-medium">200kb</p>
                       </div>
                     </div>
                   ))
