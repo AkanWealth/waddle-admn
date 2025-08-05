@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Lock, Shield, Trash2, Clock, Check, X, Loader2, Eye, EyeOff } from "lucide-react";
 import { authService } from "@/utils/authService";
 import { useAuth } from "@/context/AuthContext";
+import UserImageUpload from "./UserImageUpload";
 
 export default function ProfileSecurityPage({
     profileSettings,
@@ -418,9 +419,36 @@ export default function ProfileSecurityPage({
             {/* Profile Information */}
             <div className="bg-white shadow-md rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">Admin Profile</h3>
-                <div className="">
-                    
-                </div>
+                <div className="flex items-center justify-center">
+
+                
+                <UserImageUpload
+    imageUrl={profileSettings.imageUrl}
+    onUpload={async (file) => {
+        try {
+            // You can plug your image upload logic here
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const res = await fetch("/api/v1/host/me/image", {
+                method: "PATCH",
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error("Failed to upload image");
+            const result = await res.json();
+
+            // Update the imageUrl in the parent state
+            setProfileSettings(prev => ({
+                ...prev,
+                imageUrl: result.imageUrl,
+            }));
+        } catch (err) {
+            console.error("Image upload error:", err);
+        }
+    }}
+/>
+</div>
                 {/* Profile Success Message */}
                 {profileSaveSuccess && (
                     <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -433,7 +461,7 @@ export default function ProfileSecurityPage({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">First Name</label>
                         <input
                             type="text"
                             value={profileSettings.firstName || ''}
@@ -446,7 +474,7 @@ export default function ProfileSecurityPage({
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">Last Name</label>
                         <input
                             type="text"
                             value={profileSettings.lastName || ''}
@@ -459,7 +487,7 @@ export default function ProfileSecurityPage({
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">Email Address</label>
                         <input
                             type="email"
                             value={profileSettings.email || ''}
@@ -472,12 +500,12 @@ export default function ProfileSecurityPage({
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">Role</label>
                         <input
                             type="text"
                             value={profileSettings.role || ''}
                             readOnly
-                            className="w-full text-black p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                            className="w-full text-black p-3 border border-gray-300 rounded-lg bg-gray-50"
                         />
                     </div>
                 </div>
@@ -486,9 +514,9 @@ export default function ProfileSecurityPage({
                 <button
                     onClick={handleSaveProfile}
                     disabled={!hasProfileChanges || isProfileSaving}
-                    className={`w-full py-3 rounded-lg font-medium transition-colors flex items-center justify-center ${(hasProfileChanges && !isProfileSaving)
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-blue-50 text-gray-500 cursor-not-allowed'
+                    className={`w-full py-3 rounded-lg font-semibold transition-colors flex items-center justify-center ${(hasProfileChanges && !isProfileSaving)
+                            ? 'bg-[#2853A6] text-white '
+                            : 'bg-[#2853A6] opacity-30 text-[#FFFFFF] cursor-not-allowed'
                         }`}
                 >
                     {isProfileSaving ? (
@@ -518,7 +546,7 @@ export default function ProfileSecurityPage({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">Current Password</label>
                          <div className="relative">
                             <input
                                 type={showCurrentPassword ? "text" : "password"}
@@ -546,7 +574,7 @@ export default function ProfileSecurityPage({
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">New Password</label>
                         <div className="relative">
                             <input
                                 type={showNewPassword ? "text" : "password"}
@@ -574,7 +602,7 @@ export default function ProfileSecurityPage({
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                        <label className="block text-base font-semibold text-[#303237] mb-2">Confirm New Password</label>
                         <div className="relative">
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
@@ -637,9 +665,9 @@ export default function ProfileSecurityPage({
                 <button
                     onClick={handleSavePassword}
                     disabled={!hasPasswordChanges || isPasswordSaving}
-                    className={`w-full py-3 rounded-lg font-medium transition-colors flex items-center justify-center ${hasPasswordChanges && !isPasswordSaving
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-blue-50 text-gray-500 cursor-not-allowed'
+                    className={`w-full py-3 rounded-lg font-semibold transition-colors flex items-center justify-center ${hasPasswordChanges && !isPasswordSaving
+                        ? 'bg-[#2853A6] text-white '
+                            : 'bg-[#2853A6] opacity-30 text-[#FFFFFF] cursor-not-allowed'
                         }`}
                 >
                     {isPasswordSaving ? (
