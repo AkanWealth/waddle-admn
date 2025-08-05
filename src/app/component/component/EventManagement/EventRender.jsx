@@ -485,6 +485,8 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                 return (
                     <EventApproveDetailsModal
                         {...modalProps}
+                                                onReject={handleReject}
+
                     />
                 );
         }

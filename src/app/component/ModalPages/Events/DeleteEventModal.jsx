@@ -49,7 +49,7 @@ const DeleteEventModal = ({
   
   // Handle confirmation
   const handleConfirm = () => {
-    // if (onConfirm) onConfirm(eventData.id);
+     if (onConfirm) onConfirm(event.id);
     onClose();
   };
 

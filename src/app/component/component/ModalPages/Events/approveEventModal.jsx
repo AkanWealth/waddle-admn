@@ -20,10 +20,7 @@ const ApproveEventModal = ({
   onConfirm 
 }) => {
   // Mock data for demonstration
-  const mockVendorData = {
-    id: "v12345",
-    name: "Elite Dancer School"
-  };
+ 
   
   // If no vendor is passed, use the mock data
   const vendorData = vendor || mockVendorData;
@@ -46,7 +43,7 @@ const ApproveEventModal = ({
   
   // Handle confirmation
   const handleConfirm = () => {
-    if (onConfirm) onConfirm(vendorData.id);
+    if (onConfirm) onConfirm(event.id);
     onClose();
   };
   

@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import BaseModal from "../../Element/BaseModal";
 import StatusBadge from "../../EventManagement/StatusBadge";
-import { InfoIcon, Clock } from "lucide-react";
+import { InfoIcon, Clock, CalendarDays, MapPin, Clock3, User, Banknote, Tag, CircleCheck } from "lucide-react";
 import DeleteEventModal from "./DeleteEventModal";
 import EventCreationModal from "./createEventModal";
 import splitDoubleUrl, { splitInstructions } from "@/lib/splitDoubleUrl";
 import formatCustomDate from "@/lib/formatDate";
+import Image from "next/image";
 /**
  * eventApproveDetailsModal - Component for displaying event details in a modal
  *
@@ -22,7 +23,7 @@ const EventApproveDetailsModal = ({
   event,
   isOpen,
   onClose,
-  onApprove,
+  onDelete,
   onReject,
 }) => {
   // If no event is selected, don't render the modal
@@ -30,13 +31,15 @@ const EventApproveDetailsModal = ({
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState(null);
+  console.log(event, "This is our event really")
 
   // Determine if status is "Pending" to show action buttons
-  const isnotActive = event.status === "Non-compliant";
-  const isDeactivated = event.status === "Draft";
+  const isnotActive = event.status == "NON_COMPLIANT";
+  const isDeactivated = event.status == "DRAFT";
 
   // Determine button actions based on event status
   const getActions = () => {
+    console.log(isnotActive || isDeactivated, "This is it")
     if (isnotActive || isDeactivated) {
       return {
         reject: {
@@ -47,22 +50,22 @@ const EventApproveDetailsModal = ({
             onClose();
           },
           className:
-            "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full",
+            "border border-[#2853A6] text-[#2853A6] font-medium py-2 px-4 rounded w-full",
         },
         approve: {
           label: "Delete Event",
           onClick: () => openActivateModal(event),
           className:
-            "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full",
+            "bg-[#CC0000] cursor-pointer hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full",
         },
       };
-    } else if (event.status === "Approved" || event.status === "Active") {
+    } else if (event.status === "APPROVED" || event.status === "Active") {
       return {
         suspend: {
           label: "Delete Event",
           onClick: () => openActivateModal(event), // <-- Open the suspend modal
           className:
-            "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full",
+            "bg-[#CC0000] cursor-pointertext-white font-medium py-2 px-4 rounded w-full",
         },
         cancel: {
           label: "Edit Event",
@@ -132,9 +135,12 @@ const EventApproveDetailsModal = ({
     setSuspendModalOpen(true);
   };
   const openActivateModal = (event) => {
-    if (onClose) onClose(); // Close the approve modal
+    console.log(event, 'This is our modal')
     // setSelectedevent(event);
     setDeleteModalOpen(true); // Open activate modal
+    
+    // if (onClose) onClose(); // Close the approve modal
+
   };
   const openEnableModal = (event) => {
     if (onClose) onClose(); // Close the approve modal
@@ -145,15 +151,15 @@ const EventApproveDetailsModal = ({
   const renderIcon = (iconType) => {
     switch (iconType) {
       case "calendar":
-        return <span className="text-gray-600 mr-2">📅</span>;
+        return <CalendarDays className="text-[#8B8B8B] h-[20px] w-[20px] mr-2"/>;
       case "clock":
-        return <span className="text-gray-600 mr-2">🕒</span>;
+        return <Clock3 className="text-[#8B8B8B] h-[20px] w-[20px] mr-2" />;
       case "location":
-        return <span className="text-gray-600 mr-2">📍</span>;
+        return <MapPin className="text-[#8B8B8B] h-[20px] w-[20px] mr-2" />;
       case "person":
-        return <span className="text-gray-600 mr-2">👤</span>;
+        return <User className="text-[#8B8B8B] h-[20px] w-[20px] mr-2" />;
       case "money":
-        return <span className="text-gray-600 mr-2">💰</span>;
+        return <Banknote className="text-[#8B8B8B] h-[20px] w-[20px] mr-2"/>
       default:
         return null;
     }
@@ -232,13 +238,16 @@ const EventApproveDetailsModal = ({
             </section>
             <hr className="border-gray-300 mb-6" />
             {/* Safety Measures */}
-            <section>
-              <h3 className="text-lg font-medium mb-2">Safety Measures</h3>
+            {
+              mergedEvent.instruction &&
+              <>
+              <section>
+              <h3 className="text-base text-[#565C69] font-medium mb-2">Helpful Information</h3>
               <div className="flex flex-wrap gap-2">
                 {processedInstructions.map((measure, index) => (
                   <div
                     key={index}
-                    className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full"
+                    className="bg-[#FFF4D7] text-[#404040] px-4 py-2 rounded-full"
                   >
                     {measure}
                   </div>
@@ -246,32 +255,64 @@ const EventApproveDetailsModal = ({
               </div>
             </section>
             <hr className="border-gray-300 mb-6" />
+              </>
+            }
+            
 
             {/* Event Details */}
             <section className="space-y-2">
               <div className="flex items-center">
                 {renderIcon("calendar")}
-                <span className="">
+                <span className="text-[#565C69]">
                     {formatCustomDate(mergedEvent.date, "Do MMMM YYYY")}
                 </span>
                 
               </div>
               <div className="flex items-center">
                 {renderIcon("clock")}
-                <span>{mergedEvent.time}</span>
+                <span className="text-[#565C69]">{mergedEvent.time}</span>
               </div>
               <div className="flex items-center">
                 {renderIcon("location")}
-                <span>{mergedEvent.details[2].value}</span>
+                <span className="text-[#565C69]">{mergedEvent.details[2].value}</span>
               </div>
               <div className="flex items-center">
                 {renderIcon("person")}
-                <span>{mergedEvent.age_range}</span>
+                <span className="text-[#565C69]">{mergedEvent.age_range}</span>
               </div>
               <div className="flex items-center">
                 {renderIcon("money")}
-                <span>{`£${mergedEvent.price}/person`}</span>
+                <span className="text-[#565C69]">{`£${mergedEvent.price}/person`}</span>
               </div>
+              {console.log(mergedEvent, "This is the merged event")}
+              <section className="flex items-center gap-[24px]">
+                <div className="flex items-center gap-2">
+                  {mergedEvent?.tags.map(item=>(
+                    <span key={item} className="bg-[#EAEEF6] text-[#2853A6] rounded-[8px] py-1 px-2">{item}</span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Tag className="h-[17px] w-[17px] text-[#D45815]" />
+                  <p className="text-[#606161] text-[16px]">
+                    {mergedEvent.eventType=="INDOOR" ? "Indoor": "Outdoor"}
+                  </p>
+                </div>
+              </section>
+              <section className="my-[9px] flex flex-col gap-1">
+                <h3 className="text-[#1D1D1E] font-bold">Facilities</h3>
+                <div className="flex items-center gap-6">
+                  {
+                    mergedEvent?.facilities?.map(item=>(
+                      <div className="flex items-center gap-2">
+                        <CircleCheck className="text-[#303237] h-[16px] w-[16px]" />
+                        <p className="text-[#565C69]">
+                          {item}
+                        </p>
+                      </div>
+                    ))
+                  }
+                </div>
+              </section>
             </section>
             <hr className="border-gray-300 mb-6" />
             {/* Organizer */}
@@ -318,7 +359,7 @@ const EventApproveDetailsModal = ({
             </section>
 
             {/* Images */}
-            <section>
+            {/* <section>
               <h3 className="text-lg font-medium mb-2">Images</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {processedImages.map((image, index) => (
@@ -333,7 +374,30 @@ const EventApproveDetailsModal = ({
                   </div>
                 ))}
               </div>
+            </section> */}
+
+{
+ mergedEvent.files && 
+            <section className="">
+              <h3 className="text-[#303237] font-semibold">Images</h3>
+              <div className="">
+                {
+                  mergedEvent.files.map(imageUrl=>(
+                    <div className="">
+                      <Image src={imageUrl} alt="Image links" width={35} height={35}  />
+                      <div className="">
+                        <h3 className="">
+                          Thrive in... 
+                        </h3>
+                        <p className="">200kb</p>
+                      </div>
+                    </div>
+                  ))
+                }
+                
+              </div>
             </section>
+}
             {/* <div className="mt-10 flex justify-center space-x-4">
         <button
             onClick={onReject}
@@ -550,7 +614,7 @@ const EventApproveDetailsModal = ({
         event={event}
         isOpen={deleteModalOpen} // Only open when activateModalOpen is true
         onClose={() => setDeleteModalOpen(false)}
-        onConfirm={handleSuspendevent}
+        onConfirm={onDelete}
       />
     </>
   );

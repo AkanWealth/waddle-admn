@@ -67,11 +67,25 @@ const EventDetailsModal = ({
     };
 
     // Helper function to get event status
-    const getEventStatus = (event) => {
-        if (event.isDeleted) return "Deleted";
-        if (event.isPublished) return "Published";
-        return "Draft";
-    };
+
+const getEventStatus = (event) => {
+  if (event.isDeleted) return 'Deleted'; // Not part of EventStatus enum, assumed custom
+  if (event.status === "APPROVED" && event.isPublished) return 'Published';
+
+  switch (event.status) {
+    case "PENDING":
+      return 'Pending';
+    case "DRAFT":
+      return 'Draft';
+    case "NON_COMPLIANT":
+      return 'Non-Compliant';
+    case "CROWD_SOURCED":
+      return 'Crowd Sourced';
+    default:
+      return 'Unknown';
+  }
+};
+
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -83,7 +97,7 @@ const EventDetailsModal = ({
 
     const handleApproveClick = () => {
         // Close details modal
-        onClose();
+        // onClose();
         // Open approve modal
         setIsApproveModalOpen(true);
     };
@@ -91,7 +105,7 @@ const EventDetailsModal = ({
     // Handle reject button click - opens reject modal
     const handleRejectClick = () => {
         // Close details modal
-        onClose();
+        // onClose();
         // Open reject modal
         setIsRejectModalOpen(true);
     };
@@ -326,12 +340,12 @@ const EventDetailsModal = ({
                 isOpen={isApproveModalOpen}
                 onClose={() => setIsApproveModalOpen(false)}
                 onConfirm={onApprove}
-                event={event} />
+                eventData={event} />
         <RejectEventModal
                 isOpen={isRejectModalOpen}
                 onClose={() => setIsRejectModalOpen(false)}
                 onConfirm={onReject}
-                event={event} /></>
+                eventData={event} /></>
     );
 };
 

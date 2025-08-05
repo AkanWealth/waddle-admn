@@ -418,7 +418,9 @@ export default function ProfileSecurityPage({
             {/* Profile Information */}
             <div className="bg-white shadow-md rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">Admin Profile</h3>
-                
+                <div className="">
+                    
+                </div>
                 {/* Profile Success Message */}
                 {profileSaveSuccess && (
                     <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">

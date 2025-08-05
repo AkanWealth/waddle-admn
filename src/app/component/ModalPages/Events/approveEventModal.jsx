@@ -15,18 +15,19 @@ import { BadgeCheck } from 'lucide-react';
  */
 const ApproveEventModal = ({ 
   vendor = null, 
+  eventData = null, // Event data to display in the modal
   isOpen, 
   onClose, 
   onConfirm 
 }) => {
   // Mock data for demonstration
-  const mockVendorData = {
-    id: "v12345",
-    name: "Elite Dancer School"
-  };
+  // const mockVendorData = {
+  //   id: "v12345",
+  //   name: "Elite Dancer School"
+  // };
   
   // If no vendor is passed, use the mock data
-  const vendorData = vendor || mockVendorData;
+  //const vendorData = vendor || mockVendorData;
   
   // Check if the viewport is mobile
   const [isMobile, setIsMobile] = useState(false);
@@ -46,9 +47,10 @@ const ApproveEventModal = ({
   
   // Handle confirmation
   const handleConfirm = () => {
-    if (onConfirm) onConfirm(vendorData.id);
+    if (onConfirm) onConfirm(eventData.id);
     onClose();
   };
+
   
   // Action buttons configuration - set to fill width
   const modalActions = {
@@ -87,7 +89,7 @@ const ApproveEventModal = ({
         {/* Message text (centered for both mobile and desktop) */}
         <div className="text-left">
           <p className="text-gray-700">
-           You are about to approve Family Fun Day. Once approved, this event will be published and visible to parents and guardians.
+           You are about to approve <span className="font-semibold">{eventData?.name}</span>. Once approved, this event will be published and visible to parents and guardians.
 If you have changed your mind click cancel.
           </p>
         </div>

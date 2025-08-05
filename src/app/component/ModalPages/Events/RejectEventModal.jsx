@@ -13,6 +13,7 @@ import { XCircle } from 'lucide-react';
  */
 const RejectEventModal = ({ 
   vendor = null, 
+  eventData,
   isOpen, 
   onClose, 
   onConfirm 
@@ -48,7 +49,7 @@ const RejectEventModal = ({
   
   // Handle confirmation
   const handleConfirm = () => {
-    if (onConfirm) onConfirm(vendorData.id);
+    if (onConfirm) onConfirm(eventData.id, rejectionReason);
     onClose();
   };
 
@@ -95,7 +96,8 @@ const modalActions = {
             <XCircle className="h-6 w-6 text-red-500" />
           </div>
           <p className="text-gray-700 mb-6">
-          You are about to reject Family Fun Day. The event provider will be notified with your reason for rejection.
+            {console.log(eventData)}
+          You are about to reject {eventData.name}. The event provider will be notified with your reason for rejection.
         </p>
           {/* <h3 className="text-lg font-medium text-center">Reject Vendor</h3> */}
         </div>

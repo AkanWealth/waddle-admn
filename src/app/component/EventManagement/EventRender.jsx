@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import StatusBadge from "./StatusBadge";
-import CrownSourcingModal from "../ModalPages/Events/CrownSourcingModal";
 import EventApproveDetailsModal from "../ModalPages/Events/viewDeactivateEventModal";
 import EventDetailsModal from "../ModalPages/Events/EventDetailsModal";
 import { useRecommendationsStore } from '@/stores/useRecommendationStore';
+import { eventService } from "@/utils/eventService";
+import { useToastContext } from "@/context/toast";
 
 export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView, isLoading }) {
-    console.log(data, "This is the data");
     
     // State management
     const [paginatedevents, setPaginatedevents] = useState([]);
@@ -19,6 +19,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
 
     // Pagination logic - data is already filtered from parent component
     const itemsPerPage = 7; // Changed back to 7 to match parent component calculation
+    const {showMessage}=useToastContext()
 
     useEffect(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -26,13 +27,44 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         setPaginatedevents(data.slice(startIndex, endIndex));
     }, [currentPage, data]);
 
-    // Helper function to get event status
+    // Updated helper function to get event status - now handles backend enum
     const getEventStatus = (event) => {
+        // Handle soft delete first
         if (event.isDeleted) return "Deleted";
         
-        if (event.isPublished) return "Published";
+        // Use backend status if available
+        if (event.status) {
+            switch (event.status) {
+                case 'APPROVED':
+                    return 'Approved';
+                case 'PENDING':
+                    return 'Pending';
+                case 'DRAFT':
+                    return 'Draft';
+                case 'NON_COMPLIANT':
+                    return 'Non-Compliant';
+                case 'CROWD_SOURCED':
+                    return 'Crowd Sourced';
+                default:
+                    return event.status;
+            }
+        }
         
+        // Fallback to old logic for backward compatibility
+        if (event.isPublished) return "Published";
         return "Draft";
+    };
+
+    // Helper function to check if event can be approved
+    const canApproveEvent = (event) => {
+        const status = getEventStatus(event);
+        return ['Draft', 'Pending', ].includes(status);
+    };
+
+    // Helper function to check if event is published/approved
+    const isEventPublished = (event) => {
+        const status = getEventStatus(event);
+        return ['Approved', 'Published', 'Crowd Sourced'].includes(status);
     };
 
     // Helper function to format date
@@ -85,42 +117,88 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
     };
 
     // Function to handle event approval (toggle published status)
-    const handleApprove = (eventId) => {
+    const handleApprove = async(eventId) => {
+                // console.log(`Event ${eventId} approved/published (handled by parent)`);
+
         if (!eventId) return;
+        try{
+            const response = await eventService.approveAdminEvent(eventId);
+            if (response.success) {
+                setPaginatedevents(prevEvents =>
+            prevEvents.map(event =>
+                event.id === eventId ? { ...event, status:"APPROVED", isPublished: true } : event
+            )
+        );
+                console.log(response, "Event approved successfully");
+                showMessage("Success", "Event approved successfully", "success");
+                        closeModal();
+
+            }
+            else {
+                showMessage("Error", "Failed to approve event", "error");
+            }
+        }catch (error) {
+            console.error("Error approving event:", error);
+            return;
+        }
         
-        // This function is now handled by the parent component, so no direct state update here
-        // The parent component will re-fetch or update the data
-        console.log(`Event ${eventId} approved/published (handled by parent)`);
-        
-        // Close modal after approval
-        closeModal();
     };
 
     // Function to handle event rejection (unpublish)
-    const handleReject = (eventId) => {
+    const handleReject = async(eventId) => {
         if (!eventId) return;
-        
-        // This function is now handled by the parent component, so no direct state update here
-        // The parent component will re-fetch or update the data
-        console.log(`Event ${eventId} rejected/unpublished (handled by parent)`);
+        try{
+            const response = await eventService.rejectAdminEvent(eventId);
+            if (response.success) {
+                setPaginatedevents(prevEvents =>
+            prevEvents.map(event =>
+                event.id === eventId ? { ...event, status: "NON_COMPLIANT", isPublished: false } : event
+            )
+        );
+                // setSelectedEvent(null);
+                console.log(response, "Event rejected successfully");
+                showMessage("Success", "Event rejected successfully", "success");
+                closeModal();
+
+            }
+            else {
+                showMessage("Error", "Failed to reject event", "error");
+            }
+        }catch (error) {
+            console.error("Error rejecting event:", error);
+            return;
+        }
         
         // Close modal after rejection
         closeModal();
     };
 
     // Function to handle event deletion
-    const handleDelete = (eventId) => {
+    const handleDelete = async (eventId) => {
+        console.log(`Event ${eventId} deleted (handled by parent)`);
+
         if (!eventId) return;
+        try{
+            await eventService.softDeleteEvent(eventId);
+           
+                setPaginatedevents(prevEvents =>
+                prevEvents.filter(event => event.id !== eventId)
+            );
+            showMessage("Success", "Event deleted successfully", "success");
+                closeModal();            
+        }catch (error) {
+            showMessage("Failed", "Failed to delete event", "error"); 
+            return;
+        }
         
         // This function is now handled by the parent component, so no direct state update here
         // The parent component will re-fetch or update the data
-        console.log(`Event ${eventId} deleted (handled by parent)`);
         
         // Close modal after deletion
         closeModal();
     };
 
-    // Render modal based on event status
+    // Updated render modal function to handle different statuses
     const renderModal = () => {
         if (!selectedEvent || !isModalOpen) return null;
 
@@ -131,29 +209,34 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
             onClose: closeModal,
         };
 
-        switch (eventStatus) {
-            case "Draft":
-                return (
-                    <EventDetailsModal
-                        {...modalProps}
-                        onApprove={handleApprove}
-                        onReject={handleReject}
-                    />
-                );
-            case "Published":
-                return (
-                    <EventApproveDetailsModal
-                        {...modalProps}
-                        onDelete={handleDelete}
-                    />
-                );
-            default:
-                return (
-                    <EventApproveDetailsModal
-                        {...modalProps}
-                    />
-                );
+        // Show approval modal for events that can be approved
+        if (canApproveEvent(selectedEvent)) {
+            return (
+                <EventDetailsModal
+                    {...modalProps}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                />
+            );
         }
+        
+        // Show view/deactivate modal for published/approved events
+        if (isEventPublished(selectedEvent)) {
+            return (
+                <EventApproveDetailsModal
+                    {...modalProps}
+                    onDelete={handleDelete}
+                />
+            );
+        }
+
+        // Default case - show view modal
+        return (
+            <EventApproveDetailsModal
+                {...modalProps}
+                onDelete={handleDelete}
+            />
+        );
     };
 
     // Empty state component
