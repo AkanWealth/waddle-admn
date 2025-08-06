@@ -158,9 +158,10 @@ const getEventStatus = (event) => {
         edit: {
             label: "Edit Event",
             onClick: () => {
+
                         setEventToEdit(event); // Set the event to edit
                         setEditModalOpen(true);
-                        onClose(); // Open the edit modal
+                        // onClose(); // Open the edit modal
                     },
             className: "text-blue-600 border border-blue-600 px-12 py-1 rounded-lg hover:bg-blue-50"
         },
@@ -333,6 +334,7 @@ const getEventStatus = (event) => {
                     // handle save logic here if needed
                     setEditModalOpen(false);
                 }}
+                isEditMode={true} // Add this crucial prop
                 eventData={eventToEdit} // Pass the event to edit
             />
 

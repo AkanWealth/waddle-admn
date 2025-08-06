@@ -1187,19 +1187,908 @@
 
 
 
+// import React, { useState, useRef, useEffect } from "react";
+// import BaseModal from "../../Element/BaseModal";
+// import { Calendar, Clock, Upload, ChevronDown, X } from "lucide-react";
+// import { eventService } from "@/utils/eventService";
+
+// const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
+//   const [eventData, setEventData] = useState({
+//     name: "",
+//     date: "",
+//     time: "",
+//     category: "",
+//     location: "",
+//     description: "",
+//     safetyMeasures: [],
+//     fee: "",
+//     capacity: "limited",
+//     ticketNumber: "",
+//     ageRange: { min: 0, max: 18 },
+//     frequency: "",
+//     images: [],
+//   });
+
+//   const [locationResults, setLocationResults] = useState([
+//     { id: 1, address: "JG64+94H, Colchester London", city: "London, UK" },
+//     { id: 2, address: "JG64+94H, Colchester London", city: "London, UK" },
+//     { id: 3, address: "Colchester London", city: "London, UK" },
+//   ]);
+
+//   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+//   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+//   const [showCapacityDropdown, setShowCapacityDropdown] = useState(false);
+//   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
+//   const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
+//   const [currentSafetyInput, setCurrentSafetyInput] = useState("");
+//   const fileInputRef = useRef(null);
+//   const [capacity, setCapacity] = useState("limited");
+//   const [ticketNumber, setTicketNumber] = useState("");
+//   const [eventFee, setEventFee] = useState("");
+
+//   // Populate form data when in edit mode
+//   useEffect(() => {
+//     if (isEditMode && initialEventData) {
+//       // Map the incoming event data to the form structure
+//       setEventData({
+//         name: initialEventData.name || initialEventData.title || "",
+//         date: initialEventData.date || "",
+//         time: initialEventData.time || "",
+//         category: initialEventData.category || "",
+//         location: initialEventData.location || initialEventData.address || "",
+//         description: initialEventData.description || "",
+//         safetyMeasures: initialEventData.safetyMeasures || [],
+//         fee: initialEventData.fee || initialEventData.price || "",
+//         capacity: initialEventData.capacity || "limited",
+//         ticketNumber: initialEventData.ticketNumber || initialEventData.total_ticket || "",
+//         ageRange: initialEventData.ageRange || { min: 0, max: 18 },
+//         frequency: initialEventData.frequency || "",
+//         images: initialEventData.images || [],
+//       });
+      
+//       // Set individual state variables
+//       setCapacity(initialEventData.capacity || "limited");
+//       setTicketNumber(initialEventData.ticketNumber || initialEventData.total_ticket || "");
+//       setEventFee(initialEventData.fee || initialEventData.price || "");
+//     } else if (!isEditMode) {
+//       // Reset form when not in edit mode
+//       setEventData({
+//         name: "",
+//         date: "",
+//         time: "",
+//         category: "",
+//         location: "",
+//         description: "",
+//         safetyMeasures: [],
+//         fee: "",
+//         capacity: "limited",
+//         ticketNumber: "",
+//         ageRange: { min: 0, max: 18 },
+//         frequency: "",
+//         images: [],
+//       });
+//       setCapacity("limited");
+//       setTicketNumber("");
+//       setEventFee("");
+//     }
+//   }, [isEditMode, initialEventData, isOpen]);
+
+//   const categories = [
+//     { value: "indoors", label: "Indoors", emoji: "⛱️" },
+//     { value: "outdoors", label: "Outdoors", emoji: "🏠" },
+//     { value: "classes", label: "Classes", emoji: "🧑‍🏫" },
+//     { value: "playground", label: "Playground", emoji: "🛝" },
+//     { value: "food-cafe", label: "Food & Café", emoji: "🥤" },
+//     { value: "days-out", label: "Days Out", emoji: "🌞" },
+//   ];
+
+//   const timeSlots = [
+//     "08:00AM",
+//     "08:30AM",
+//     "09:00AM",
+//     "09:30AM",
+//     "10:00AM",
+//     "10:30AM",
+//     "11:00AM",
+//     "11:30AM",
+//     "12:00PM",
+//     "12:30PM",
+//     "01:00PM",
+//     "01:30PM",
+//     "02:00PM",
+//     "02:30PM",
+//     "03:00PM",
+//     "03:30PM",
+//     "04:00PM",
+//     "04:30PM",
+//     "05:00PM",
+//     "05:30PM",
+//     "06:00PM",
+//   ];
+
+//   const capacityOptions = [
+//     { value: "limited", label: "Limited" },
+//     { value: "unlimited", label: "Unlimited" },
+//   ];
+
+//   const frequencyOptions = [
+//     { value: "", label: "Does this event repeat?" },
+//     { value: "one-time", label: "No, it's a one-time event" },
+//     { value: "weekly", label: "Weekly" },
+//     { value: "Every 2 weeks", label: "Every 2 weeks" },
+//     { value: "monthly", label: "Monthly" },
+//     { value: "custom", label: "Custom" },
+//   ];
+
+//   const handleInputChange = (e) => {
+//     const { name, value } = e.target;
+//     setEventData((prev) => ({ ...prev, [name]: value }));
+//   };
+
+//   const handleLocationFocus = () => {
+//     setShowLocationDropdown(true);
+//   };
+
+//   const handleLocationSelect = (location) => {
+//     setEventData((prev) => ({ ...prev, location: location.address }));
+//     setShowLocationDropdown(false);
+//   };
+
+//   const handleCategorySelect = (category) => {
+//     setEventData((prev) => ({ ...prev, category: category.value }));
+//     setShowCategoryDropdown(false);
+//   };
+
+//   const handleCapacitySelect = (capacityValue) => {
+//     setCapacity(capacityValue);
+//     setEventData((prev) => ({ ...prev, capacity: capacityValue }));
+//     setShowCapacityDropdown(false);
+//   };
+
+//   const handleTimeSelect = (time) => {
+//     setEventData((prev) => ({ ...prev, time }));
+//     setShowTimeDropdown(false);
+//   };
+
+//   const handleFrequencySelect = (frequency) => {
+//     setEventData((prev) => ({ ...prev, frequency: frequency.value }));
+//     setShowFrequencyDropdown(false);
+//   };
+
+//   const handleAgeRangeChange = (e, type) => {
+//     const value = parseInt(e.target.value);
+//     setEventData((prev) => {
+//       const newRange = { ...prev.ageRange };
+//       if (type === "min") {
+//         // Ensure min doesn't exceed max
+//         newRange.min = Math.min(value, prev.ageRange.max);
+//       } else if (type === "max") {
+//         // Ensure max doesn't go below min
+//         newRange.max = Math.max(value, prev.ageRange.min);
+//       }
+//       return { ...prev, ageRange: newRange };
+//     });
+//   };
+
+//   const handleFileSelect = (e) => {
+//     const files = Array.from(e.target.files);
+//     setEventData((prev) => ({
+//       ...prev,
+//       images: [...prev.images, ...files],
+//     }));
+//   };
+
+//   const handleDragOver = (e) => {
+//     e.preventDefault();
+//   };
+
+//   const handleDrop = (e) => {
+//     e.preventDefault();
+//     const files = Array.from(e.dataTransfer.files);
+//     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+//     setEventData((prev) => ({
+//       ...prev,
+//       images: [...prev.images, ...imageFiles],
+//     }));
+//   };
+
+//   const removeImage = (index) => {
+//     setEventData((prev) => ({
+//       ...prev,
+//       images: prev.images.filter((_, i) => i !== index),
+//     }));
+//   };
+
+//   const handleSafetyInputChange = (e) => {
+//     setCurrentSafetyInput(e.target.value);
+//   };
+
+//   const handleSafetyInputKeyDown = (e) => {
+//     if (e.key === "Enter" || e.key === " ") {
+//       e.preventDefault();
+//       const trimmedInput = currentSafetyInput.trim();
+//       if (trimmedInput && !eventData.safetyMeasures.includes(trimmedInput)) {
+//         setEventData((prev) => ({
+//           ...prev,
+//           safetyMeasures: [...prev.safetyMeasures, trimmedInput],
+//         }));
+//         setCurrentSafetyInput("");
+//       }
+//     } else if (e.key === "Backspace" && currentSafetyInput === "") {
+//       // Remove the last tag when backspace is pressed on empty input
+//       setEventData((prev) => ({
+//         ...prev,
+//         safetyMeasures: prev.safetyMeasures.slice(0, -1),
+//       }));
+//     }
+//   };
+
+//   const removeSafetyMeasure = (index) => {
+//     setEventData((prev) => ({
+//       ...prev,
+//       safetyMeasures: prev.safetyMeasures.filter((_, i) => i !== index),
+//     }));
+//   };
+
+//   function transformFrontendToBackend(frontendData) {
+//     function convertTime12to24(time12h) {
+//       if (!time12h) return "00:00:00";
+//       const [time, modifier] = time12h.split(/(AM|PM)/);
+//       let [hours, minutes] = time.split(":").map(Number);
+//       if (modifier === "PM" && hours < 12) hours += 12;
+//       if (modifier === "AM" && hours === 12) hours = 0;
+//       return `${hours.toString().padStart(2, "0")}:${minutes
+//         .toString()
+//         .padStart(2, "0")}:00`;
+//     }
+
+//     const ageRangeString = `${frontendData.ageRange.min}-${frontendData.ageRange.max}`;
+
+//     const price =
+//       frontendData.fee && frontendData.fee.trim() !== ""
+//         ? frontendData.fee
+//         : "0.0";
+
+//     const total_ticket =
+//       frontendData.ticketNumber && frontendData.ticketNumber.trim() !== ""
+//         ? frontendData.ticketNumber
+//         : frontendData.capacity && typeof frontendData.capacity === "string"
+//         ? frontendData.capacity === "limited"
+//           ? "0"
+//           : frontendData.capacity
+//         : "0";
+
+//     // Instruction - from safetyMeasures or default ""
+//     const instruction =
+//       frontendData.safetyMeasures && frontendData.safetyMeasures.length > 0
+//         ? frontendData.safetyMeasures.join(", ")
+//         : "";
+
+//     const category = frontendData.category || "";
+
+//     return {
+//       name: frontendData.name.trim(),
+//       description: frontendData.description.trim(),
+//       address: frontendData.location.trim(),
+//       price,
+//       total_ticket,
+//       date: frontendData.date,
+//       time: convertTime12to24(frontendData.time),
+//       age_range: ageRangeString,
+//       instruction,
+//       category,
+//       isPublished: "false",
+//     };
+//   }
+
+//   const handleSubmit = async () => {
+//     const backendData = transformFrontendToBackend(eventData);
+//     console.log("Sending to backend:", backendData);
+
+//     let result;
+//     if (isEditMode) {
+//       // Add event ID for update
+//       result = await eventService.updateEvent(initialEventData.id, backendData);
+//     } else {
+//       result = await eventService.createEventAsAdmin(backendData);
+//     }
+
+//     if (result.success) {
+//       onSave && onSave(eventData);
+//       onClose();
+//     } else {
+//       console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
+//     }
+//     console.log(result);
+//   };
+
+//   const saveAsDraft = () => {
+//     console.log("Save as draft:", eventData);
+//     onSave && onSave({ ...eventData, status: "draft" });
+//     onClose();
+//   };
+
+//   const selectedCategory = categories.find(
+//     (cat) => cat.value === eventData.category
+//   );
+//   const selectedCapacity = capacityOptions.find(
+//     (cap) => cap.value === capacity
+//   );
+//   const selectedFrequency = frequencyOptions.find(
+//     (freq) => freq.value === eventData.frequency
+//   );
+
+//   return (
+//     <BaseModal
+//       isOpen={isOpen}
+//       onClose={onClose}
+//       position="right"
+//       title={isEditMode ? "Edit Event Details" : "Create New Event"}
+//       className="overflow-y-auto"
+//       size={{ width: "99%", maxWidth: "800px" }}
+//       showDividers={false}
+//     >
+//       <div className="mb-4 text-sm text-gray-700">
+//         {isEditMode 
+//           ? "You are editing an event that has already been Approved. Some fields are restricted from editing"
+//           : "Add exciting events for families in Colchester. All events must meet our safety and compliance guidelines."
+//         }
+//       </div>
+
+//       <div className="space-y-6">
+//         {/* Event Name & Location - Responsive Row/Column */}
+//         <div className="flex flex-col gap-4 md:flex-row">
+//           {/* Event Name */}
+//           <div className="flex-1">
+//             <label
+//               htmlFor="eventName"
+//               className="block text-sm font-medium text-gray-700 mb-1"
+//             >
+//               Event Name <span className="text-red-500">*</span>
+//             </label>
+//             <input
+//               type="text"
+//               id="eventName"
+//               name="name"
+//               placeholder="Enter name of event"
+//               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+//               value={eventData.name}
+//               onChange={handleInputChange}
+//               disabled={isEditMode} // Restrict editing in edit mode
+//             />
+//           </div>
+
+//           {/* Location */}
+//           <div className="flex-1 relative">
+//             <label
+//               htmlFor="location"
+//               className="block text-sm font-medium text-gray-700 mb-1"
+//             >
+//               Location
+//             </label>
+//             <div className="relative">
+//               <input
+//                 type="text"
+//                 id="location"
+//                 name="location"
+//                 placeholder="Enter event location"
+//                 className="w-full pl-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+//                 value={eventData.location}
+//                 onChange={handleInputChange}
+//                 onFocus={handleLocationFocus}
+//                 disabled={isEditMode} // Restrict editing in edit mode
+//               />
+//               <svg
+//                 xmlns="http://www.w3.org/2000/svg"
+//                 className="absolute left-3 top-2.5 text-gray-400 w-5 h-5"
+//                 fill="none"
+//                 viewBox="0 0 24 24"
+//                 stroke="currentColor"
+//               >
+//                 <path
+//                   strokeLinecap="round"
+//                   strokeLinejoin="round"
+//                   strokeWidth={2}
+//                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+//                 />
+//               </svg>
+//             </div>
+
+//             {showLocationDropdown && !isEditMode && (
+//               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+//                 {locationResults.map((location) => (
+//                   <div
+//                     key={location.id}
+//                     className="flex items-start p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+//                     onClick={() => handleLocationSelect(location)}
+//                   >
+//                     <div className="text-orange-500 mr-2 mt-1">
+//                       <svg
+//                         xmlns="http://www.w3.org/2000/svg"
+//                         className="h-5 w-5"
+//                         fill="none"
+//                         viewBox="0 0 24 24"
+//                         stroke="currentColor"
+//                       >
+//                         <path
+//                           strokeLinecap="round"
+//                           strokeLinejoin="round"
+//                           strokeWidth={2}
+//                           d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+//                         />
+//                         <path
+//                           strokeLinecap="round"
+//                           strokeLinejoin="round"
+//                           strokeWidth={2}
+//                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+//                         />
+//                       </svg>
+//                     </div>
+//                     <div>
+//                       <div>{location.address}</div>
+//                       <div className="text-sm text-gray-500">
+//                         {location.city}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* Event Description */}
+//         <div>
+//           <label
+//             htmlFor="description"
+//             className="block text-sm font-medium text-gray-700 mb-1"
+//           >
+//             Event Description
+//           </label>
+//           <textarea
+//             id="description"
+//             name="description"
+//             rows="4"
+//             placeholder="Describe the event here"
+//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#2853A6] focus:border-[#2853A6]"
+//             value={eventData.description}
+//             onChange={handleInputChange}
+//           ></textarea>
+//         </div>
+
+//         {/* Date and Time */}
+//         <div className="grid grid-cols-2 gap-4">
+//           <div>
+//             <label
+//               htmlFor="eventDate"
+//               className="block text-sm font-medium text-gray-700 mb-1"
+//             >
+//               Event Date <span className="text-red-500">*</span>
+//             </label>
+//             <input
+//               type="date"
+//               id="eventDate"
+//               name="date"
+//               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+//               value={eventData.date}
+//               onChange={handleInputChange}
+//               disabled={isEditMode} // Restrict editing in edit mode
+//             />
+//           </div>
+//           <div className="relative">
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Event Time <span className="text-red-500">*</span>
+//             </label>
+//             <div
+//               className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
+//               onClick={() => !isEditMode && setShowTimeDropdown(!showTimeDropdown)}
+//             >
+//               <span
+//                 className={eventData.time ? "text-gray-900" : "text-gray-400"}
+//               >
+//                 {eventData.time || "00:00"}
+//               </span>
+//               <ChevronDown className="h-4 w-4 text-gray-400" />
+//             </div>
+//             {showTimeDropdown && !isEditMode && (
+//               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+//                 {timeSlots.map((time) => (
+//                   <div
+//                     key={time}
+//                     className={`px-3 py-2 cursor-pointer hover:bg-gray-50 ${
+//                       eventData.time === time
+//                         ? "bg-blue-50 text-blue-700"
+//                         : "text-gray-900"
+//                     }`}
+//                     onClick={() => handleTimeSelect(time)}
+//                   >
+//                     {time}
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* Event Category */}
+//         <div className="relative mb-6">
+//           <label className="block text-sm font-medium text-gray-700 mb-1">
+//             Event Category <span className="text-red-500">*</span>
+//           </label>
+//           <div
+//             className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
+//             onClick={() => !isEditMode && setShowCategoryDropdown(!showCategoryDropdown)}
+//           >
+//             <span
+//               className={selectedCategory ? "text-gray-900" : "text-gray-400"}
+//             >
+//               {selectedCategory ? (
+//                 <span className="flex items-center">
+//                   <span className="mr-2">{selectedCategory.emoji}</span>
+//                   {selectedCategory.label}
+//                 </span>
+//               ) : (
+//                 "Select option"
+//               )}
+//             </span>
+//             <ChevronDown className="h-4 w-4 text-gray-400" />
+//           </div>
+//           {showCategoryDropdown && !isEditMode && (
+//             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+//               {categories.map((category) => (
+//                 <div
+//                   key={category.value}
+//                   className="px-3 py-2 cursor-pointer hover:bg-gray-50 flex items-center"
+//                   onClick={() => handleCategorySelect(category)}
+//                 >
+//                   <span className="mr-3 text-lg">{category.emoji}</span>
+//                   <span>{category.label}</span>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+//         </div>
+
+//         {/* Updated Tickets and Fee Section */}
+//         <div className="space-y-4 mb-6">
+//           <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-4">
+//             {/* Tickets Available */}
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Tickets Available
+//               </label>
+//               <div className="flex">
+//                 <div className="relative min-w-22">
+//                   <div
+//                     className={`flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+//                     onClick={() => !isEditMode && setShowCapacityDropdown(!showCapacityDropdown)}
+//                   >
+//                     <span className="text-gray-700">
+//                       {capacity === "limited" ? "Limited" : "Unlimited"}
+//                     </span>
+//                     <ChevronDown className="h-4 w-4 text-gray-500" />
+//                   </div>
+//                   {showCapacityDropdown && !isEditMode && (
+//                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+//                       <div
+//                         className="px-3 py-2 cursor-pointer hover:bg-gray-50"
+//                         onClick={() => handleCapacitySelect("limited")}
+//                       >
+//                         Limited
+//                       </div>
+//                       <div
+//                         className="px-3 py-2 cursor-pointer hover:bg-gray-50"
+//                         onClick={() => handleCapacitySelect("unlimited")}
+//                       >
+//                         Unlimited
+//                       </div>
+//                     </div>
+//                   )}
+//                 </div>
+//                 <input
+//                   type="text"
+//                   placeholder="Enter ticket number"
+//                   className="flex-1 px-3 py-2 border border-gray-300 border-l-0 rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+//                   value={ticketNumber}
+//                   onChange={(e) => setTicketNumber(e.target.value)}
+//                   disabled={capacity !== "limited" || isEditMode}
+//                 />
+//               </div>
+//             </div>
+//             {/* Event Fee */}
+//             <div>
+//               <label
+//                 htmlFor="fee"
+//                 className="block text-sm font-medium text-gray-700 mb-1"
+//               >
+//                 Event Fee (£)
+//               </label>
+//               <input
+//                 type="text"
+//                 id="fee"
+//                 placeholder="Leave blank if free"
+//                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+//                 value={eventFee}
+//                 onChange={(e) => setEventFee(e.target.value)}
+//               />
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="grid grid-cols-2 gap-4">
+//           <div className="relative">
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Event Frequency <span className="text-gray-400">(Optional)</span>
+//             </label>
+//             <div
+//               className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
+//               onClick={() => !isEditMode && setShowFrequencyDropdown(!showFrequencyDropdown)}
+//             >
+//               <span
+//                 className={
+//                   selectedFrequency?.value ? "text-gray-900" : "text-gray-400"
+//                 }
+//               >
+//                 {selectedFrequency?.label || "Does this event repeat?"}
+//               </span>
+//               <ChevronDown className="h-4 w-4 text-gray-400" />
+//             </div>
+//             {showFrequencyDropdown && !isEditMode && (
+//               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+//                 {frequencyOptions.map((option) => (
+//                   <div
+//                     key={option.value}
+//                     className={`px-3 py-2 cursor-pointer hover:bg-gray-50 ${
+//                       eventData.frequency === option.value
+//                         ? "bg-blue-50 text-blue-700"
+//                         : "text-gray-900"
+//                     }`}
+//                     onClick={() => handleFrequencySelect(option)}
+//                   >
+//                     {option.label}
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+//           </div>
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Age Range
+//             </label>
+//             <div className="flex justify-between ">
+//               <span className="text-xs bg-green-100 px-2 py-1 rounded-full text-green-800 font-medium">
+//                 {eventData.ageRange.min} Years
+//               </span>
+//               <span className="text-xs bg-green-100 px-2 py-1 rounded-full text-green-800 font-medium">
+//                 {eventData.ageRange.max} Years
+//               </span>
+//             </div>
+//             <div className="relative px-3">
+//               <div className="relative h-2">
+//                 {/* Track background */}
+//                 <div className="absolute w-full h-2 bg-gray-200 rounded-full"></div>
+//                 {/* Active track */}
+//                 <div
+//                   className="absolute h-2 bg-green-500 rounded-full"
+//                   style={{
+//                     left: `${(eventData.ageRange.min / 18) * 100}%`,
+//                     width: `${
+//                       ((eventData.ageRange.max - eventData.ageRange.min) / 18) *
+//                       100
+//                     }%`,
+//                   }}
+//                 ></div>
+//                 {/* Min thumb - visual indicator only */}
+//                 <div
+//                   className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full shadow-sm transition-shadow pointer-events-none"
+//                   style={{
+//                     left: `calc(${(eventData.ageRange.min / 18) * 100}% - 8px)`,
+//                     top: "-4px",
+//                     zIndex: 5,
+//                   }}
+//                 ></div>
+//                 {/* Max thumb - visual indicator only */}
+//                 <div
+//                   className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full shadow-sm transition-shadow pointer-events-none"
+//                   style={{
+//                     left: `calc(${(eventData.ageRange.max / 18) * 100}% - 8px)`,
+//                     top: "-4px",
+//                     zIndex: eventData.ageRange.max === eventData.ageRange.min ? 6 : 5,
+//                   }}
+//                 ></div>
+//                 {/* Min range input - positioned at left for min thumb */}
+//                 <input
+//                   type="range"
+//                   min="0"
+//                   max="18"
+//                   value={eventData.ageRange.min}
+//                   onChange={(e) => handleAgeRangeChange(e, "min")}
+//                   className="absolute w-1/2 h-8 opacity-0 cursor-pointer"
+//                   style={{ 
+//                     left: 0,
+//                     top: "-8px",
+//                     zIndex: 30 
+//                   }}
+//                   disabled={isEditMode}
+//                 />
+//                 {/* Max range input - positioned at right for max thumb */}
+//                 <input
+//                   type="range"
+//                   min="0"
+//                   max="18"
+//                   value={eventData.ageRange.max}
+//                   onChange={(e) => handleAgeRangeChange(e, "max")}
+//                   className="absolute w-1/2 h-8 opacity-0 cursor-pointer"
+//                   style={{ 
+//                     right: 0,
+//                     top: "-8px",
+//                     zIndex: 30 
+//                   }}
+//                   disabled={isEditMode}
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Safety Measures */}
+//         <div>
+//           <label className="block text-sm font-medium text-gray-700 mb-1">
+//             Safety Measures
+//           </label>
+//           <div className="border border-gray-300 rounded-md px-3 py-2 min-h-10 flex flex-wrap items-center gap-2">
+//             {eventData.safetyMeasures.map((measure, index) => (
+//               <div
+//                 key={index}
+//                 className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+//               >
+//                 <span>{measure}</span>
+//                 <button
+//                   type="button"
+//                   onClick={() => removeSafetyMeasure(index)}
+//                   className="ml-1 text-blue-600 hover:text-blue-800"
+//                   disabled={isEditMode}
+//                 >
+//                   <X className="w-3 h-3" />
+//                 </button>
+//               </div>
+//             ))}
+//             <input
+//               type="text"
+//               placeholder={
+//                 eventData.safetyMeasures.length === 0
+//                   ? "Enter applicable event measures"
+//                   : ""
+//               }
+//               className="flex-1 min-w-32 outline-none bg-transparent text-sm"
+//               value={currentSafetyInput}
+//               onChange={handleSafetyInputChange}
+//               onKeyDown={handleSafetyInputKeyDown}
+//               disabled={isEditMode}
+//             />
+//           </div>
+//           <p className="text-xs text-gray-500 mt-1">
+//             Press Enter or Space to add a measure
+//           </p>
+//         </div>
+
+//         {/* Upload Photo/Flyer */}
+//         <div>
+//           <label className="block text-sm font-medium text-gray-700 mb-1">
+//             Upload Event Photo/Flyer
+//           </label>
+//           <div
+//             className={`border-2 border-dashed border-gray-300 rounded-md p-6 text-center relative min-h-32 ${isEditMode ? 'bg-gray-50' : ''}`}
+//             onDragOver={!isEditMode ? handleDragOver : undefined}
+//             onDrop={!isEditMode ? handleDrop : undefined}
+//           >
+//             {eventData.images.length === 0 ? (
+//               <div>
+//                 <div className="flex justify-center mb-2">
+//                   <Upload className="h-8 w-8 text-gray-400" />
+//                 </div>
+//                 <p className="text-sm font-medium text-gray-700">
+//                   {isEditMode ? "Images cannot be changed in edit mode" : "Drag and drop your cover image"}
+//                 </p>
+//                 {!isEditMode && (
+//                   <>
+//                     <p className="text-xs text-gray-500 mt-1">PNG, JPEG</p>
+//                     <button
+//                       type="button"
+//                       className="mt-4 px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-700"
+//                       onClick={() => fileInputRef.current?.click()}
+//                     >
+//                       Choose File
+//                     </button>
+//                   </>
+//                 )}
+//               </div>
+//             ) : (
+//               <div className="space-y-4">
+//                 <div className="grid grid-cols-2 gap-3">
+//                   {eventData.images.map((file, index) => (
+//                     <div key={index} className="relative group">
+//                       <img
+//                         src={typeof file === 'string' ? file : URL.createObjectURL(file)}
+//                         alt={`Preview ${index + 1}`}
+//                         className="w-full h-20 object-cover rounded border"
+//                       />
+//                       {!isEditMode && (
+//                         <button
+//                           type="button"
+//                           onClick={() => removeImage(index)}
+//                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+//                         >
+//                           <X className="w-3 h-3" />
+//                         </button>
+//                       )}
+//                     </div>
+//                   ))}
+//                 </div>
+//                 {!isEditMode && (
+//                   <button
+//                     type="button"
+//                     className="px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-500"
+//                     onClick={() => fileInputRef.current?.click()}
+//                   >
+//                     Add More Images
+//                   </button>
+//                 )}
+//               </div>
+//             )}
+
+//             {!isEditMode && (
+//               <input
+//                 ref={fileInputRef}
+//                 type="file"
+//                 multiple
+//                 accept="image/*"
+//                 onChange={handleFileSelect}
+//                 className="hidden"
+//               />
+//             )}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Footer Buttons */}
+//       <div className={`flex mt-8 space-x- 4 ${isEditMode && "justify-between"}`}>
+//         <button
+//           onClick={onClose}
+//           className={`${isEditMode ? "px-4" : "flex-1"} py-3 text-[#2853A6] hover:bg-gray-100 rounded-md text-center transition-colors`}
+//         >
+//           Cancel
+//         </button>
+//         {!isEditMode && (
+//           <button
+//             onClick={saveAsDraft}
+//             className="flex-1 py-3 border border-[#2853A6] text-blue-500 hover:bg-blue-50 rounded-md text-center transition-colors"
+//           >
+//             Save as Draft
+//           </button>
+//         )}
+//         <button
+//           onClick={handleSubmit}
+//           className={`${isEditMode ? "px-4":"flex-1"} py-3 font-semibold bg-[#2853A6] hover:bg-blue-600 text-white rounded-[12px] text-center transition-colors cursor-pointer`}
+//         >
+//           {isEditMode ? "Save Changes" : "Create Event"}
+//         </button>
+//       </div>
+//     </BaseModal>
+//   );
+// };
+
+// export default EventCreationModal;
+
 
 import React, { useState, useRef, useEffect } from "react";
 import BaseModal from "../../Element/BaseModal";
-import { Calendar, Clock, Upload, ChevronDown, X, Loader2 } from "lucide-react";
+import { Calendar, Clock, Upload, ChevronDown, X } from "lucide-react";
 import { eventService } from "@/utils/eventService";
-import { uploadService } from "@/utils/uploadService"; // Import your upload service
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-import { S3_FOLDER } from "@/types/S3Folder";
-import { useToastContext } from "@/context/toast";
 
-const EventCreationModal = ({ isOpen, onClose, onSave }) => {
-  const {showMessage}=useToastContext()
+const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
   const [eventData, setEventData] = useState({
     name: "",
     date: "",
@@ -1216,18 +2105,69 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
     images: [],
     facilities: [],
     tags: [],
+    eventType: "Outdoor",
   });
-  
-  // Add states for upload handling
-  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
   
   const categoryRef = useRef(null);
   const locationRef = useRef(null);
   const timeRef = useRef(null);
   const capacityRef = useRef(null);
   const frequencyRef = useRef(null);
+
+  // Populate form data when in edit mode
+  useEffect(() => {
+    if (isEditMode && initialEventData) {
+      // Map the incoming event data to the form structure
+      setEventData({
+        name: initialEventData.name || initialEventData.title || "",
+        date: initialEventData.date || "",
+        time: initialEventData.time || "",
+        category: initialEventData.category || "",
+        location: initialEventData.location || initialEventData.address || "",
+        description: initialEventData.description || "",
+        safetyMeasures: initialEventData.safetyMeasures || initialEventData.instructions || [],
+        fee: initialEventData.fee || initialEventData.price || "",
+        capacity: initialEventData.capacity || "limited",
+        ticketNumber: initialEventData.ticketNumber || initialEventData.total_ticket || "",
+        ageRange: initialEventData.ageRange || { min: 0, max: 18 },
+        frequency: initialEventData.frequency || "",
+        images: initialEventData.images || [],
+        facilities: initialEventData.facilities || [],
+        tags: initialEventData.tags || [],
+        eventType: initialEventData.eventType || "Outdoor",
+      });
+      
+      // Set individual state variables
+      setCapacity(initialEventData.capacity || "limited");
+      setTicketNumber(initialEventData.ticketNumber || initialEventData.total_ticket || "");
+      setEventFee(initialEventData.fee || initialEventData.price || "");
+      setEventType(initialEventData.eventType || "Outdoor");
+    } else if (!isEditMode) {
+      // Reset form when not in edit mode
+      setEventData({
+        name: "",
+        date: "",
+        time: "",
+        category: "",
+        location: "",
+        description: "",
+        safetyMeasures: [],
+        fee: "",
+        capacity: "limited",
+        ticketNumber: "",
+        ageRange: { min: 0, max: 18 },
+        frequency: "",
+        images: [],
+        facilities: [],
+        tags: [],
+        eventType: "Outdoor",
+      });
+      setCapacity("limited");
+      setTicketNumber("");
+      setEventFee("");
+      setEventType("Outdoor");
+    }
+  }, [isEditMode, initialEventData, isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1290,6 +2230,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
   const [ticketNumber, setTicketNumber] = useState("");
   const [eventFee, setEventFee] = useState("");
   const [activeTab, setActiveTab] = useState("details");
+  const [eventType, setEventType] = useState('Outdoor');
 
   const categories = [
     { value: "camping", label: "Camping", emoji: "🏕️" },
@@ -1324,7 +2265,6 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
     "05:30PM",
     "06:00PM",
   ];
-  const [eventType, setEventType] = useState('Outdoor');
 
   const capacityOptions = [
     { value: "limited", label: "Limited" },
@@ -1346,7 +2286,9 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleLocationFocus = () => {
-    setShowLocationDropdown(true);
+    if (!isEditMode) {
+      setShowLocationDropdown(true);
+    }
   };
 
   const handleLocationSelect = (location) => {
@@ -1385,102 +2327,41 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
     }));
   };
 
-  // Updated file selection handler with automatic upload
-  const handleFileSelect = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    setIsUploading(true);
-    setUploadError("");
-
-    try {
-      // Upload images to 'events' folder
-      const uploadResult = await uploadService.uploadImages(S3_FOLDER.EVENTS, files);
-
-      if (uploadResult.success && uploadResult.data) {
-        // Add uploaded URLs to our state
-        setUploadedImageUrls(prev => [...prev, ...uploadResult.data]);
-        
-        // Also add the files to eventData for preview purposes
-        setEventData((prev) => ({
-          ...prev,
-          images: [...prev.images, ...files],
-        }));
-      } else {
-        setUploadError(uploadResult.message || "Upload failed");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      setUploadError("Failed to upload images");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  // Updated drag and drop handler
-  const handleDrop = async (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-    
-    if (imageFiles.length === 0) return;
-
-    setIsUploading(true);
-    setUploadError("");
-
-    try {
-      // Upload images to 'events' folder
-      const uploadResult = await uploadService.uploadImages(S3_FOLDER.EVENTS, imageFiles);
-
-      if (uploadResult.success && uploadResult.data) {
-        // Add uploaded URLs to our state
-        setUploadedImageUrls(prev => [...prev, ...uploadResult.data]);
-        
-        // Also add the files to eventData for preview purposes
-        setEventData((prev) => ({
-          ...prev,
-          images: [...prev.images, ...imageFiles],
-        }));
-      } else {
-        setUploadError(uploadResult.message || "Upload failed");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      setUploadError("Failed to upload images");
-    } finally {
-      setIsUploading(false);
+  const handleFileSelect = (e) => {
+    if (!isEditMode) {
+      const files = Array.from(e.target.files);
+      setEventData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...files],
+      }));
     }
   };
 
   const handleDragOver = (e) => {
-    e.preventDefault();
+    if (!isEditMode) {
+      e.preventDefault();
+    }
   };
 
-  // Updated remove image handler
-  const removeImage = async (index) => {
-    try {
-      // If we have uploaded URLs, delete from server
-      if (uploadedImageUrls[index]) {
-        // Extract filename from URL (assuming URL format ends with filename)
-        const url = uploadedImageUrls[index];
-        const fileName = url.split('/').pop();
-        
-        if (fileName) {
-          await uploadService.deleteSingleImage('events', fileName);
-        }
-        
-        // Remove from uploaded URLs
-        setUploadedImageUrls(prev => prev.filter((_, i) => i !== index));
-      }
-    } catch (error) {
-      console.error("Error deleting image:", error);
+  const handleDrop = (e) => {
+    if (!isEditMode) {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer.files);
+      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+      setEventData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...imageFiles],
+      }));
     }
+  };
 
-    // Remove from preview images
-    setEventData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }));
+  const removeImage = (index) => {
+    if (!isEditMode) {
+      setEventData((prev) => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== index),
+      }));
+    }
   };
 
   const handleSafetyInputChange = (e) => {
@@ -1507,10 +2388,12 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const removeSafetyMeasure = (index) => {
-    setEventData((prev) => ({
-      ...prev,
-      safetyMeasures: prev.safetyMeasures.filter((_, i) => i !== index),
-    }));
+    if (!isEditMode) {
+      setEventData((prev) => ({
+        ...prev,
+        safetyMeasures: prev.safetyMeasures.filter((_, i) => i !== index),
+      }));
+    }
   };
 
   function transformFrontendToBackend(frontendData) {
@@ -1561,8 +2444,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
       distance: 10,
       facilities: frontendData.facilities || [],
       tags: frontendData.tags || [],
-      eventType: eventType || "INDOOR",
-      files: uploadedImageUrls // Use uploaded image URLs instead of file objects
+      eventType: frontendData.eventType || "INDOOR"
     };
   }
 
@@ -1578,58 +2460,35 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
     const completeEventData = {
       ...eventData,
       fee: eventFee,
-      files: uploadedImageUrls,
       ticketNumber: ticketNumber,
-      capacity: capacity
+      capacity: capacity,
+      eventType: eventType
     };
 
     const backendData = transformFrontendToBackend(completeEventData);
     console.log("Sending to backend:", backendData);
 
-    const result = await eventService.createEventAsAdmin(backendData);
+    let result;
+    if (isEditMode && initialEventData) {
+      // Add event ID for update
+      result = await eventService.updateEvent(initialEventData.id, backendData);
+    } else {
+      result = await eventService.createEventAsAdmin(backendData);
+    }
 
     if (result.success) {
-      showMessage("Success","Event created successfully", "success");
       onSave && onSave(eventData);
-      // onClose();
-      
-      // Reset uploaded images state
-      setUploadedImageUrls([]);
+      onClose();
     } else {
-      showMessage("Error",result.error, "error");
-      console.error("Error creating event:", result.error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
     }
     console.log(result);
   };
 
-  const saveAsDraft = async() => {
-    const completeEventData = {
-      ...eventData,
-      fee: eventFee,
-      files: uploadedImageUrls,
-      ticketNumber: ticketNumber,
-      capacity: capacity
-    };
-
-    const backendData = transformFrontendToBackend(completeEventData);
-    console.log("Sending to backend:", backendData);
-
-    const result = await eventService.draftEventAsAdmin(backendData);
-
-    if (result.success) {
-      showMessage("Success","Draft event created successfully", "success");
-      onSave && onSave(eventData);
-      // onClose();
-      
-      // Reset uploaded images state
-      setUploadedImageUrls([]);
-    } else {
-
-            showMessage("Error","Problem creating draft event", "error");
-
-      console.error("Error creating event:", result.error);
-    }
-    console.log(result);
+  const saveAsDraft = () => {
+    console.log("Save as draft:", eventData);
+    onSave && onSave({ ...eventData, status: "draft" });
+    onClose();
   };
 
   const selectedCategory = categories.find(
@@ -1647,14 +2506,16 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
       isOpen={isOpen}
       onClose={onClose}
       position="right"
-      title="Create New Event"
+      title={isEditMode ? "Edit Event Details" : "Create New Event"}
       className="overflow-y-auto"
       size={{ width: "99%", maxWidth: "800px" }}
       showDividers={false}
     >
       <div className="mb-4 text-sm text-gray-700">
-        Add exciting events for families in Colchester. All events must meet our
-        safety and compliance guidelines.
+        {isEditMode 
+          ? "You are editing an event that has already been Approved. Some fields are restricted from editing"
+          : "Add exciting events for families in Colchester. All events must meet our safety and compliance guidelines."
+        }
       </div>
 
       {/* Tab Navigation */}
@@ -1704,6 +2565,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={eventData.name}
                 onChange={handleInputChange}
+                disabled={isEditMode} // Restrict editing in edit mode
               />
             </div>
 
@@ -1725,6 +2587,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                   value={eventData.location}
                   onChange={handleInputChange}
                   onFocus={handleLocationFocus}
+                  disabled={isEditMode} // Restrict editing in edit mode
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1742,7 +2605,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 </svg>
               </div>
 
-              {showLocationDropdown && (
+              {showLocationDropdown && !isEditMode && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                   {locationResults.map((location) => (
                     <div
@@ -1820,6 +2683,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={eventData.date}
                 onChange={handleInputChange}
+                disabled={isEditMode} // Restrict editing in edit mode
               />
             </div>
             <div className="relative">
@@ -1827,8 +2691,8 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 Event Time <span className="text-red-500">*</span>
               </label>
               <div
-                className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
-                onClick={() => setShowTimeDropdown(!showTimeDropdown)}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
+                onClick={() => !isEditMode && setShowTimeDropdown(!showTimeDropdown)}
               >
                 <span
                   className={eventData.time ? "text-gray-900" : "text-gray-400"}
@@ -1837,7 +2701,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               </div>
-              {showTimeDropdown && (
+              {showTimeDropdown && !isEditMode && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
                   {timeSlots.map((time) => (
                     <div
@@ -1863,8 +2727,8 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
               Event Category <span className="text-red-500">*</span>
             </label>
             <div
-              className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
-              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
+              onClick={() => !isEditMode && setShowCategoryDropdown(!showCategoryDropdown)}
             >
               <span
                 className={selectedCategory ? "text-gray-900" : "text-gray-400"}
@@ -1880,7 +2744,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
               </span>
               <ChevronDown className="h-4 w-4 text-gray-400" />
             </div>
-            {showCategoryDropdown && (
+            {showCategoryDropdown && !isEditMode && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                 {categories.map((category) => (
                   <div
@@ -1907,17 +2771,15 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 <div className="flex">
                   <div ref={capacityRef} className="relative min-w-22">
                     <div
-                      className="flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-md cursor-pointer"
-                      onClick={() =>
-                        setShowCapacityDropdown(!showCapacityDropdown)
-                      }
+                      className={`flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                      onClick={() => !isEditMode && setShowCapacityDropdown(!showCapacityDropdown)}
                     >
                       <span className="text-gray-700">
                         {capacity === "limited" ? "Limited" : "Unlimited"}
                       </span>
                       <ChevronDown className="h-4 w-4 text-gray-500" />
                     </div>
-                    {showCapacityDropdown && (
+                    {showCapacityDropdown && !isEditMode && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                         <div
                           className="px-3 py-2 cursor-pointer hover:bg-gray-50"
@@ -1940,7 +2802,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                     className="flex-1 px-3 py-2 border border-gray-300 border-l-0 rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={ticketNumber}
                     onChange={(e) => setTicketNumber(e.target.value)}
-                    disabled={capacity !== "limited"}
+                    disabled={capacity !== "limited" || isEditMode}
                   />
                 </div>
               </div>
@@ -1970,8 +2832,8 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 Event Frequency <span className="text-gray-400">(Optional)</span>
               </label>
               <div
-                className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
-                onClick={() => setShowFrequencyDropdown(!showFrequencyDropdown)}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
+                onClick={() => !isEditMode && setShowFrequencyDropdown(!showFrequencyDropdown)}
               >
                 <span
                   className={
@@ -1982,7 +2844,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               </div>
-              {showFrequencyDropdown && (
+              {showFrequencyDropdown && !isEditMode && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                   {frequencyOptions.map((option) => (
                     <div
@@ -2033,6 +2895,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                     }
                   ]}
                   railStyle={{ backgroundColor: '#e5e7eb' }}
+                  disabled={isEditMode}
                 />
               </div>
             </div>
@@ -2050,13 +2913,15 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                   className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
                 >
                   <span>{measure}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeSafetyMeasure(index)}
-                    className="ml-1 text-blue-600 hover:text-blue-800"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
+                  {!isEditMode && (
+                    <button
+                      type="button"
+                      onClick={() => removeSafetyMeasure(index)}
+                      className="ml-1 text-blue-600 hover:text-blue-800"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
               ))}
               <input
@@ -2070,8 +2935,14 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                 value={currentSafetyInput}
                 onChange={handleSafetyInputChange}
                 onKeyDown={handleSafetyInputKeyDown}
+                disabled={isEditMode}
               />
             </div>
+            {!isEditMode && (
+              <p className="text-xs text-gray-500 mt-1">
+                Press Enter or Space to add a measure
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -2084,6 +2955,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
             onChange={(newFacilities) =>
               setEventData({ ...eventData, facilities: newFacilities })
             }
+            disabled={isEditMode}
           />
 
           <div>
@@ -2094,17 +2966,18 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
               <span className="text-[#CB1A14]">*</span>
             </label>
             <div className="flex items-center gap-6 mt-2">
-              {[{name:'Indoor', value:"INDOOR"}, {name:'Outdoor', value:"OUTDOOR"}].map((type) => (
-                <label key={type.value} className="inline-flex items-center space-x-2">
+              {['Indoor', 'Outdoor'].map((type) => (
+                <label key={type} className="inline-flex items-center space-x-2">
                   <input
                     type="radio"
                     name="eventType"
-                    value={type.value}
-                    checked={eventType === type.value}
-                    onChange={() => setEventType(type.value)}
+                    value={type}
+                    checked={eventType === type}
+                    onChange={() => setEventType(type)}
                     className="form-radio text-blue-600"
+                    disabled={isEditMode}
                   />
-                  <span>{type.name}</span>
+                  <span>{type}</span>
                 </label>
               ))}
             </div>
@@ -2115,6 +2988,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
             onChange={(newTags) =>
               setEventData({ ...eventData, tags: newTags })
             }
+            disabled={isEditMode}
           />
 
           {/* Upload Photo/Flyer */}
@@ -2122,40 +2996,31 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
             <label className="block text-base font-semibold text-[#272727] mb-1">
               Upload Event Photo/Flyer
             </label>
-            
-            {/* Upload Error Display */}
-            {uploadError && (
-              <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-                {uploadError}
-              </div>
-            )}
-            
             <div
-              className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center relative min-h-32"
+              className={`border-2 border-dashed border-gray-300 rounded-md p-6 text-center relative min-h-32 ${isEditMode ? 'bg-gray-50' : ''}`}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
               {eventData.images.length === 0 ? (
                 <div>
                   <div className="flex justify-center mb-2">
-                    {isUploading ? (
-                      <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-                    ) : (
-                      <Upload className="h-8 w-8 text-gray-400" />
-                    )}
+                    <Upload className="h-8 w-8 text-gray-400" />
                   </div>
                   <p className="text-sm font-medium text-gray-700">
-                    {isUploading ? "Uploading images..." : "Drag and drop your cover image"}
+                    {isEditMode ? "Images cannot be changed in edit mode" : "Drag and drop your cover image"}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">PNG, JPEG</p>
-                  <button
-                    type="button"
-                    className="mt-4 px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    {isUploading ? "Uploading..." : "Choose File"}
-                  </button>
+                  {!isEditMode && (
+                    <>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPEG</p>
+                      <button
+                        type="button"
+                        className="mt-4 px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Choose File
+                      </button>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -2163,66 +3028,45 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
                     {eventData.images.map((file, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={URL.createObjectURL(file)}
+                          src={typeof file === 'string' ? file : URL.createObjectURL(file)}
                           alt={`Preview ${index + 1}`}
                           className="w-full h-20 object-cover rounded border"
                         />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                          disabled={isUploading}
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        
-                        {/* Show upload status for each image */}
-                        {index < uploadedImageUrls.length && (
-                          <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-1">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </div>
+                        {!isEditMode && (
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
                         )}
                       </div>
                     ))}
                   </div>
-                  
-                  {isUploading && (
-                    <div className="flex items-center justify-center text-blue-600">
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      <span className="text-sm">Uploading images...</span>
-                    </div>
+                  {!isEditMode && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-500"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Add More Images
+                    </button>
                   )}
-                  
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    {isUploading ? "Uploading..." : "Add More Images"}
-                  </button>
                 </div>
               )}
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={isUploading}
-              />
+              {!isEditMode && (
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              )}
             </div>
-            
-            {/* Display uploaded image URLs for debugging */}
-            {uploadedImageUrls.length > 0 && (
-              <div className="mt-2 text-xs text-gray-500">
-                {uploadedImageUrls.length} image(s) uploaded successfully
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -2239,12 +3083,14 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
             </button>
 
             <div className="flex gap-4 flex-wrap">
-              <button
-                onClick={saveAsDraft}
-                className="py-3 px-4 border border-[#2853A6] font-semibold text-[#2853A6] hover:bg-blue-50 rounded-md transition-colors"
-              >
-                Save as Draft
-              </button>
+              {!isEditMode && (
+                <button
+                  onClick={saveAsDraft}
+                  className="py-3 px-4 border border-[#2853A6] font-semibold text-[#2853A6] hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Save as Draft
+                </button>
+              )}
               <button
                 onClick={handleNext}
                 className="py-3 px-4 bg-[#2853A6] hover:bg-blue-600 font-semibold text-white rounded-md transition-colors"
@@ -2263,18 +3109,19 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
             </button>
 
             <div className="flex gap-4 flex-wrap">
-              <button
-                onClick={saveAsDraft}
-                className="py-3 px-4 border border-[#2853A6] text-[#2853A6] font-semibold hover:bg-blue-50 rounded-md transition-colors"
-              >
-                Save as Draft
-              </button>
+              {!isEditMode && (
+                <button
+                  onClick={saveAsDraft}
+                  className="py-3 px-4 border border-[#2853A6] text-[#2853A6] font-semibold hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Save as Draft
+                </button>
+              )}
               <button
                 onClick={handleSubmit}
                 className="py-3 px-4 bg-[#2853A6] text-white font-semibold hover:bg-blue-600 rounded-md transition-colors"
-                disabled={isUploading}
               >
-                {isUploading ? "Uploading..." : "Create Event"}
+                {isEditMode ? "Save Changes" : "Create Event"}
               </button>
             </div>
           </div>
@@ -2286,7 +3133,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave }) => {
 
 export default EventCreationModal;
 
-const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
+const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags", disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -2319,6 +3166,7 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
   }, []);
 
   const toggleTag = (tag) => {
+    if (disabled) return;
     if (tags.includes(tag)) {
       onChange(tags.filter(t => t !== tag));
     } else {
@@ -2327,11 +3175,15 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
   };
 
   const handleDropdownClick = () => {
-    setIsOpen(!isOpen);
+    if (!disabled) {
+      setIsOpen(!isOpen);
+    }
   };
 
   const removeTag = (tagToRemove) => {
-    onChange(tags.filter(tag => tag !== tagToRemove));
+    if (!disabled) {
+      onChange(tags.filter(tag => tag !== tagToRemove));
+    }
   };
 
   return (
@@ -2342,7 +3194,7 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
       </label>
       
       {/* Selected tags display */}
-      <div className="border border-gray-300 rounded-md px-3 py-2 min-h-10 flex flex-wrap items-center gap-2 cursor-pointer"
+      <div className={`border border-gray-300 rounded-md px-3 py-2 min-h-10 flex flex-wrap items-center gap-2 ${!disabled ? 'cursor-pointer' : 'cursor-not-allowed bg-gray-50'}`}
            onClick={handleDropdownClick}>
         {tags.map((tag, index) => (
           <div
@@ -2350,16 +3202,18 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
             className="flex items-center bg-[#EAEEF6] text-[#303237] px-2 py-1 rounded-full text-sm"
           >
             <span>{tag}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeTag(tag);
-              }}
-              className="ml-1 text-[#303237]"
-            >
-              <X className="w-3 h-3" />
-            </button>
+            {!disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeTag(tag);
+                }}
+                className="ml-1 text-[#303237]"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
         ))}
         
@@ -2373,7 +3227,7 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
       </div>
 
       {/* Dropdown menu */}
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {availableTags.map((tag) => (
             <div
@@ -2404,7 +3258,7 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags" }) => {
   );
 };
 
-const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select facilities" }) => {
+const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select facilities", disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -2428,6 +3282,7 @@ const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select f
   }, []);
 
   const toggleFacility = (facility) => {
+    if (disabled) return;
     if (facilities.includes(facility)) {
       onChange(facilities.filter(f => f !== facility));
     } else {
@@ -2436,11 +3291,15 @@ const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select f
   };
 
   const handleDropdownClick = () => {
-    setIsOpen(!isOpen);
+    if (!disabled) {
+      setIsOpen(!isOpen);
+    }
   };
 
   const removeFacility = (facilityToRemove) => {
-    onChange(facilities.filter(facility => facility !== facilityToRemove));
+    if (!disabled) {
+      onChange(facilities.filter(facility => facility !== facilityToRemove));
+    }
   };
 
   return (
@@ -2452,7 +3311,7 @@ const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select f
 
       {/* Selected facilities display */}
       <div
-        className="border border-gray-300 rounded-md px-3 py-2 min-h-10 flex flex-wrap items-center gap-2 cursor-pointer"
+        className={`border border-gray-300 rounded-md px-3 py-2 min-h-10 flex flex-wrap items-center gap-2 ${!disabled ? 'cursor-pointer' : 'cursor-not-allowed bg-gray-50'}`}
         onClick={handleDropdownClick}
       >
         {facilities.map((facility, index) => (
@@ -2461,16 +3320,18 @@ const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select f
             className="flex items-center bg-[#EAEEF6] text-[#303237] px-2 py-1 rounded-full text-sm"
           >
             <span>{facility}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFacility(facility);
-              }}
-              className="ml-1 text-[#303237]"
-            >
-              <X className="w-3 h-3" />
-            </button>
+            {!disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFacility(facility);
+                }}
+                className="ml-1 text-[#303237]"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
         ))}
 
@@ -2484,7 +3345,7 @@ const FacilitiesDropdown = ({ facilities = [], onChange, placeholder = "Select f
       </div>
 
       {/* Dropdown list */}
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {availableFacilities.map((facility) => (
             <div
