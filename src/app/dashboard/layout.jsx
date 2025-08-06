@@ -48,6 +48,7 @@ useEffect(() => {
   
   // Use AuthContext for user data
   const { user, loading } = useAuth();
+  console.log("User from AuthContext:", user);
   
   // Generate user profile data from AuthContext
   const userProfile = user ? {
@@ -57,7 +58,8 @@ useEffect(() => {
     role: user.admin?.role || user.role || "Admin",
     initials: user.admin?.first_name && user.admin?.last_name
       ? (user.admin.first_name.charAt(0) + user.admin.last_name.charAt(0)).toUpperCase()
-      : user.admin?.first_name?.charAt(0)?.toUpperCase() || "U"
+      : user.admin?.first_name?.charAt(0)?.toUpperCase() || "U",
+      image: user.admin?.avatarUrl
   } : {
     name: "Loading...",
     role: "Loading...",
@@ -209,9 +211,16 @@ useEffect(() => {
             
             {/* User profile */}
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-[#F8F2EC] rounded-full flex text-sm items-center justify-center text-black font-medium">
+              {/* <div className="w-10 h-10 bg-[#F8F2EC] rounded-full flex text-sm items-center justify-center text-black font-medium">
                 {userProfile.initials}
-              </div>
+              </div> */}
+              <Image
+                src={userProfile.image ? userProfile.image : "/Avatar.jpg"}
+                alt={userProfile.name || "User Avatar"}
+                width={45}
+                height={45}
+                className="w-[45px] h-[45px] rounded-full object-cover"
+              />
               <div className="hidden md:block ml-2 text-black">
                 <div className="flex items-center">
                   <span className="font-inter text-sm font-semibold">

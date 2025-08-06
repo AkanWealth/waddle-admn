@@ -21,6 +21,7 @@ export default function SettingsPage() {
         lastName: "Dosunmu", 
         email: "tomi@waddle.com",
         role: "Admin",
+        imageUrl:"",
         currentPassword: "",
         newPassword: "",
         confirmPassword: ""

@@ -5,6 +5,7 @@ import { Lock, Shield, Trash2, Clock, Check, X, Loader2, Eye, EyeOff } from "luc
 import { authService } from "@/utils/authService";
 import { useAuth } from "@/context/AuthContext";
 import UserImageUpload from "./UserImageUpload";
+import { uploadService } from "@/utils/uploadService";
 
 export default function ProfileSecurityPage({
     profileSettings,
@@ -176,7 +177,8 @@ export default function ProfileSecurityPage({
                 body: JSON.stringify({
                     email: profileSettings.email,
                     first_name: profileSettings.firstName,
-                    last_name: profileSettings.lastName
+                    last_name: profileSettings.lastName,
+                    avatarUrl: profileSettings.imageUrl
                 })
             });
 
@@ -185,7 +187,8 @@ export default function ProfileSecurityPage({
                 ...prev,
                 firstName: profileSettings.firstName,
                 lastName: profileSettings.lastName,
-                email: profileSettings.email
+                email: profileSettings.email,
+                avatarUrl: profileSettings.imageUrl
             }));
             
             setHasProfileChanges(false);
@@ -422,32 +425,32 @@ export default function ProfileSecurityPage({
                 <div className="flex items-center justify-center">
 
                 
-                <UserImageUpload
-    imageUrl={profileSettings.imageUrl}
-    onUpload={async (file) => {
-        try {
-            // You can plug your image upload logic here
-            const formData = new FormData();
-            formData.append("file", file);
+               <UserImageUpload
+  imageUrl={profileSettings.imageUrl}
+  onUpload={async (file) => {
+    try {
+      const uploadResponse = await uploadService.uploadImages("users", [file]);
+      // or use the enum
+      // const uploadResponse = await uploadService.uploadImages(UploadFolders.USERS, [file]);
 
-            const res = await fetch("/api/v1/host/me/image", {
-                method: "PATCH",
-                body: formData,
-            });
+      if (!uploadResponse.success || !uploadResponse.data?.[0]) {
+        throw new Error(uploadResponse.message || "Upload failed");
+      }
+      console.log("Image uploaded successfully:", uploadResponse.data[0]);
 
-            if (!res.ok) throw new Error("Failed to upload image");
-            const result = await res.json();
+      const imageUrl = uploadResponse.data[0];
 
-            // Update the imageUrl in the parent state
-            setProfileSettings(prev => ({
-                ...prev,
-                imageUrl: result.imageUrl,
-            }));
-        } catch (err) {
-            console.error("Image upload error:", err);
-        }
-    }}
+      // Update the imageUrl in the parent state
+      setProfileSettings((prev) => ({
+        ...prev,
+        imageUrl,
+      }));
+    } catch (err) {
+      console.error("Image upload error:", err);
+    }
+  }}
 />
+
 </div>
                 {/* Profile Success Message */}
                 {profileSaveSuccess && (
