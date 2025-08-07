@@ -77,15 +77,25 @@ export default function ProfileSecurityPage({
     }, []); // Empty dependency array - only run on mount
 
     // Check for profile changes
-    useEffect(() => {
-        if (isLoadingUserData) return; // Don't check for changes while loading
-        
-        const profileFields = ['firstName', 'lastName', 'email'];
-        const profileChangesDetected = profileFields.some(
-            key => profileSettings[key] !== initialSettings[key]
-        );
-        setHasProfileChanges(profileChangesDetected);
-    }, [profileSettings, initialSettings, isLoadingUserData]);
+useEffect(() => {
+    if (isLoadingUserData) return; // Don't check for changes while loading
+    
+    const profileFields = ['firstName', 'lastName', 'email', 'imageUrl'];
+    const profileChangesDetected = profileFields.some(key => {
+        const currentValue = profileSettings[key] || '';
+        const initialValue = initialSettings[key] || '';
+        return currentValue !== initialValue;
+    });
+    
+    console.log('Profile change check:', {
+        currentImageUrl: profileSettings.imageUrl,
+        initialImageUrl: initialSettings.imageUrl,
+        hasChanges: profileChangesDetected
+    });
+    
+    setHasProfileChanges(profileChangesDetected);
+}, [profileSettings, initialSettings, isLoadingUserData]);
+
 
     // Check for password changes
     useEffect(() => {
@@ -430,26 +440,30 @@ export default function ProfileSecurityPage({
   onUpload={async (file) => {
     try {
       const uploadResponse = await uploadService.uploadImages("users", [file]);
-      // or use the enum
-      // const uploadResponse = await uploadService.uploadImages(UploadFolders.USERS, [file]);
 
       if (!uploadResponse.success || !uploadResponse.data?.[0]) {
         throw new Error(uploadResponse.message || "Upload failed");
       }
+      
       console.log("Image uploaded successfully:", uploadResponse.data[0]);
-
       const imageUrl = uploadResponse.data[0];
 
       // Update the imageUrl in the parent state
-      setProfileSettings((prev) => ({
-        ...prev,
-        imageUrl,
-      }));
+      setProfileSettings((prev) => {
+        const updated = {
+          ...prev,
+          imageUrl,
+        };
+        console.log('Updated profileSettings with new imageUrl:', updated);
+        return updated;
+      });
+      
     } catch (err) {
       console.error("Image upload error:", err);
     }
   }}
 />
+
 
 </div>
                 {/* Profile Success Message */}
@@ -495,7 +509,8 @@ export default function ProfileSecurityPage({
                             type="email"
                             value={profileSettings.email || ''}
                             onChange={(e) => handleProfileChange("email", e.target.value)}
-                            className={`w-full text-black p-3 border ${profileErrors.email ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            readOnly
+                            className={`w-full text-black bg-gray-50 p-3 border ${profileErrors.email ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             disabled={isProfileSaving}
                         />
                         {profileErrors.email && (
