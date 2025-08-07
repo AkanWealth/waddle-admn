@@ -33,8 +33,6 @@ interface UIState {
   isMainFilterOpen: boolean;
 }
 
-
-
 interface BookingStore {
   bookings: IBooking[];
   filters: FilterState;
@@ -318,13 +316,44 @@ export const useBookingStore = create<BookingStore>()(
   )
 );
 
+// export const useFilteredBookings = () => {
+//   const bookings = useBookingStore((state) => state.bookings);
+//   const filters = useBookingStore((state) => state.filters);
+
+//   return React.useMemo(() => {
+//     return bookings.filter((booking) => {
+//       const matchesSearch =
+//         booking?.event?.name
+//           .toLowerCase()
+//           .includes(filters.searchTerm.toLowerCase()) ||
+//         booking?.event?.organiser?.name
+//           .toLowerCase()
+//           .includes(filters.searchTerm.toLowerCase());
+
+//       const matchesStatus =
+//         filters.statusFilter.length === 0 ||
+//         filters.statusFilter.includes(booking.status);
+
+//       const matchesVendor =
+//         !filters.vendor ||
+//         booking.organiser.toLowerCase().includes(filters.vendor.toLowerCase());
+
+//       return matchesSearch && matchesStatus && matchesVendor;
+//     });
+//   }, [bookings, filters.searchTerm, filters.statusFilter, filters.vendor]);
+// };
+
+// Add this updated useFilteredBookings hook to your store file
+
 export const useFilteredBookings = () => {
   const bookings = useBookingStore((state) => state.bookings);
   const filters = useBookingStore((state) => state.filters);
 
   return React.useMemo(() => {
     return bookings.filter((booking) => {
+      // Search term filter
       const matchesSearch =
+        !filters.searchTerm ||
         booking?.event?.name
           .toLowerCase()
           .includes(filters.searchTerm.toLowerCase()) ||
@@ -332,19 +361,89 @@ export const useFilteredBookings = () => {
           .toLowerCase()
           .includes(filters.searchTerm.toLowerCase());
 
-      const matchesStatus =
+      // Status filter (array-based from status modal)
+      const matchesStatusFilter =
         filters.statusFilter.length === 0 ||
         filters.statusFilter.includes(booking.status);
 
+      // Single status filter (from main filter)
+      const matchesStatus =
+        !filters.status ||
+        booking.status.toLowerCase() === filters.status.toLowerCase();
+
+      // Vendor filter
       const matchesVendor =
         !filters.vendor ||
-        booking.organiser.toLowerCase().includes(filters.vendor.toLowerCase());
+        booking.organiser
+          ?.toLowerCase()
+          .includes(filters.vendor.toLowerCase()) ||
+        booking?.event?.organiser?.name
+          ?.toLowerCase()
+          .includes(filters.vendor.toLowerCase());
 
-      return matchesSearch && matchesStatus && matchesVendor;
+      // Date range filter
+      const matchesDateRange = (() => {
+        if (!filters.dateRange || !filters.dateRange.includes(" - ")) {
+          return true; // No date filter applied
+        }
+
+        try {
+          const [startDateStr, endDateStr] = filters.dateRange.split(" - ");
+          const filterStartDate = new Date(startDateStr);
+          const filterEndDate = new Date(endDateStr);
+
+          // Set end date to end of day for inclusive comparison
+          filterEndDate.setHours(23, 59, 59, 999);
+
+          // Get booking event date - adjust this path based on your data structure
+          let bookingDate;
+
+          // Try different possible date field paths
+          if (booking.event?.date) {
+            bookingDate = new Date(booking.event.date);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } else if ((booking.event as any)?.startDate) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            bookingDate = new Date((booking.event as any).startDate);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } else if ((booking as any).date) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            bookingDate = new Date((booking as any).date);
+          } else if (booking.createdAt) {
+            bookingDate = new Date(booking.createdAt);
+          } else {
+            // If no date field found, include the booking
+            return true;
+          }
+
+          // Check if booking date is within the filter range
+          return bookingDate >= filterStartDate && bookingDate <= filterEndDate;
+        } catch (error) {
+          console.error("Error filtering by date range:", error);
+          return true; // Include booking if there's an error parsing dates
+        }
+      })();
+
+      return (
+        matchesSearch &&
+        matchesStatusFilter &&
+        matchesStatus &&
+        matchesVendor &&
+        matchesDateRange
+      );
     });
-  }, [bookings, filters.searchTerm, filters.statusFilter, filters.vendor]);
+  }, [
+    bookings,
+    filters.searchTerm,
+    filters.statusFilter,
+    filters.vendor,
+    filters.status,
+    filters.dateRange,
+  ]);
 };
 
+// Also update your clearFilters function to reset local date states
+// You'll need to modify your store's clearFilters action to trigger a re-render of the filter component
 export const usePaginatedBookings = () => {
   const filteredBookings = useFilteredBookings();
   const pagination = useBookingStore((state) => state.pagination);
@@ -420,9 +519,9 @@ export const useRevenueStore = create<StoreState>((set) => ({
   data: [],
   fetchData: async (period: string) => {
     const response = await bookingsService.getBookingRevenueData(period);
-    if(response.success){
+    if (response.success) {
       set({ data: response.data });
-    } else{
+    } else {
       set({ data: [] });
     }
     // const mockData = [

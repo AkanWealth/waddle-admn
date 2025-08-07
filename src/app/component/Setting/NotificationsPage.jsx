@@ -94,7 +94,7 @@ export default function NotificationsPage({
     return (
         <div className="space-y-8">
             {/* Notification Settings */}
-            <div className="max-w-xl bg-white shadow-md rounded-lg p-6">
+            {/* <div className="max-w-xl bg-white shadow-md rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">Notification Settings</h3>
                 <div className="space-y-6">
                     <div className="flex items-center justify-between py-4 border-b border-gray-100">
@@ -157,7 +157,7 @@ export default function NotificationsPage({
                         </label>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Event Cancellation Notifications */}
             <div className="bg-white shadow-md rounded-lg p-6">

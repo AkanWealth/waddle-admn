@@ -1,5 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { X, Filter, Mail, Phone, House, Globe } from "lucide-react";
+import { X, Filter } from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
 import Image from "next/image";
 import SVGAssets from "@/assets/svg";
@@ -101,7 +101,7 @@ const BookingsReportsModal: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex flex-col gap-1 my-2.5">
+            {/* <div className="flex flex-col gap-1 my-2.5">
               <h3 className="text-[#303237] font-semibold">ABC Events</h3>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-1">
@@ -127,7 +127,7 @@ const BookingsReportsModal: React.FC = () => {
                   <span className="text-sm text-[#404040]">www.abcorg.com</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="flex flex-wrap gap-5 my-6">
               <div>
