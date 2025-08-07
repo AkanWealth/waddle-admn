@@ -445,7 +445,6 @@ useEffect(() => {
         throw new Error(uploadResponse.message || "Upload failed");
       }
       
-      console.log("Image uploaded successfully:", uploadResponse.data[0]);
       const imageUrl = uploadResponse.data[0];
 
       // Update the imageUrl in the parent state
@@ -454,7 +453,6 @@ useEffect(() => {
           ...prev,
           imageUrl,
         };
-        console.log('Updated profileSettings with new imageUrl:', updated);
         return updated;
       });
       
