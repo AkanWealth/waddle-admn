@@ -9,7 +9,6 @@ class RecommendationService {
     this.baseURL = baseUrl;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getAllRecommendationsEvents() {
     try {
       const response = await authService.makeAuthenticatedRequest(
@@ -69,10 +68,15 @@ class RecommendationService {
     }
   }
 
-  async unverifyRecommendationPlace(id: string) {
+  async rejectARecommendationPlace(id: string) {
     try {
+      //localhost:3030/api/v1/crowd-sourcing/unverify/{id}
       const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/crowd-sourcing/unverify/${id}`
+        `/api/v1/crowd-sourcing/unverify/${id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
       );
       return { success: true, data: response };
     } catch (error: unknown) {

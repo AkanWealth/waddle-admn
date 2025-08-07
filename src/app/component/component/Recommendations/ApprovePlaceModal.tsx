@@ -10,8 +10,6 @@ const ApprovePlaceModal = () => {
     console.log("Place approved");
     closeShowApproveDetailsModal();
 
-    // Example usage
-    
     if (!selectedPlace) return;
     const result = await recommendationService.approveRecommendationPlace(
       selectedPlace?.id

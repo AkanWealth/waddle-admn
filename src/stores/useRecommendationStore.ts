@@ -23,6 +23,7 @@ export interface Recommendation {
   images?: string[];
   facilities?: string[];
   tips?: string;
+  isFree: boolean;
 }
 
 interface RecommendationsState {
@@ -53,16 +54,29 @@ interface RecommendationsState {
   openShowApproveDetailsModal: () => void;
   closeShowApproveDetailsModal: () => void;
 
+  showRejectDetailsModal: boolean;
+  openShowRejectDetailsModal: () => void;
+  closeShowRejectDetailsModal: () => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
+
+  showParentReviewsModal: boolean;
+  openShowParentReviewsModal: () => void;
+  closeShowParentReviewsModal: () => void;
+
   refreshEvents: (tab: "Places" | "Events") => Promise<void>;
 }
 
 export const useRecommendationsStore = create<RecommendationsState>((set) => ({
+  isLoading: false,
   places: [],
   events: [],
   selectedPlace: null,
   selectedEvent: null,
   showPlaceDetailsModal: false,
   showApproveDetailsModal: false,
+  showRejectDetailsModal: false,
+  showParentReviewsModal: false,
 
   setPlaces: (places) => set({ places }),
   setEvents: (events) => set({ events }),
@@ -73,7 +87,7 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
   updatePlaceStatus: (id, status) =>
     set((state) => ({
       places: state.places.map((place) =>
-        place.id === id ? { ...place, status } : place
+        place.id === id ? { ...place, status: status } : place
       ),
     })),
 
@@ -116,74 +130,82 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
   closeShowPlaceDetailsModal: () => set({ showPlaceDetailsModal: false }),
   openShowApproveDetailsModal: () => set({ showApproveDetailsModal: true }),
   closeShowApproveDetailsModal: () => set({ showApproveDetailsModal: false }),
+
+  openShowRejectDetailsModal: () => set({ showRejectDetailsModal: true }),
+  closeShowRejectDetailsModal: () => set({ showRejectDetailsModal: false }),
+
+  openShowParentReviewsModal: () => set({ showParentReviewsModal: true }),
+  closeShowParentReviewsModal: () => set({ showParentReviewsModal: false }),
+
   refreshEvents: async (tab: "Places" | "Events") => {
-    if (tab === "Events") {
-      const response = await recommendationService.getAllRecommendationsEvents(
-        1,
-        1000
-      );
-      if (response.success) {
-        // Map API response to Event type
-        const apiEvents = (response.data.events ||
-          response.data ||
-          []) as unknown[];
-        const events = apiEvents.map((item): Event => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const event = item as any;
-          return {
-            id: event.id,
-            name: event.name,
-            submittedBy: event.creator?.name || event.creatorName || "Unknown",
-            dateSubmitted: event.date || event.createdAt || "",
-            entryFee: event.fee || event.entryFee || "",
-            category: event.category || "",
-            status: event.isDeleted
-              ? "Rejected"
-              : event.isVerified
-              ? "Approved"
-              : "Pending",
-            description: event.description || "",
-            images: event.images || [],
-            facilities: event.facilities || [],
-            parentsTip: event.tips || event.parentsTip || "",
-            comments: event.comments || [],
-          };
-        });
-        set({ events });
+    set({ isLoading: true });
+
+    try {
+      if (tab === "Events") {
+        const response =
+          await recommendationService.getAllRecommendationsEvents(1, 1000);
+        if (response.success) {
+          const apiEvents = (response.data.events ||
+            response.data ||
+            []) as unknown[];
+          const events = apiEvents.map((item): Event => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const event = item as any;
+            return {
+              id: event.id,
+              name: event.name,
+              submittedBy:
+                event.creator?.name || event.creatorName || "Unknown",
+              dateSubmitted: event.date || event.createdAt || "",
+              entryFee: event.fee || event.entryFee || "",
+              category: event.category || "",
+              status: event.status,
+              description: event.description || "",
+              images: event.images || [],
+              facilities: event.facilities || [],
+              parentsTip: event.tips || event.parentsTip || "",
+              comments: event.comments || [],
+              createdAt: event.createdAt,
+            };
+          });
+          set({ events });
+        }
+      } else {
+        const response =
+          await recommendationService.getAllRecommendationsPlaces();
+        if (response.success) {
+          const apiPlaces = (response.data.places ||
+            response.data ||
+            []) as unknown[];
+          const places = apiPlaces.map((item): Recommendation => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const place = item as any;
+            return {
+              id: place.id,
+              name: place.name,
+              creator: place.creator || {
+                name: place.creatorName || "Unknown",
+              },
+              date: place.date,
+              address: place.address || "",
+              category: place.category || "",
+              status: place.status,
+              isDeleted: place.isDeleted || false,
+              isVerified: place.isVerified || false,
+              description: place.description || "",
+              images: place.images || [],
+              facilities: place.facilities || [],
+              tips: place.tips || "",
+              createdAt: place.createdAt,
+            };
+          });
+          set({ places });
+        }
       }
-    } else {
-      const response =
-        await recommendationService.getAllRecommendationsPlaces();
-      if (response.success) {
-        // Map API response to Recommendation type
-        const apiPlaces = (response.data.places ||
-          response.data ||
-          []) as unknown[];
-        const places = apiPlaces.map((item): Recommendation => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const place = item as any;
-          return {
-            id: place.id,
-            name: place.name,
-            creator: place.creator || { name: place.creatorName || "Unknown" },
-            date: place.date,
-            address: place.address || "",
-            category: place.category || "",
-            status: place.isDeleted
-              ? "Rejected"
-              : place.isVerified
-              ? "Approved"
-              : "Pending",
-            isDeleted: place.isDeleted || false,
-            isVerified: place.isVerified || false,
-            description: place.description || "",
-            images: place.images || [],
-            facilities: place.facilities || [],
-            tips: place.tips || "",
-          };
-        });
-        set({ places });
-      }
+    } catch (error) {
+      console.error("Error refreshing recommendations:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

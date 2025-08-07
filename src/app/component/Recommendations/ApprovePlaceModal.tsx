@@ -1,3 +1,5 @@
+// import { useToastContext } from "@/context/toast";
+import { useToastContext } from "@/context/toast";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import { recommendationService } from "@/utils/recommendationService";
 import { CircleCheck } from "lucide-react";
@@ -8,13 +10,21 @@ const ApprovePlaceModal = () => {
     closeShowPlaceDetailsModal,
     refreshEvents,
     selectedPlace,
+    updatePlaceStatus,
   } = useRecommendationsStore();
+  const { showMessage } = useToastContext();
   const handleApprovePlace = async () => {
     if (!selectedPlace) return;
     const result = await recommendationService.approveRecommendationPlace(
       selectedPlace.id
     );
+    updatePlaceStatus(selectedPlace.id, "Approved");
     if (result.success) {
+      showMessage(
+        "Place Approved!",
+        "Place approved and published to the app!",
+        "success"
+      );
       await refreshEvents("Places");
       closeShowApproveDetailsModal();
       closeShowPlaceDetailsModal();

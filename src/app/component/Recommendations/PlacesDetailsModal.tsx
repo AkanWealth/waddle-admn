@@ -1,23 +1,32 @@
 import React from "react";
-import { MapPin, Tag, X, UserRound, CircleCheck } from "lucide-react";
+import {
+  MapPin,
+  Tag,
+  X,
+  UserRound,
+  CircleCheck,
+  BadgeCent,
+} from "lucide-react";
 import Image from "next/image";
 import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
-  type Creator = { name: string; email?: string; profile_picture?: string };
+import StatusBadge from "./StatusBadge";
+type Creator = { name: string; email?: string; profile_picture?: string };
 
- type EventDetails = {
-   name: string;
-   description?: string;
-   address?: string;
-   category?: string;
-   images?: string[];
-   facilities?: string[];
-   tips?: string;
-   creator?: Creator;
-   status?: string;
-   isDeleted?: boolean;
-   isVerified?: boolean;
- };
+type EventDetails = {
+  name: string;
+  description?: string;
+  address?: string;
+  category?: string;
+  images?: string[];
+  facilities?: string[];
+  tips?: string;
+  creator?: Creator;
+  status?: string;
+  isDeleted?: boolean;
+  isVerified?: boolean;
+  isFree: boolean;
+};
 const PlacesDetailsModal = ({
   selectedPlace,
 }: {
@@ -27,16 +36,11 @@ const PlacesDetailsModal = ({
     console.log("Image clicked:", image, "at index:", index);
   };
   // Define a local type for the event structure
- ;
   const {
     openShowApproveDetailsModal,
-    closeShowApproveDetailsModal,
+openShowRejectDetailsModal,
     closeShowPlaceDetailsModal,
-  } = useRecommendationsStore() as {
-    openShowApproveDetailsModal: () => void;
-    closeShowApproveDetailsModal: () => void;
-    closeShowPlaceDetailsModal: () => void;
-  };
+  } = useRecommendationsStore() 
 
   // if (!selectedPlace) {
   //   return (
@@ -68,6 +72,7 @@ const PlacesDetailsModal = ({
     profile_picture: "",
   };
   const submittedBy = creator?.name || "Unknown";
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const submittedByAvatar = creator?.profile_picture
     ? creator.profile_picture.startsWith("http")
       ? creator.profile_picture
@@ -77,10 +82,14 @@ const PlacesDetailsModal = ({
 
   // Determine status using the same logic as in recommendations/page.tsx
   let derivedStatus: "Pending" | "Rejected" | "Approved" = "Pending";
-  if (selectedPlace?.isDeleted) {
-    derivedStatus = "Rejected";
-  } else if (selectedPlace?.isVerified) {
+  if (selectedPlace.status === "PENDING") {
+    derivedStatus = "Pending";
+  }
+  if (selectedPlace.status === "APPROVED") {
     derivedStatus = "Approved";
+  }
+  if (selectedPlace.status === "REJECTED") {
+    derivedStatus = "Rejected";
   }
 
   return (
@@ -100,7 +109,7 @@ const PlacesDetailsModal = ({
             <div className="flex   justify-end my-2.5">
               <div className="w-[80%] flex items-center gap-6">
                 <button
-                  onClick={closeShowApproveDetailsModal}
+                  onClick={openShowRejectDetailsModal}
                   type="button"
                   className="flex-1 border border-[#CC0000] px-3 py-2 text-[#CC0000] rounded-xl"
                 >
@@ -116,6 +125,9 @@ const PlacesDetailsModal = ({
               </div>
             </div>
           )}
+          <div className="flex py-3">
+            <p className="">{StatusBadge(derivedStatus)}</p>
+          </div>
           <div className="">
             <h3 className="text-[#404040] font-semibold text-xl">
               {selectedPlace?.name || "Event Name"}
@@ -125,29 +137,35 @@ const PlacesDetailsModal = ({
             </p>
             <div className="">
               <div className="flex items-center gap-4 my-1.5">
-                <div className="flex items-center gap-2">
-                  <MapPin className=" text-[15px] h-[15px]" />
+                <div className="flex items-center gap-1">
+                  <MapPin className="text-[#BDC0CE] text-[16px] h-[16px]" />
                   <p className="text-[#303237] font-semibold text-[15px]">
                     {selectedPlace?.address || "No address"}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Tag className="text-[#D45815] text-[14px] h-[14px]" />
+                <div className="flex items-center gap-1">
+                  <Tag className="text-[#D45815] text-[16px] h-[16px]" />
                   <p className="text-[#404040] text-[14px]">
                     {selectedPlace?.category || "No category"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <BadgeCent className="text-[#1E9A64] text-[16px] h-[16px]" />
+                  <p className="text-[#404040] text-[14px]">
+                    {selectedPlace.isFree ? "Free" : "Paid"}
                   </p>
                 </div>
                 {/* No fee in Place, so skip PoundSterling/fee */}
               </div>
               <div className="">
                 <ParentsVisited
-                  parents={[
-                    {
-                      id: "1",
-                      name: submittedBy,
-                      avatar: submittedByAvatar,
-                    },
-                  ]}
+                  // parents={[
+                  //   {
+                  //     id: "1",
+                  //     name: submittedBy,
+                  //     avatar: submittedByAvatar,
+                  //   },
+                  // ]}
                   totalCount={1}
                 />
               </div>
@@ -176,7 +194,7 @@ const PlacesDetailsModal = ({
                     Parent’s Tip
                   </h3>
                   <p className="text-[#565C69]">
-                      {selectedPlace?.tips
+                    {selectedPlace?.tips
                       ? selectedPlace?.tips
                       : "No tips provided."}
                   </p>
@@ -225,17 +243,20 @@ const ParentsVisited: React.FC<ParentsVisitedProps> = ({
     {
       id: "1",
       name: "John Doe",
-      avatar: "https://ui-avatars.com/api/?name=John+Doe&background=random",
+      avatar:
+        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
     },
     {
       id: "2",
       name: "Jane Smith",
-      avatar: "https://ui-avatars.com/api/?name=Jane+Smith&background=random",
+      avatar:
+        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
     },
     {
       id: "3",
       name: "Mike Johnson",
-      avatar: "https://ui-avatars.com/api/?name=Mike+Johnson&background=random",
+      avatar:
+        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
     },
   ],
 
@@ -312,9 +333,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             <Image
               src={image.src}
               alt={image.alt}
-              fill
+              // fill
+              width={120}
+              height={85}
               className="object-cover"
-              sizes="64px"
+              // sizes="64px"
             />
 
             {/* Camera icon overlay for first image */}

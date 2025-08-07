@@ -11,53 +11,75 @@ const RecommendationActionModalItems = [
 
 interface RecommendationActionModalProps {
   onClose: () => void;
+  status: string;
 }
 
 const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
   onClose,
+  status,
 }) => {
-  const { openShowPlaceDetailsModal } = useRecommendationsStore();
+  const {
+    openShowPlaceDetailsModal,
+    openShowApproveDetailsModal,
+    openShowRejectDetailsModal,
+    openShowParentReviewsModal,
+  } = useRecommendationsStore();
+
+  //  const {
+  //    openShowApproveDetailsModal,
+  //    closeShowApproveDetailsModal,
+  //    closeShowPlaceDetailsModal,
+  //  } = useRecommendationsStore() as {
+  //    openShowApproveDetailsModal: () => void;
+  //    closeShowApproveDetailsModal: () => void;
+  //    closeShowPlaceDetailsModal: () => void;
+  //  };
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Removed showAbove and related logic
+  const isDisabled = status === "REJECTED" || status === "APPROVED";
 
-  const handleClick = (tab: number) => {
+  const handleClick = (tab: number, disabled: boolean) => {
+    if (disabled) return;
+
     if (tab === 1) {
       openShowPlaceDetailsModal();
+    } else if (tab === 2) {
+      openShowParentReviewsModal();
+    } else if (tab === 3) {
+      openShowApproveDetailsModal();
+    } else if (tab === 4) {
+      openShowRejectDetailsModal(); // Add this line
     }
-    if (tab === 2) {
-      // Handle parent reviews action here
-      console.log("Parent Reviews action triggered");
-    }
+
     onClose();
-    if (tab === 3) {
-      // Call the approve recommendation function here
-      console.log("Approve Place action triggered");
-    }
-    if (tab === 4) {
-      // Call the reject recommendation function here
-      console.log("Reject Place action triggered");
-    }
-    console.log(tab);
   };
 
   return (
     <div ref={modalRef} className="z-50 w-[290px]">
       <div className="bg-white shadow-2xl rounded-[20px] border border-[#E5E7EF]">
-        {RecommendationActionModalItems.map(({ id, Icon, text }) => (
-          <div
-            key={id}
-            role="button"
-            tabIndex={0}
-            onClick={() => handleClick(id)}
-            className="py-2 hover:bg-[#EAEEF6] cursor-pointer"
-          >
-            <div className="flex items-center pl-5 gap-2.5">
-              <Icon />
-              <h3 className="text-base text-[#303237] font-normal">{text}</h3>
-            </div>
-          </div>
-        ))}
+        {RecommendationActionModalItems.map(({ id, Icon, text }) => {
+          const disabled = isDisabled && (id === 3 || id === 4);
+
+          return (
+            <button
+              key={id}
+              onClick={() => handleClick(id, disabled)}
+              disabled={disabled}
+              className={`w-full flex items-center gap-2.5 px-5 py-3 text-left transition rounded-none border-t border-gray-100
+                ${
+                  disabled
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-[#EAEEF6]"
+                }
+              `}
+            >
+              <Icon className="shrink-0" />
+              <span className="text-base text-[#303237] font-normal">
+                {text}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

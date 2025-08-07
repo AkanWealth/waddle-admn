@@ -19,6 +19,8 @@ import ApprovePlaceModal from "@/app/component/Recommendations/ApprovePlaceModal
 import formatCustomDate from "@/lib/formatDate";
 import SVGAssets from "@/assets/svg";
 import Image from "next/image";
+import RejectPlaceModal from "@/app/component/Recommendations/RejectPlaceModal";
+import ParentReviewsModal from "@/app/component/Recommendations/ParentReviewsModal";
 
 interface Recommendation {
   id: string;
@@ -26,6 +28,7 @@ interface Recommendation {
   creator: {
     name: string;
   };
+  createdAt: string;
   date: string;
   address: string;
   category: string;
@@ -37,9 +40,16 @@ interface Recommendation {
 function determineStatus(
   event: Recommendation
 ): "Pending" | "Rejected" | "Approved" {
-  if (event.isDeleted) return "Rejected";
-  if (event.isVerified) return "Approved";
-  return "Pending";
+  console.log(event);
+  if (event == "APPROVED") {
+    return "Approved";
+  }
+  if (event == "REJECTED") {
+    return "Rejected";
+  }
+  if (event == "PENDING") {
+    return "Pending";
+  }
 }
 
 interface SearchFilterProps {
@@ -77,18 +87,18 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
 };
 
 // Status Badge Component
-interface StatusBadgeProps {
-  status: "Pending" | "Rejected" | "Approved";
-}
+// interface StatusBadgeProps {
+//   status: "Pending" | "Rejected" | "Approved";
+// }
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+const StatusBadge = ({ status }: string) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Pending":
+      case "PENDING":
         return <Clock className="w-4 h-4 text-[#272727]" />;
-      case "Rejected":
+      case "REJECTED":
         return <XCircle className="w-4 h-4 text-[#CB1A14]" />;
-      case "Approved":
+      case "APPROVED":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       default:
         return null;
@@ -97,11 +107,11 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case "Pending":
+      case "PENDING":
         return "bg-[#E5E5E5] text-[#272727]";
-      case "Rejected":
+      case "REJECTED":
         return "bg-[#FFDEDE] text-[#CB1A14]";
-      case "Approved":
+      case "APPROVED":
         return "bg-green-50 text-green-700 border border-green-200";
       default:
         return "bg-gray-50 text-gray-700 border border-gray-200";
@@ -155,7 +165,8 @@ const TableRow: React.FC<TableRowProps> = ({
         {recommendation.creator.name}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
-        {formatCustomDate(recommendation.date, "DD-MM-YYYY")}
+        {console.log(recommendation, "This is the date")}
+        {formatCustomDate(recommendation.createdAt, "DD-MM-YYYY")}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
         {recommendation.address}
@@ -164,7 +175,7 @@ const TableRow: React.FC<TableRowProps> = ({
         {recommendation.category}
       </td>
       <td className="py-3 px-4">
-        <StatusBadge status={determineStatus(recommendation)} />
+        <StatusBadge status={recommendation.status} />
       </td>
       <td className="py-3 px-4 relative">
         <button
@@ -328,7 +339,7 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
       <td className="py-3 px-4 text-sm text-gray-600">{event.entryFee}</td>
       <td className="py-3 px-4 text-sm text-gray-600">{event.category}</td>
       <td className="py-3 px-4">
-        <StatusBadge status={event.status} />
+        <StatusBadge status={determineStatus(event.status)} />
       </td>
       <td className="py-3 px-4 relative">
         <button
@@ -353,6 +364,9 @@ const ParentRecommendations: React.FC = () => {
     setSelectedEvent,
     showPlaceDetailsModal,
     showApproveDetailsModal,
+    showRejectDetailsModal,
+    closeShowRejectDetailsModal,
+    showParentReviewsModal,
     selectedPlace,
   } = useRecommendationsStore();
   const [activeTab, setActiveTab] = useState<string>("Places");
@@ -400,7 +414,7 @@ const ParentRecommendations: React.FC = () => {
     setActiveModalId(item.id);
     positionModal(item.id);
   };
-  
+
   const handleActionClickEvent = (
     item: import("@/types/IRecommendations").Event
   ) => {
@@ -412,7 +426,7 @@ const ParentRecommendations: React.FC = () => {
   const handleCloseModal = () => {
     setActiveModalId(null);
   };
-  
+
   // Calculate modal position based on button position
   const positionModal = (id: string) => {
     setTimeout(() => {
@@ -421,54 +435,58 @@ const ParentRecommendations: React.FC = () => {
         const rect = button.getBoundingClientRect();
         const modalHeight = 220; // Approximate height of modal
         const modalWidth = 290; // Width from RecommendationActionModal
-        
+
         // Check if there's enough space below
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceRight = window.innerWidth - rect.left;
-        
+
         let top = rect.bottom + window.scrollY;
         let left = rect.left;
-        
+
         // Position above if not enough space below
         if (spaceBelow < modalHeight) {
           top = rect.top + window.scrollY - modalHeight;
         }
-        
+
         // Adjust horizontal position if needed
         if (spaceRight < modalWidth) {
           left = rect.right - modalWidth;
         }
-        
+
         setModalPosition({ top, left });
       }
     }, 0);
   };
-  
+
   // Handle clicks outside the modal
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // If modal is open and click is outside modal and not on the trigger button
       if (activeModalId) {
-        const modalElement = document.querySelector('.action-modal-container');
-        const clickedButton = document.querySelector(`button[data-id="${activeModalId}"]`);
-        
-        if (modalElement && 
-            !modalElement.contains(event.target as Node) && 
-            clickedButton !== event.target && 
-            !clickedButton?.contains(event.target as Node)) {
+        const modalElement = document.querySelector(".action-modal-container");
+        const clickedButton = document.querySelector(
+          `button[data-id="${activeModalId}"]`
+        );
+
+        if (
+          modalElement &&
+          !modalElement.contains(event.target as Node) &&
+          clickedButton !== event.target &&
+          !clickedButton?.contains(event.target as Node)
+        ) {
           handleCloseModal();
         }
       }
     };
-    
+
     // Add event listener when modal is open
     if (activeModalId) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    
+
     // Clean up event listener
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [activeModalId]); // Re-run effect when activeModalId changes
 
@@ -584,17 +602,28 @@ const ParentRecommendations: React.FC = () => {
         <PlacesDetailsModal selectedPlace={selectedPlace} />
       )}
       {showApproveDetailsModal && <ApprovePlaceModal />}
-      
+
+      {showRejectDetailsModal && (
+        <RejectPlaceModal
+          isOpen={showRejectDetailsModal}
+          onClose={closeShowRejectDetailsModal}
+          // onConfirm={handleRejectPlace}
+        />
+      )}
+      {showParentReviewsModal && <ParentReviewsModal />}
       {/* Centralized Action Modal */}
       {activeModalId && (
-          <div 
+        <div
           className="fixed z-50 action-modal-container"
           style={{
             top: `${modalPosition.top}px`,
             left: `${modalPosition.left}px`,
           }}
         >
-          <RecommendationActionModal onClose={handleCloseModal} />
+          <RecommendationActionModal
+            status={selectedPlace.status}
+            onClose={handleCloseModal}
+          />
         </div>
       )}
     </div>
