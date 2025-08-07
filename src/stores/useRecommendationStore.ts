@@ -50,6 +50,10 @@ interface RecommendationsState {
   openShowPlaceDetailsModal: () => void;
   closeShowPlaceDetailsModal: () => void;
 
+  showEventDetailsModal: boolean;
+  openShowEventDetailsModal: () => void;
+  closeShowEventDetailsModal: () => void;
+
   showApproveDetailsModal: boolean;
   openShowApproveDetailsModal: () => void;
   closeShowApproveDetailsModal: () => void;
@@ -77,6 +81,8 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
   showApproveDetailsModal: false,
   showRejectDetailsModal: false,
   showParentReviewsModal: false,
+
+  showEventDetailsModal: false,
 
   setPlaces: (places) => set({ places }),
   setEvents: (events) => set({ events }),
@@ -126,6 +132,9 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
       ),
     })),
 
+  openShowEventDetailsModal: () => set({ showEventDetailsModal: true }),
+  closeShowEventDetailsModal: () => set({ showEventDetailsModal: false }),
+
   openShowPlaceDetailsModal: () => set({ showPlaceDetailsModal: true }),
   closeShowPlaceDetailsModal: () => set({ showPlaceDetailsModal: false }),
   openShowApproveDetailsModal: () => set({ showApproveDetailsModal: true }),
@@ -157,7 +166,8 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
               submittedBy:
                 event.creator?.name || event.creatorName || "Unknown",
               dateSubmitted: event.date || event.createdAt || "",
-              entryFee: event.fee || event.entryFee || "",
+              //entryFee: event.fee || event.entryFee || "",
+              isFree: event.isFree,
               category: event.category || "",
               status: event.status,
               description: event.description || "",

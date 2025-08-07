@@ -4,15 +4,18 @@ import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import { recommendationService } from "@/utils/recommendationService";
 import { CircleCheck } from "lucide-react";
 
-const ApprovePlaceModal = () => {
+const ApprovePlaceModal = (tab: string) => {
   const {
     closeShowApproveDetailsModal,
     closeShowPlaceDetailsModal,
+    closeShowEventDetailsModal,
     refreshEvents,
     selectedPlace,
+    selectedEvent,
     updatePlaceStatus,
   } = useRecommendationsStore();
   const { showMessage } = useToastContext();
+
   const handleApprovePlace = async () => {
     if (!selectedPlace) return;
     const result = await recommendationService.approveRecommendationPlace(
@@ -33,6 +36,33 @@ const ApprovePlaceModal = () => {
     }
   };
 
+  const handleApproveEvent = async () => {
+    if (!selectedEvent) return;
+    const result = await recommendationService.approveRecommendationPlace(
+      selectedEvent.id
+    );
+    //  updateEventStatus(selectedEvent.id, "Approved");
+    if (result.success) {
+      showMessage(
+        "Event Approved!",
+        "Event approved and published to the app!",
+        "success"
+      );
+      await refreshEvents("Events");
+      closeShowApproveDetailsModal();
+      closeShowEventDetailsModal();
+    } else {
+      console.error("Error approving event:", result.error);
+    }
+  };
+  const handleApprove = () => {
+    if (tab === "place") {
+      handleApprovePlace();
+    } else {
+      handleApproveEvent();
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
@@ -46,12 +76,12 @@ const ApprovePlaceModal = () => {
           </div>
           <div>
             <h3 className="font-semibold text-xl text-[#303237] mb-1">
-              Approve This Place?
+              Approve This {tab === "place" ? "Place" : "Event"}?
             </h3>
             <p className="text-[#565C69] text-[15px]">
-              You&apos;re about to approve this parent-recommended place. Once
-              approved, it will be published to the app and visible under
-              “Parent Recommendations.”
+              You&apos;re about to approve this parent-recommended{" "}
+              {tab === "place" ? "place" : "event"}. Once approved, it will be
+              published to the app and visible under “Parent Recommendations.”
             </p>
           </div>
         </div>
@@ -59,7 +89,7 @@ const ApprovePlaceModal = () => {
         {/* Actions */}
         <div className="flex mt-6 gap-4">
           <button
-            onClick={handleApprovePlace}
+            onClick={handleApprove}
             type="button"
             className="bg-[#2853A6] rounded-xl text-white flex-1 py-2 font-medium"
           >

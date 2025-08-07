@@ -21,6 +21,7 @@ import SVGAssets from "@/assets/svg";
 import Image from "next/image";
 import RejectPlaceModal from "@/app/component/Recommendations/RejectPlaceModal";
 import ParentReviewsModal from "@/app/component/Recommendations/ParentReviewsModal";
+import EventDetailsModal from "@/app/component/Recommendations/EventDetailsModal";
 
 interface Recommendation {
   id: string;
@@ -37,19 +38,18 @@ interface Recommendation {
   isVerified: boolean;
 }
 
-function determineStatus(
-  event: Recommendation
-): "Pending" | "Rejected" | "Approved" {
+function determineStatus(event: string): "Pending" | "Rejected" | "Approved" {
   console.log(event);
-  if (event == "APPROVED") {
+  if (event === "APPROVED") {
     return "Approved";
   }
-  if (event == "REJECTED") {
+  if (event === "REJECTED") {
     return "Rejected";
   }
-  if (event == "PENDING") {
+  if (event === "PENDING") {
     return "Pending";
   }
+  return "Pending"; // Default fallback
 }
 
 interface SearchFilterProps {
@@ -86,19 +86,18 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   );
 };
 
-// Status Badge Component
-// interface StatusBadgeProps {
-//   status: "Pending" | "Rejected" | "Approved";
-// }
-
-const StatusBadge = ({ status }: string) => {
+// Fixed StatusBadge Component with correct TypeScript typing
+const StatusBadge = ({ status }: { status: string }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "PENDING":
+      case "Pending":
         return <Clock className="w-4 h-4 text-[#272727]" />;
       case "REJECTED":
+      case "Rejected":
         return <XCircle className="w-4 h-4 text-[#CB1A14]" />;
       case "APPROVED":
+      case "Approved":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       default:
         return null;
@@ -108,10 +107,13 @@ const StatusBadge = ({ status }: string) => {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "PENDING":
+      case "Pending":
         return "bg-[#E5E5E5] text-[#272727]";
       case "REJECTED":
+      case "Rejected":
         return "bg-[#FFDEDE] text-[#CB1A14]";
       case "APPROVED":
+      case "Approved":
         return "bg-green-50 text-green-700 border border-green-200";
       default:
         return "bg-gray-50 text-gray-700 border border-gray-200";
@@ -183,6 +185,7 @@ const TableRow: React.FC<TableRowProps> = ({
           onClick={() => handleActionClick(recommendation)}
           className="text-gray-400 hover:text-gray-600"
           data-id={recommendation.id}
+          data-type="place"
         >
           <MoreVertical className="w-4 h-4" />
         </button>
@@ -336,7 +339,10 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
       <td className="py-3 px-4 text-sm text-gray-600">
         {formatCustomDate(event.dateSubmitted, "DD-MM-YYYY")}
       </td>
-      <td className="py-3 px-4 text-sm text-gray-600">{event.entryFee}</td>
+      {console.log(event, "This is the event date in our table")}
+      <td className="py-3 px-4 text-sm text-gray-600">
+        {event.isFree ? "Free" : "Paid"}
+      </td>
       <td className="py-3 px-4 text-sm text-gray-600">{event.category}</td>
       <td className="py-3 px-4">
         <StatusBadge status={determineStatus(event.status)} />
@@ -347,6 +353,7 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
           onClick={() => handleActionClick(event)}
           className="text-gray-400 hover:text-gray-600"
           data-id={event.id}
+          data-type="event"
         >
           <MoreVertical className="w-4 h-4" />
         </button>
@@ -363,21 +370,30 @@ const ParentRecommendations: React.FC = () => {
     setSelectedPlace,
     setSelectedEvent,
     showPlaceDetailsModal,
+    showEventDetailsModal,
     showApproveDetailsModal,
     showRejectDetailsModal,
     closeShowRejectDetailsModal,
     showParentReviewsModal,
     selectedPlace,
+    selectedEvent,
   } = useRecommendationsStore();
+
   const [activeTab, setActiveTab] = useState<string>("Places");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
+  const [activeModalType, setActiveModalType] = useState<
+    "place" | "event" | null
+  >(null);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const itemsPerPage = 7;
 
   useEffect(() => {
     refreshEvents(activeTab as "Places" | "Events");
+    // Clear active modal when switching tabs
+    setActiveModalId(null);
+    setActiveModalType(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
@@ -412,6 +428,7 @@ const ParentRecommendations: React.FC = () => {
   const handleActionClickPlace = (item: Recommendation) => {
     setSelectedPlace(item);
     setActiveModalId(item.id);
+    setActiveModalType("place");
     positionModal(item.id);
   };
 
@@ -420,11 +437,13 @@ const ParentRecommendations: React.FC = () => {
   ) => {
     setSelectedEvent(item);
     setActiveModalId(item.id);
+    setActiveModalType("event");
     positionModal(item.id);
   };
 
   const handleCloseModal = () => {
     setActiveModalId(null);
+    setActiveModalType(null);
   };
 
   // Calculate modal position based on button position
@@ -492,6 +511,16 @@ const ParentRecommendations: React.FC = () => {
 
   const handleFilterClick = () => {
     // Handle filter logic here
+  };
+
+  // Get the current status for the modal based on active type
+  const getModalStatus = () => {
+    if (activeModalType === "place" && selectedPlace) {
+      return selectedPlace.status;
+    } else if (activeModalType === "event" && selectedEvent) {
+      return selectedEvent.status;
+    }
+    return null;
   };
 
   return (
@@ -577,7 +606,7 @@ const ParentRecommendations: React.FC = () => {
                         activeModalId={activeModalId}
                         key={item.id}
                         event={item}
-                        onActionClick={handleActionClickEvent}
+                        onActionClick={() => handleActionClickEvent(item)}
                         showModal={activeModalId === item.id}
                         onCloseModal={handleCloseModal}
                       />
@@ -601,18 +630,25 @@ const ParentRecommendations: React.FC = () => {
       {showPlaceDetailsModal && (
         <PlacesDetailsModal selectedPlace={selectedPlace} />
       )}
-      {showApproveDetailsModal && <ApprovePlaceModal />}
+
+      {showEventDetailsModal && (
+        <EventDetailsModal selectedEvent={selectedEvent} />
+      )}
+
+      {showApproveDetailsModal && <ApprovePlaceModal tab={activeModalType} />}
 
       {showRejectDetailsModal && (
         <RejectPlaceModal
+          tab={activeModalType}
           isOpen={showRejectDetailsModal}
           onClose={closeShowRejectDetailsModal}
           // onConfirm={handleRejectPlace}
         />
       )}
       {showParentReviewsModal && <ParentReviewsModal />}
-      {/* Centralized Action Modal */}
-      {activeModalId && (
+
+      {/* Centralized Action Modal - Fixed to use correct status based on active type */}
+      {activeModalId && activeModalType && (
         <div
           className="fixed z-50 action-modal-container"
           style={{
@@ -621,7 +657,8 @@ const ParentRecommendations: React.FC = () => {
           }}
         >
           <RecommendationActionModal
-            status={selectedPlace.status}
+            type={activeModalType}
+            status={getModalStatus()}
             onClose={handleCloseModal}
           />
         </div>
@@ -645,8 +682,8 @@ const NoRecommendations = () => {
         No Parent Recommendations Yet
       </h1>
       <p className="text-gray-500">
-        You haven’t created any events yet. Get started by clicking the “Create
-        Event”
+        You haven&apos;t created any events yet. Get started by clicking the
+        &quot;Create Event&quot;
       </p>
     </div>
   );

@@ -19,6 +19,7 @@ export interface Event {
   name: string;
   submittedBy: string;
   dateSubmitted: string;
+  isFree: boolean;
   entryFee: string;
   category: string;
   status: 'Pending' | 'Approved' | 'Rejected';
