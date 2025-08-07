@@ -250,17 +250,30 @@ const ParentReviewsModal: React.FC = () => {
           </h3>
           <p className="text-sm text-gray-500 flex items-center gap-1 mb-1">
             <span className="bg-gray-100 px-2 py-0.5 rounded-full text-xs">
-              ⏺️ Pending
+              Pending
             </span>
           </p>
-          <h2 className="text-lg font-semibold mb-1 text-[#404040]">
+          <h2 className="text-[20px] font-semibold my-2 text-[#404040]">
             Fun Forest Walk – Highwoods Country Park
           </h2>
-          <p className="text-sm text-gray-700">
-            <span className="font-bold text-green-600 text-lg">92%</span> of
-            parents recommend this place
-          </p>
-          <p className="text-sm text-gray-500">Based on 56 Waddle reviews</p>
+          <div className="flex items-center gap-4">
+            <Image
+              src="/Reward.svg"
+              alt="Fun Forest Walk"
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm text-[#303237] flex items-end gap-1">
+                <span className="font-bold  text-[20px]">92%</span>
+                <span className="">of parents recommend this place</span>
+              </p>
+              <p className="text-sm text-[#565C69] font-normal">
+                Based on 56 Waddle reviews
+              </p>
+            </div>
+          </div>
         </div>
 
         <hr className="my-4" />
@@ -268,10 +281,7 @@ const ParentReviewsModal: React.FC = () => {
         {/* Reviews */}
         <div className="space-y-6">
           {mockReviews.map((review) => (
-            <div
-              key={review.id}
-              className="border rounded-lg p-4 shadow-sm bg-gray-50"
-            >
+            <div key={review.id} className="border rounded-lg p-4 shadow-sm">
               <div className="flex items-center gap-3 mb-2">
                 <Image
                   src={review.avatarUrl}
@@ -281,21 +291,10 @@ const ParentReviewsModal: React.FC = () => {
                   className="rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold">{review.name}</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    {/* <div className="flex">
-                      {Array.from({ length: review.rating }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 fill-yellow-500 text-yellow-500"
-                        />
-                      ))}
-                      {Array.from({ length: 5 - review.rating }).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-gray-300" />
-                      ))}
-                    </div> */}
-                    <span>{review.date}</span>
-                  </div>
+                  <p className="font-semibold text-[#303237]">{review.name}</p>
+                  <p className="text-sm text-[#7E8494] font-normal">
+                    {review.date}
+                  </p>
                 </div>
               </div>
 

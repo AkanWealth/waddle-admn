@@ -56,7 +56,9 @@ const EventApproveDetailsModal = ({
             "bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded w-full",
         },
       };
-    } else if (event.status === "Approved" || event.status === "Active") {
+    } 
+    
+    else if (event.status === "Approved" || event.status === "Active") {
       return {
         suspend: {
           label: "Delete Event",
@@ -75,7 +77,8 @@ const EventApproveDetailsModal = ({
             "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full",
         },
       };
-    } else {
+    } 
+    else {
       return {
         close: {
           label: "Close",
