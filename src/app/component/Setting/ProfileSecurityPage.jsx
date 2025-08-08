@@ -243,6 +243,10 @@ useEffect(() => {
         }
     };
 
+    const handleLogout = () => {
+        authService.logout();
+    };
+
     // Handle save password changes with API integration
     const handleSavePassword = async () => {
         // Clear previous errors
@@ -315,7 +319,7 @@ useEffect(() => {
                     new_password: profileSettings.newPassword
                 })
             });
-
+            showMessage("Password Changed", "Your account password has been successfully changed", "success");
             // If successful, clear password fields and show success
             setInitialSettings(prev => ({
                 ...prev,
@@ -333,10 +337,12 @@ useEffect(() => {
 
             setHasPasswordChanges(false);
             setPasswordSaveSuccess(true);
+            handleLogout(); // Logout after password change
 
             console.log("Password changed successfully");
 
         } catch (error) {
+            showMessage("Error", "Password change failed", "error");
             console.error("Password change failed:", error);
 
             // Handle specific error cases
