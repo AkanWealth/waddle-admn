@@ -6,6 +6,7 @@ import { authService } from "@/utils/authService";
 import { useAuth } from "@/context/AuthContext";
 import UserImageUpload from "./UserImageUpload";
 import { uploadService } from "@/utils/uploadService";
+import { useToastContext } from "@/context/toast";
 
 export default function ProfileSecurityPage({
     profileSettings,
@@ -43,6 +44,7 @@ export default function ProfileSecurityPage({
     // Loading state for initial data fetch
     const [isLoadingUserData, setIsLoadingUserData] = useState(true);
     const [userDataError, setUserDataError] = useState(null);
+    const {showMessage}=useToastContext()
 
     // Fetch user data on component mount
     useEffect(() => {
@@ -203,7 +205,7 @@ useEffect(() => {
             
             setHasProfileChanges(false);
             setProfileSaveSuccess(true);
-
+            showMessage("Profile Update Successfully", "Your changes have been saved", "success");
             // Refresh user data in AuthContext to update the header
             await refreshUserData();
 
@@ -211,6 +213,7 @@ useEffect(() => {
 
         } catch (error) {
             console.error("Profile update failed:", error);
+            showMessage("Error", "Profile update failed", "error");
 
             // Handle specific error cases
             if (error.message.includes('email') || error.message.includes('Email')) {
