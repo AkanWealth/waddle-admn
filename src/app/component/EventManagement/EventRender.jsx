@@ -211,6 +211,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
 
         // Show approval modal for events that can be approved
         if (canApproveEvent(selectedEvent)) {
+            console.log(selectedEvent, "Selected Event for Approval");
             return (
                 <EventDetailsModal
                     {...modalProps}
@@ -221,7 +222,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         }
         
         // Show view/deactivate modal for published/approved events
-        if (isEventPublished(selectedEvent)) {
+        if (isEventPublished(selectedzEvent)) {
             return (
                 <EventApproveDetailsModal
                     {...modalProps}

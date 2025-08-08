@@ -117,6 +117,7 @@ const getEventStatus = (event) => {
     };
 
     // Merge with actual event data if provided
+
     const mergedEvent = event ? {
         title: event.name || 'N/A',
         description: event.description || 'No description available',
@@ -146,6 +147,8 @@ const getEventStatus = (event) => {
         images: [],
         status: 'N/A'
     };
+                        {console.log("Safety Measures", event)}
+
     
     // Ensure images is always an array
     if (mergedEvent.images && typeof mergedEvent.images === 'string') {
