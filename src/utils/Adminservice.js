@@ -72,21 +72,37 @@ class AdminService {
                 };
             }
 
+                    let formattedPermissions = {};
+        if (Array.isArray(adminData.permissions)) {
+            formattedPermissions = adminData.permissions.reduce((acc, perm) => {
+                if (perm.name && perm.actions) {
+                    acc[perm.name] = {
+                        create: !!perm.actions.create,
+                        view: !!perm.actions.view,
+                        manage: !!perm.actions.manage,
+                        delete: !!perm.actions.delete
+                    };
+                }
+                return acc;
+            }, {});
+        }
+
             // Prepare the payload (exclude password for updates unless specifically needed)
-           const payload = {
-            first_name: adminData.firstName,
-            last_name: adminData.lastName,
-            email: adminData.email,
-            role_type: adminData.roleType,
-            permissions: adminData.permissions
+           console.log('Admin Data:', adminData);
+            const payload = {
+            firstName: adminData.first_name, // match backend's expectation
+            lastName: adminData.last_name,
+            emailAddress: adminData.email,
+            role: adminData.role?.toUpperCase(), // ensure uppercase
+            permissions: formattedPermissions
+
         };
 
-        Object.keys(payload).forEach(key => 
-            payload[key] === undefined && delete payload[key]
-        );
-
-            const response = await authService.makeAuthenticatedRequest(`/api/v1/host/${adminId}`, {
-                method: 'PUT', // or PATCH depending on your API
+        // Object.keys(payload).forEach(key => 
+        //     payload[key] === undefined && delete payload[key]
+        // );
+            const response = await authService.makeAuthenticatedRequest(`/api/v1/host/admins/${adminId}/edit`, {
+                method: 'PATCH', // or PATCH depending on your API
                 body: JSON.stringify(payload)
             });
 

@@ -11,26 +11,26 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
 
     const [isRoleOpen, setIsRoleOpen] = useState(false);
 
-  const roles = ["Admin", "Editor"];
+    const roles = ["ADMIN", "EDITOR"];
 
-  const handleSelect = (role) => {
-    handleInputChange("roleType", role);
-    setIsRoleOpen(false);
-  };
+    const handleSelect = (role) => {
+        handleInputChange("role", role);
+        setIsRoleOpen(false);
+    };
     
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
-        roleType: '',
-        permissions: {
-            analytics: { create: false, view: false, manage: false, delete: false },
-            userManagement: { create: false, view: false, manage: false, delete: false },
-            eventManagement: { create: false, view: false, manage: false, delete: false },
-            payment: { create: false, view: false, manage: false, delete: false },
-            bookingManagement: { create: false, view: false, manage: false, delete: false },
-            compliance: { create: false, view: false, manage: false, delete: false }
-        }
+        role: '',
+        permissions: [
+            { module: "analytics", canCreate: false, canView: false, canManage: false, canDelete: false },
+            { module: "userManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+            { module: "eventManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+            { module: "payment", canCreate: false, canView: false, canManage: false, canDelete: false },
+            { module: "bookingManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+            { module: "compliance", canCreate: false, canView: false, canManage: false, canDelete: false }
+        ]
     });
 
     // Reset form when modal opens/closes or mode changes
@@ -40,36 +40,43 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             setSuccess('');
             
             if (mode === 'edit' && editData) {
-                // Populate form with edit data
+                // Handle the fullName field - split it into first_name and last_name
+                const nameParts = editData.fullName ? editData.fullName.split(' ') : [];
+                const firstName = nameParts[0] || '';
+                const lastName = nameParts.slice(1).join(' ') || '';
+                
+                // Use the exact backend structure
                 setFormData({
-                    firstName: editData.firstName || editData.fullName?.split(' ')[0] || '',
-                    lastName: editData.lastName || editData.fullName?.split(' ').slice(1).join(' ') || '',
+                    first_name: editData.first_name || firstName,
+                    last_name: editData.last_name || lastName,
                     email: editData.email || '',
-                    roleType: editData.roleType || editData.adminRole || '',
-                    permissions: editData.permissions || {
-                        analytics: { create: false, view: false, manage: false, delete: false },
-                        userManagement: { create: false, view: false, manage: false, delete: false },
-                        eventManagement: { create: false, view: false, manage: false, delete: false },
-                        payment: { create: false, view: false, manage: false, delete: false },
-                        bookingManagement: { create: false, view: false, manage: false, delete: false },
-                        compliance: { create: false, view: false, manage: false, delete: false }
-                    }
+                    role: editData.adminRole || editData.role || '',
+                    permissions: editData.permissions && editData.permissions.length > 0 
+                        ? editData.permissions 
+                        : [
+                            { module: "analytics", canCreate: false, canView: false, canManage: false, canDelete: false },
+                            { module: "userManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+                            { module: "eventManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+                            { module: "payment", canCreate: false, canView: false, canManage: false, canDelete: false },
+                            { module: "bookingManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+                            { module: "compliance", canCreate: false, canView: false, canManage: false, canDelete: false }
+                        ]
                 });
             } else {
                 // Reset to empty form for create mode
                 setFormData({
-                    firstName: '',
-                    lastName: '',
+                    first_name: '',
+                    last_name: '',
                     email: '',
-                    roleType: '',
-                    permissions: {
-                        analytics: { create: false, view: false, manage: false, delete: false },
-                        userManagement: { create: false, view: false, manage: false, delete: false },
-                        eventManagement: { create: false, view: false, manage: false, delete: false },
-                        payment: { create: false, view: false, manage: false, delete: false },
-                        bookingManagement: { create: false, view: false, manage: false, delete: false },
-                        compliance: { create: false, view: false, manage: false, delete: false }
-                    }
+                    role: '',
+                    permissions: [
+                        { module: "analytics", canCreate: false, canView: false, canManage: false, canDelete: false },
+                        { module: "userManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+                        { module: "eventManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+                        { module: "payment", canCreate: false, canView: false, canManage: false, canDelete: false },
+                        { module: "bookingManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
+                        { module: "compliance", canCreate: false, canView: false, canManage: false, canDelete: false }
+                    ]
                 });
             }
             setActiveTab('profile');
@@ -85,42 +92,46 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
         if (error) setError('');
     };
 
-    const handlePermissionChange = (module, action, checked) => {
+    const handlePermissionChange = (moduleIndex, field, checked) => {
         setFormData(prev => ({
             ...prev,
-            permissions: {
-                ...prev.permissions,
-                [module]: {
-                    ...prev.permissions[module],
-                    [action]: checked
-                }
-            }
+            permissions: prev.permissions.map((permission, index) => 
+                index === moduleIndex 
+                    ? { ...permission, [field]: checked }
+                    : permission
+            )
         }));
     };
 
-    const isAllEnabled = Object.values(formData.permissions).every(module =>
-        Object.values(module).every(Boolean)
+    const isAllEnabled = formData.permissions.every(permission =>
+        permission.canCreate && permission.canView && permission.canManage && permission.canDelete
     );
 
     const handleEnableAll = () => {
         const enable = !isAllEnabled;
-        const newPermissions = { ...formData.permissions };
-        Object.keys(newPermissions).forEach(module => {
-            Object.keys(newPermissions[module]).forEach(action => {
-                newPermissions[module][action] = enable;
-            });
-        });
-        setFormData(prev => ({ ...prev, permissions: newPermissions }));
+        setFormData(prev => ({
+            ...prev,
+            permissions: prev.permissions.map(permission => ({
+                ...permission,
+                canCreate: enable,
+                canView: enable,
+                canManage: enable,
+                canDelete: enable
+            }))
+        }));
     };
 
     const handleResetAll = () => {
-        const newPermissions = { ...formData.permissions };
-        Object.keys(newPermissions).forEach(module => {
-            Object.keys(newPermissions[module]).forEach(action => {
-                newPermissions[module][action] = false;
-            });
-        });
-        setFormData(prev => ({ ...prev, permissions: newPermissions }));
+        setFormData(prev => ({
+            ...prev,
+            permissions: prev.permissions.map(permission => ({
+                ...permission,
+                canCreate: false,
+                canView: false,
+                canManage: false,
+                canDelete: false
+            }))
+        }));
     };
 
     const validateForm = () => {
@@ -129,12 +140,12 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             return false;
         }
         
-        if (!formData.firstName) {
+        if (!formData.first_name) {
             setError('First name is required');
             return false;
         }
         
-        if (!formData.lastName) {
+        if (!formData.last_name) {
             setError('Last name is required');
             return false;
         }
@@ -150,61 +161,53 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
     };
 
     const handleSubmit = async () => {
-    if (activeTab === 'profile') {
-        // Validate profile information
-        if (!validateForm()) {
-            return;
-        }
-        
-        // Always go to permissions tab first, regardless of mode
-        setActiveTab('permissions');
-    } else {
-        // Handle permissions tab submission
-        if (mode === 'edit') {
-            await updateAdminUser();
+        if (activeTab === 'profile') {
+            // Validate profile information
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Always go to permissions tab first, regardless of mode
+            setActiveTab('permissions');
         } else {
-            // Create mode - create the admin user
-            await createAdminUser();
+            // Handle permissions tab submission
+            if (mode === 'edit') {
+                await updateAdminUser();
+            } else {
+                // Create mode - create the admin user
+                await createAdminUser();
+            }
         }
-    }
-};
-
+    };
 
     const createAdminUser = async () => {
-    setLoading(true);
-    setError('');
-    setSuccess('');
+        setLoading(true);
+        setError('');
+        setSuccess('');
 
-    try {
-        const result = await adminService.createAdminUser({
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            roleType: formData.roleType,
-            permissions: formData.permissions
-        });
+        try {
+            const result = await adminService.createAdminUser(formData);
 
-        if (result.success) {
-            setSuccess('Admin user invited successfully! They will receive login credentials via email.');
-            
-            if (onSuccess) {
-                onSuccess(result.data);
+            if (result.success) {
+                setSuccess('Admin user invited successfully! They will receive login credentials via email.');
+                
+                if (onSuccess) {
+                    onSuccess(result.data);
+                }
+
+                setTimeout(() => {
+                    onClose();
+                }, 1500);
+            } else {
+                setError(result.error || 'Failed to create admin user');
             }
-
-            setTimeout(() => {
-                onClose();
-            }, 1500);
-        } else {
-            setError(result.error || 'Failed to create admin user');
+        } catch (error) {
+            setError('An unexpected error occurred. Please try again.');
+            console.error('Error creating admin user:', error);
+        } finally {
+            setLoading(false);
         }
-    } catch (error) {
-        setError('An unexpected error occurred. Please try again.');
-        console.error('Error creating admin user:', error);
-    } finally {
-        setLoading(false);
-    }
-};
-
+    };
 
     const updateAdminUser = async () => {
         setLoading(true);
@@ -212,12 +215,7 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
         setSuccess('');
 
         try {
-            const result = await adminService.updateAdminUser(editData?.id, {
-                email: formData.email,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                permissions: formData.permissions
-            });
+            const result = await adminService.updateAdminUser(editData?.id, formData);
 
             if (result.success) {
                 setSuccess('Admin user updated successfully!');
@@ -249,6 +247,20 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
         }
     };
 
+    // Function to format module names for display
+    const formatModuleName = (moduleName) => {
+        const moduleDisplayNames = {
+            'analytics': 'Analytics',
+            'userManagement': 'User Management',
+            'eventManagement': 'Event Management',
+            'payment': 'Payment',
+            'bookingManagement': 'Booking Management',
+            'compliance': 'Compliance'
+        };
+        
+        return moduleDisplayNames[moduleName] || moduleName.replace(/([A-Z])/g, ' $1').trim();
+    };
+
     // Dynamic content based on mode
     const getModalTitle = () => mode === 'edit' ? 'Edit Admin User' : 'Invite Admin User';
     const getModalDescription = () => mode === 'edit' 
@@ -256,13 +268,12 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
         : 'Fill in the required details to invite a new admin user';
     
     const getSubmitButtonLabel = () => {
-    if (loading) return '';
-    if (activeTab === 'profile') {
-        return 'Next'; // Always show "Next" on profile tab
-    }
-    return mode === 'edit' ? 'Update Admin' : 'Send Invite';
-};
-
+        if (loading) return '';
+        if (activeTab === 'profile') {
+            return 'Next'; // Always show "Next" on profile tab
+        }
+        return mode === 'edit' ? 'Update Admin' : 'Send Invite';
+    };
 
     const actions = {
         cancel: {
@@ -295,19 +306,18 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                 </span>
             </button>
             
-                <button
-                    className={`flex-1 py-1 px-4 text-center font-medium ${activeTab === 'permissions'
-                            ? 'text-[#2853A6] border-b-2 border-blue-600'
-                            : 'text-gray-500 hover:text-gray-700'
-                        }`}
-                    onClick={() => setActiveTab('permissions')}
-                >
-                    <span className="flex items-center justify-center gap-2">
-                        <Cable className='text-gray-500 w-5 h-5' />
-                        Permission Management
-                    </span>
-                </button>
-            
+            <button
+                className={`flex-1 py-1 px-4 text-center font-medium ${activeTab === 'permissions'
+                        ? 'text-[#2853A6] border-b-2 border-blue-600'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                onClick={() => setActiveTab('permissions')}
+            >
+                <span className="flex items-center justify-center gap-2">
+                    <Cable className='text-gray-500 w-5 h-5' />
+                    Permission Management
+                </span>
+            </button>
         </div>
     );
 
@@ -344,8 +354,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                     <input
                         type="text"
                         placeholder="Enter admin's first name"
-                        value={formData.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        value={formData.first_name}
+                        onChange={(e) => handleInputChange('first_name', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         disabled={loading}
                         required
@@ -358,8 +368,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                     <input
                         type="text"
                         placeholder="Enter admin's last name"
-                        value={formData.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        value={formData.last_name}
+                        onChange={(e) => handleInputChange('last_name', e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         disabled={loading}
                         required
@@ -387,30 +397,29 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                     Role <span className="text-red-700">*</span>
                 </label>
                 <div className="relative inline-block w-full">
-      <button
-        type="button"
-        onClick={() => setIsRoleOpen((prev) => !prev)}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-blue-500"
-      >
-        {formData.roleType || "Select role type"}
-      </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsRoleOpen((prev) => !prev)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-blue-500"
+                    >
+                        {formData.role || "Select role type"}
+                    </button>
 
-      {isRoleOpen && (
-        <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-md">
-          {roles.map((role) => (
-            <button
-              key={role}
-              type="button"
-              onClick={() => handleSelect(role)}
-              className="w-full px-4 py-2 text-left hover:bg-blue-100"
-            >
-              {role}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-
+                    {isRoleOpen && (
+                        <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-md">
+                            {roles.map((role) => (
+                                <button
+                                    key={role}
+                                    type="button"
+                                    onClick={() => handleSelect(role)}
+                                    className="w-full px-4 py-2 text-left hover:bg-blue-100"
+                                >
+                                    {role}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="p-4 rounded-lg">
@@ -437,15 +446,13 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                         <label className="text-sm font-semibold text-gray-700">Roles</label>
                         <select 
                             className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
-                            value={formData.roleType}
-                            onChange={(e) => handleInputChange('roleType', e.target.value)}
+                            value={formData.role}
+                            onChange={(e) => handleInputChange('role', e.target.value)}
                             disabled={loading}
                         >
                             <option value="">Select Role</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Event Manager">Event Manager</option>
-                            <option value="Manager">Manager</option>
-                            <option value="User">User</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="EDITOR">EDITOR</option>
                         </select>
                     </div>
                     <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-4">
@@ -488,22 +495,47 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                         </tr>
                     </thead>
                     <tbody className="space-y-2">
-                        {Object.entries(formData.permissions).map(([module, permissions]) => (
-                            <tr key={module} className="border-b border-gray-100">
+                        {formData.permissions.map((permission, index) => (
+                            <tr key={permission.module} className="border-b border-gray-100">
                                 <td className="py-4 px-2 text-base text-gray-500 capitalize">
-                                    {module.replace(/([A-Z])/g, ' $1').trim()}
+                                    {formatModuleName(permission.module)}
                                 </td>
-                                {Object.entries(permissions).map(([action, checked]) => (
-                                    <td key={action} className="py-4 px-2 text-center">
-                                        <input
-                                            type="checkbox"
-                                            checked={checked}
-                                            onChange={(e) => handlePermissionChange(module, action, e.target.checked)}
-                                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                            disabled={loading}
-                                        />
-                                    </td>
-                                ))}
+                                <td className="py-4 px-2 text-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={permission.canCreate}
+                                        onChange={(e) => handlePermissionChange(index, 'canCreate', e.target.checked)}
+                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                        disabled={loading}
+                                    />
+                                </td>
+                                <td className="py-4 px-2 text-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={permission.canView}
+                                        onChange={(e) => handlePermissionChange(index, 'canView', e.target.checked)}
+                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                        disabled={loading}
+                                    />
+                                </td>
+                                <td className="py-4 px-2 text-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={permission.canManage}
+                                        onChange={(e) => handlePermissionChange(index, 'canManage', e.target.checked)}
+                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                        disabled={loading}
+                                    />
+                                </td>
+                                <td className="py-4 px-2 text-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={permission.canDelete}
+                                        onChange={(e) => handlePermissionChange(index, 'canDelete', e.target.checked)}
+                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                        disabled={loading}
+                                    />
+                                </td>
                             </tr>
                         ))}
                     </tbody>

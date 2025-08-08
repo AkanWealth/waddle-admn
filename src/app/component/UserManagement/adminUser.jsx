@@ -94,6 +94,7 @@ export default function AdminUsersTable({
             registrationDate,
             status,
             email_verify: admin.email_verify,
+            permissions: admin.permissions,
             fcmIsOn: admin.fcmIsOn,
             createdAt: admin.createdAt,
             updatedAt: admin.updatedAt,
@@ -127,6 +128,7 @@ export default function AdminUsersTable({
           admin.fullName.toLowerCase().includes(term) ||
           admin.email.toLowerCase().includes(term) ||
           admin.adminRole.toLowerCase().includes(term)
+           
       );
     }
 

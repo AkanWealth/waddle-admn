@@ -222,7 +222,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         }
         
         // Show view/deactivate modal for published/approved events
-        if (isEventPublished(selectedzEvent)) {
+        if (isEventPublished(selectedEvent)) {
             return (
                 <EventApproveDetailsModal
                     {...modalProps}

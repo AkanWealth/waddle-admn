@@ -1,6 +1,8 @@
 // API functions for password reset functionality
 
-const API_BASE_URL = 'http://16.171.113.84/api/v1/auth';
+import { baseUrl } from "@/lib/envfile";
+
+const API_BASE_URL = `${baseUrl}/api/v1/auth`;
 
 /**
  * Send forgot password email
