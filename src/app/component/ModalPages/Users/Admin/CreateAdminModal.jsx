@@ -174,13 +174,14 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             if (mode === 'edit') {
                 await updateAdminUser();
             } else {
-                // Create mode - create the admin user
+                console.log('Creating new admin user with data:', formData);
                 await createAdminUser();
             }
         }
     };
 
     const createAdminUser = async () => {
+        console.log('Creating admin user with data in create user:', formData);
         setLoading(true);
         setError('');
         setSuccess('');
@@ -255,7 +256,7 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             'eventManagement': 'Event Management',
             'payment': 'Payment',
             'bookingManagement': 'Booking Management',
-            'compliance': 'Compliance'
+            'compliance': 'Dispute'
         };
         
         return moduleDisplayNames[moduleName] || moduleName.replace(/([A-Z])/g, ' $1').trim();

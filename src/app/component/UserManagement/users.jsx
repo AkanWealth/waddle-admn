@@ -106,6 +106,7 @@ export default function UserManagement() {
     console.log('Admin user created/updated successfully:', userData);
     showMessage("Success", "Admin user created/updated successfully", "success");
     setIsCreateAdminModalOpen(false);
+    setRefreshKey(prev => prev + 1);
 
     
 };
@@ -362,6 +363,7 @@ export default function UserManagement() {
                 isOpen={isCreateAdminModalOpen}
                 onClose={() => setIsCreateAdminModalOpen(false)}
                 onSuccess={handleAdminUserSuccess}
+
                  />
                  {showDeletedUsers && (
                     <DeletedUsers

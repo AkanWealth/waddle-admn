@@ -15,23 +15,39 @@ class AdminService {
      * @returns {Promise<Object>} Response object with success status and data
      */
     async createAdminUser(adminData) {
+         
         try {
             // Validate required fields
-            if (!adminData.email || !adminData.firstName || !adminData.lastName) {
+            if (!adminData.email || !adminData.first_name || !adminData.last_name) {
                 return {
                     success: false,
                     error: 'Email, first name, and last name are required fields'
                 };
             }
 
+            let formattedPermissions = {};
+        if (Array.isArray(adminData.permissions)) {
+            formattedPermissions = adminData.permissions.reduce((acc, perm) => {
+                if (perm.name && perm.actions) {
+                    acc[perm.name] = {
+                        create: !!perm.actions.create,
+                        view: !!perm.actions.view,
+                        manage: !!perm.actions.manage,
+                        delete: !!perm.actions.delete
+                    };
+                }
+                return acc;
+            }, {});
+        }
+
             // Prepare the payload with hardcoded password
-            const payload = {
+        const payload = {
             email: adminData.email,
             password: this.HARDCODED_PASSWORD,
-            first_name: adminData.firstName,
-            last_name: adminData.lastName,
-            role_type: adminData.roleType,
-            permissions: adminData.permissions
+            first_name: adminData.first_name,
+            last_name: adminData.last_name,
+            role_type: adminData.role,
+            permissions: formattedPermissions
         };
 
 
