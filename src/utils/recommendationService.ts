@@ -90,6 +90,45 @@ class RecommendationService {
       };
     }
   }
+
+  async getAllRecommendationsPlacesByPage(
+    crowdSourcedId: string,
+    page: number
+  ) {
+    try {
+      //localhost:3030/api/v1/crowd-sourcing/review/{id}/paginated
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/review/${crowdSourcedId}/paginated?page=${page}`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
+      };
+    }
+  }
+  async getAllRecommendationsPlacesStats(crowdSourcedId: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/${crowdSourcedId}/attendance/stats`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
+      };
+    }
+  }
 }
 
 export const recommendationService = new RecommendationService();

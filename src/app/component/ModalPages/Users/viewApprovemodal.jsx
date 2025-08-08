@@ -238,6 +238,8 @@ useEffect(() => {
             {vendor.name || "Mary White"}
           </p>
 
+          
+
           <p className="text-gray-700 mb-6">
             {vendor.description || "Designed to teach and train family..."}
           </p>

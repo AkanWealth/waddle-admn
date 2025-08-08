@@ -638,9 +638,11 @@ const VendorDetailsModal = ({
             
             {/* Contact Name */}
             <div className="mb-6">
-              <p className="text-gray-600">{vendorData.contactName}</p>
+              <p className="text-gray-600">{vendorData.business_name}</p>
+
               <p className="mt-2 text-gray-700">{vendorData.description || "Random description"}</p>
             </div>
+
             
             {/* <hr className="border-gray-200 mb-6" /> */}
             
@@ -781,7 +783,7 @@ const VendorDetailsModal = ({
           
           {/* Vendor Name and Status */}
           <div className="flex bg- items-center justify-between">
-            <h3 className="text-lg font-medium">{vendorData.name || "Hello"}</h3>
+            <h3 className="text-lg text-[#303237] font-semibold">{vendorData.business_name || "Hello"}</h3>
             {vendorData.status === "Pending" ||"PENDING" && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                 <span className="mr-1.5">•</span> Pending
@@ -789,15 +791,18 @@ const VendorDetailsModal = ({
             )}
           </div>
 
+            <p className="text-[#7E8494] font-semibold">{vendorData.name}</p>
+
           {/* <hr className="border-gray-300 mb-6" /> */}
                     {/* <hr className="border-gray-300 mb-6" /> */}
 
           {/* Contact Name */}
           <div>
-            <p className="text-gray-600">{vendorData.contactName}</p>
             <p className="mt-2 text-gray-700">{vendorData.description || "Random description"}</p>
           </div>
           
+                        {console.log(vendorData, "This is the vendor data")}
+
           {/* Contact Details */}
           <div>
             <h4 className="text-gray-700 mb-3">Contact Details</h4>
