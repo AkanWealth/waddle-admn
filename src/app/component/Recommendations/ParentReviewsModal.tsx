@@ -349,7 +349,7 @@ const ParentReviewsModal: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && totalPages > 0 && (
+        {!loading && totalPages >= 1 && reviews.length > 0 && (
           <div className="mt-6">
             <Pagination
               currentPage={page}
