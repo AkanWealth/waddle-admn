@@ -439,7 +439,7 @@ const removeSafetyMeasure = (index) => {
     }
 
     if (result.success) {
-      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been created successfully.'}`,"success");
+      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`,"success");
 
       onSave && onSave(eventData);
       onClose();
@@ -461,7 +461,7 @@ const removeSafetyMeasure = (index) => {
     const result = await eventService.draftEventAsAdmin(backendData);
 
     if (result.success) {
-      showMessage("Draft saved successfully", "Your draft has been saved successfully.","success");
+      showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.","success");
       console.log("Save as draft:", eventData);
       onSave && onSave({ ...eventData, status: "draft" });
       onClose();
