@@ -157,29 +157,34 @@ const getEventStatus = (event) => {
         mergedEvent.images = [];
     }
 
-    const modalActions = {
+    const modalActions =
+  event.status === "DRAFT"
+    ? {
         edit: {
-            label: "Edit Event",
-            onClick: () => {
-
-                        setEventToEdit(event); // Set the event to edit
-                        setEditModalOpen(true);
-                        // onClose(); // Open the edit modal
-                    },
-            className: "text-blue-600 border border-blue-600 px-12 py-1 rounded-lg hover:bg-blue-50"
+          label: "Edit Event",
+          onClick: () => {
+            setEventToEdit(event); // Set the event to edit
+            setEditModalOpen(true); // Open the edit modal
+          },
+          className:
+            "text-blue-600 border border-blue-600 px-12 py-1 rounded-lg hover:bg-blue-50",
         },
+      }
+    : {
         reject: {
-            label: "Reject",
-            onClick: handleRejectClick,
-            className: "bg-white text-red-600 border border-red-600 px-12 py-1 rounded-lg hover:bg-red-50"
+          label: "Reject",
+          onClick: handleRejectClick,
+          className:
+            "bg-white text-red-600 border border-red-600 px-12 py-1 rounded-lg hover:bg-red-50",
         },
         approve: {
-            label: "Approve",
-            onClick: handleApproveClick,
-            className: "bg-blue-600 text-white px-12 py-1 rounded-lg hover:bg-blue-700"
-        }
+          label: "Approve",
+          onClick: handleApproveClick,
+          className:
+            "bg-blue-600 text-white px-12 py-1 rounded-lg hover:bg-blue-700",
+        },
+      };
 
-    };
 
     // Render icon based on detail type
     const renderIcon = (iconType) => {
