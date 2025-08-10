@@ -4,8 +4,10 @@ import { Calendar, Clock, Upload, ChevronDown, X } from "lucide-react";
 import { eventService } from "@/utils/eventService";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
+import { useMessageContext } from "@/context/toast";
 
 const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
+ const { showMessage } = useMessageContext();
   const [eventData, setEventData] = useState({
     name: "",
     date: "",
@@ -150,14 +152,14 @@ const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventDa
   const [eventType, setEventType] = useState('Outdoor');
 
   const categories = [
-    { value: "camping", label: "Camping", emoji: "🏕️" },
-    { value: "games", label: "Games", emoji: "🎮" },
-    { value: "arts", label: "Arts", emoji: "🎨" },
-    { value: "cooking", label: "Cooking", emoji: "👨‍🍳" },
-    { value: "dance", label: "Dance", emoji: "💃" },
-    { value: "concerts", label: "Concerts", emoji: "🎤" },
-    { value: "sports", label: "Sports", emoji: "⚽" },
-  ];
+  { value: "indoors", label: "Indoors", emoji: "⛱️" },
+  { value: "outdoors", label: "Outdoors", emoji: "🏠" },
+  { value: "classes", label: "Classes", emoji: "🧍‍♂️" },
+  { value: "playground", label: "Playground", emoji: "🛝" },
+  { value: "food-cafe", label: "Food & Café", emoji: "🥤" },
+  { value: "days-out", label: "Days Out", emoji: "🌞" },
+];
+
 
   const timeSlots = [
     "08:00AM",
@@ -395,7 +397,7 @@ const removeSafetyMeasure = (index) => {
       address: frontendData.location.trim(),
       price,
       total_ticket,
-      date: frontendData.date,
+      date: frontendData.date || new Date().toISOString().split("T")[0],
       time: convertTime12to24(frontendData.time),
       age_range: ageRangeString,
       instructions,
@@ -404,7 +406,7 @@ const removeSafetyMeasure = (index) => {
       distance: 10,
       facilities: frontendData.facilities || [],
       tags: frontendData.tags || [],
-      eventType: frontendData.eventType || "INDOOR"
+      eventType: (frontendData.eventType || "INDOOR").toUpperCase()
     };
   }
 
@@ -437,6 +439,8 @@ const removeSafetyMeasure = (index) => {
     }
 
     if (result.success) {
+      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been created successfully.'}`,"success");
+
       onSave && onSave(eventData);
       onClose();
     } else {
@@ -445,10 +449,25 @@ const removeSafetyMeasure = (index) => {
     console.log(result);
   };
 
-  const saveAsDraft = () => {
-    console.log("Save as draft:", eventData);
-    onSave && onSave({ ...eventData, status: "draft" });
-    onClose();
+  const saveAsDraft = async () => {
+    const completeEventData = {
+      ...eventData,
+      fee: eventFee,
+      ticketNumber: ticketNumber,
+      capacity: capacity,
+      eventType: eventType
+    };
+    const backendData = transformFrontendToBackend(completeEventData);
+    const result = await eventService.draftEventAsAdmin(backendData);
+
+    if (result.success) {
+      showMessage("Draft saved successfully", "Your draft has been saved successfully.","success");
+      console.log("Save as draft:", eventData);
+      onSave && onSave({ ...eventData, status: "draft" });
+      onClose();
+    } else {
+      console.error("Error saving draft:", result.error);
+    }
   };
 
   const selectedCategory = categories.find(
@@ -898,11 +917,7 @@ const removeSafetyMeasure = (index) => {
                 disabled={isEditMode}
               />
             </div>
-            {!isEditMode && (
-              <p className="text-xs text-gray-500 mt-1">
-                Press Enter or Space to add a measure
-              </p>
-            )}
+
           </div>
 
         </div>
