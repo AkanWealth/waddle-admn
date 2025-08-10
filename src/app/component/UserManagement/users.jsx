@@ -211,7 +211,7 @@ export default function UserManagement() {
 
                         {/* Search and Filter */}
                         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-                            <div className="relative w-full md:w-64">
+                            <div className="relative text-black w-full md:w-64">
                                 <input
                                     type="text"
                                     placeholder={`Search for ${activeTab.toLowerCase()}...`}

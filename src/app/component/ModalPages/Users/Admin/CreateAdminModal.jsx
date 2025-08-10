@@ -31,7 +31,9 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             { module: "eventManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
             { module: "payment", canCreate: false, canView: false, canManage: false, canDelete: false },
             { module: "bookingManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
-            { module: "compliance", canCreate: false, canView: false, canManage: false, canDelete: false }
+            { module: "recommendations", canCreate: false, canView: false, canManage: false, canDelete: false },
+            { module: "dispute", canCreate: false, canView: false, canManage: false, canDelete: false },
+        
         ]
     });
 
@@ -61,7 +63,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                             { module: "eventManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
                             { module: "payment", canCreate: false, canView: false, canManage: false, canDelete: false },
                             { module: "bookingManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
-                            { module: "compliance", canCreate: false, canView: false, canManage: false, canDelete: false }
+                            { module: "recommendations", canCreate: false, canView: false, canManage: false, canDelete: false },
+                            { module: "dispute", canCreate: false, canView: false, canManage: false, canDelete: false }
                         ]
                 });
             } else {
@@ -77,7 +80,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                         { module: "eventManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
                         { module: "payment", canCreate: false, canView: false, canManage: false, canDelete: false },
                         { module: "bookingManagement", canCreate: false, canView: false, canManage: false, canDelete: false },
-                        { module: "compliance", canCreate: false, canView: false, canManage: false, canDelete: false }
+                        { module: "recommendations", canCreate: false, canView: false, canManage: false, canDelete: false },
+                        { module: "dispute", canCreate: false, canView: false, canManage: false, canDelete: false }
                     ]
                 });
             }
@@ -261,7 +265,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             'eventManagement': 'Event Management',
             'payment': 'Payment',
             'bookingManagement': 'Booking Management',
-            'compliance': 'Dispute'
+            "recommendations":"Recommendations",
+            'dispute': 'Dispute'
         };
         
         return moduleDisplayNames[moduleName] || moduleName.replace(/([A-Z])/g, ' $1').trim();
