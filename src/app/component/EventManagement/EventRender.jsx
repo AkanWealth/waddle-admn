@@ -361,7 +361,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                                         {console.log(event, "This is the event we have")}
                                             <td className="py-4 px-4">{event.name || 'N/A'}</td>
                                             <td className="py-4 px-4">{event?.organiser?.name || 'Waddle'}</td>
-                                            <td className="py-4 px-4">{formatDate(event.date)}</td>
+                                            <td className="py-4 px-4">{formatDate(event.createdAt)}</td>
                                             <td className="py-4 px-4">{event.address || 'N/A'}</td>
                                             <td className="py-4 px-4"><StatusBadge status={eventStatus} /></td>
                                             <td className="py-4 px-4">
