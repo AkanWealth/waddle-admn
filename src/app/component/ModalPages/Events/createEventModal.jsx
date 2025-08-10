@@ -917,7 +917,9 @@ const removeSafetyMeasure = (index) => {
                 disabled={isEditMode}
               />
             </div>
-
+            <p className="text-sm text-gray-800 mt-2">
+              Press <span className="font-semibold">Enter</span> to add safety measures
+            </p>
           </div>
 
         </div>
