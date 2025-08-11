@@ -5,6 +5,7 @@ import { eventService } from "@/utils/eventService";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useMessageContext } from "@/context/toast";
+import {uploadService} from "@/utils/uploadService"; // Adjust path as needed
 
 const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
  const { showMessage } = useMessageContext();
@@ -427,10 +428,35 @@ const removeSafetyMeasure = (index) => {
       capacity: capacity,
       eventType: eventType
     };
-
+  
+    let uploadedImageUrls = [];
+    
+    // Upload images if there are any new File objects (not in edit mode)
+    if (!isEditMode && completeEventData.images && completeEventData.images.length > 0) {
+      // Filter out any existing URLs and only upload new File objects
+      const filesToUpload = completeEventData.images.filter(file => file instanceof File);
+      
+      if (filesToUpload.length > 0) {
+        showMessage("Uploading images...", "Please wait while we upload your images.", "info");
+        
+        const uploadResult = await uploadService.uploadImages("events", filesToUpload);
+        
+        if (!uploadResult.success) {
+          showMessage("Upload failed", "Failed to upload images. Please try again.", "error");
+          return;
+        }
+        
+        uploadedImageUrls = uploadResult.data || [];
+      }
+      
+      // Combine existing URLs (if any) with newly uploaded URLs
+      const existingUrls = completeEventData.images.filter(file => typeof file === 'string');
+      completeEventData.images = [...existingUrls, ...uploadedImageUrls];
+    }
+  
     const backendData = transformFrontendToBackend(completeEventData);
     console.log("Sending to backend:", backendData);
-
+  
     let result;
     if (isEditMode && initialEventData) {
       // Add event ID for update
@@ -438,18 +464,19 @@ const removeSafetyMeasure = (index) => {
     } else {
       result = await eventService.createEventAsAdmin(backendData);
     }
-
+  
     if (result.success) {
-      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`,"success");
-
+      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`, "success");
+  
       onSave && onSave(eventData);
       onClose();
     } else {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
+      showMessage("Save failed", `Failed to ${isEditMode ? 'update' : 'create'} event. Please try again.`, "error");
     }
-    console.log(result);
   };
-
+  
+  // Also update the saveAsDraft function:
   const saveAsDraft = async () => {
     const completeEventData = {
       ...eventData,
@@ -458,18 +485,96 @@ const removeSafetyMeasure = (index) => {
       capacity: capacity,
       eventType: eventType
     };
+  
+    let uploadedImageUrls = [];
+    
+    // Upload images if there are any new File objects
+    if (completeEventData.images && completeEventData.images.length > 0) {
+      const filesToUpload = completeEventData.images.filter(file => file instanceof File);
+      
+      if (filesToUpload.length > 0) {
+        showMessage("Uploading images...", "Please wait while we upload your images.", "info");
+        
+        const uploadResult = await uploadService.uploadImages("events", filesToUpload);
+        
+        if (!uploadResult.success) {
+          showMessage("Upload failed", "Failed to upload images. Please try again.", "error");
+          return;
+        }
+        
+        uploadedImageUrls = uploadResult.data || [];
+      }
+      
+      // Combine existing URLs (if any) with newly uploaded URLs
+      const existingUrls = completeEventData.images.filter(file => typeof file === 'string');
+      completeEventData.images = [...existingUrls, ...uploadedImageUrls];
+    }
+  
     const backendData = transformFrontendToBackend(completeEventData);
     const result = await eventService.draftEventAsAdmin(backendData);
-
+  
     if (result.success) {
-      showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.","success");
+      showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.", "success");
       console.log("Save as draft:", eventData);
       onSave && onSave({ ...eventData, status: "draft" });
       onClose();
     } else {
       console.error("Error saving draft:", result.error);
+      showMessage("Draft save failed", "Failed to save draft. Please try again.", "error");
     }
   };
+
+  // const handleSubmit = async () => {
+  //   const completeEventData = {
+  //     ...eventData,
+  //     fee: eventFee,
+  //     ticketNumber: ticketNumber,
+  //     capacity: capacity,
+  //     eventType: eventType
+  //   };
+
+  //   const backendData = transformFrontendToBackend(completeEventData);
+  //   console.log("Sending to backend:", backendData);
+
+  //   let result;
+  //   if (isEditMode && initialEventData) {
+  //     // Add event ID for update
+  //     result = await eventService.updateEvent(initialEventData.id, backendData);
+  //   } else {
+  //     result = await eventService.createEventAsAdmin(backendData);
+  //   }
+
+  //   if (result.success) {
+  //     showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`,"success");
+
+  //     onSave && onSave(eventData);
+  //     onClose();
+  //   } else {
+  //     console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
+  //   }
+  //   console.log(result);
+  // };
+
+  // const saveAsDraft = async () => {
+  //   const completeEventData = {
+  //     ...eventData,
+  //     fee: eventFee,
+  //     ticketNumber: ticketNumber,
+  //     capacity: capacity,
+  //     eventType: eventType
+  //   };
+  //   const backendData = transformFrontendToBackend(completeEventData);
+  //   const result = await eventService.draftEventAsAdmin(backendData);
+
+  //   if (result.success) {
+  //     showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.","success");
+  //     console.log("Save as draft:", eventData);
+  //     onSave && onSave({ ...eventData, status: "draft" });
+  //     onClose();
+  //   } else {
+  //     console.error("Error saving draft:", result.error);
+  //   }
+  // };
 
   const selectedCategory = categories.find(
     (cat) => cat.value === eventData.category

@@ -76,3 +76,34 @@ export const resetPassword = async (token, password) => {
     };
   }
 };
+
+export const verifyAdminEmail = async (token, password) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/verification/host/${token}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': '*/*',
+      },
+      body: JSON.stringify({ token, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to reset password');
+    }
+
+    return {
+      success: true,
+      data,
+      message: data.message || 'Password reset successfully'
+    };
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return {
+      success: false,
+      error: error.message || 'Network error occurred'
+    };
+  }
+};

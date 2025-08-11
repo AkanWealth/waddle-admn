@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Check } from 'lucide-react';
 import { ToastContext, useToastContext } from "@/context/toast";
 // import { toast } from 'react-toastify';
-import { resetPassword } from '@/utils/passwordresetApi';
+import { verifyAdminEmail } from '@/utils/passwordresetApi';
 
 export default function PasswordSetupForm() {
 

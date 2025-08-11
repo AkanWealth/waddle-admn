@@ -197,9 +197,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
 
             if (result.success) {
                 setSuccess('Admin user invited successfully! They will receive login credentials via email.');
-                
+                showMessage("Admin user invited", "The new admin user has been created and will receive an email with their invitation details.", "success");
                 if (onSuccess) {
-                    showMessage("Admin user invited", "The new admin user has been created and will receive an email with their invitation details.", "success");
                     onSuccess(result.data);
                 }
 
