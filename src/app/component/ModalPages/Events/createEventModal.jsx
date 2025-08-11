@@ -50,7 +50,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventDa
         ticketNumber: initialEventData.ticketNumber || initialEventData.total_ticket || "",
         ageRange: initialEventData.ageRange || { min: 0, max: 18 },
         frequency: initialEventData.frequency || "",
-        images: initialEventData.images || [],
+        images: initialEventData.files || [],
         facilities: initialEventData.facilities || [],
         tags: initialEventData.tags || [],
         eventType: initialEventData.eventType || "Outdoor",
@@ -406,7 +406,8 @@ const removeSafetyMeasure = (index) => {
       distance: 10,
       facilities: frontendData.facilities || [],
       tags: frontendData.tags || [],
-      eventType: (frontendData.eventType || "INDOOR").toUpperCase()
+      eventType: (frontendData.eventType || "INDOOR").toUpperCase(),
+      files: frontendData.images
     };
   }
 
@@ -979,7 +980,7 @@ const removeSafetyMeasure = (index) => {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
-              {eventData.images.length === 0 ? (
+              {eventData?.images?.length === 0 ? (
                 <div>
                   <div className="flex justify-center mb-2">
                     <Upload className="h-8 w-8 text-gray-400" />
@@ -1003,7 +1004,8 @@ const removeSafetyMeasure = (index) => {
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
-                    {eventData.images.map((file, index) => (
+                    {console.log(eventData, "This is the event in edit event")}
+                    {eventData?.images?.map((file, index) => (
                       <div key={index} className="relative group">
                         <img
                           src={typeof file === 'string' ? file : URL.createObjectURL(file)}

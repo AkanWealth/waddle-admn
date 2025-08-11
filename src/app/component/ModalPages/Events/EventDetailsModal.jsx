@@ -7,6 +7,7 @@ import { Clock, CalendarDaysIcon, MapPin,User, BadgeDollarSign, Phone, Mail } fr
 import ApproveEventModal from './approveEventModal';
 import RejectEventModal from './RejectEventModal';
 import EventCreationModal from "./createEventModal";
+import Image from 'next/image';
 const EventDetailsModal = ({
     event,
     isOpen,
@@ -121,7 +122,7 @@ const getEventStatus = (event) => {
     const mergedEvent = event ? {
         title: event.name || 'N/A',
         description: event.description || 'No description available',
-        safetyMeasures: event.instruction ? [event.instruction] : [],
+        safetyMeasures: event.instructions ? event.instructions : [],
         details: [
             { label: "Date", value: formatDate(event.date), icon: "calendar" },
             { label: "Time", value: formatTime(event.time), icon: "clock" },
@@ -130,7 +131,7 @@ const getEventStatus = (event) => {
             { label: "Price", value: `£${event.price || '0'}/person`, icon: "money" }
         ],
         organizer: getOrganizerInfo(event),
-        images: event.images ? (typeof event.images === 'string' ? [{ name: "Event Image", size: "Unknown", url: event.images }] : []) : [],
+        images: event.files || [],
         status: getEventStatus(event)
     } : {
         title: 'N/A',
@@ -147,7 +148,6 @@ const getEventStatus = (event) => {
         images: [],
         status: 'N/A'
     };
-                        {console.log("Safety Measures", event)}
 
     
     // Ensure images is always an array
@@ -240,12 +240,18 @@ const getEventStatus = (event) => {
                 {/* Safety Measures */}
                 <section>
                     <h3 className="text-lg font-medium mb-2 text-black">Safety Measures</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {mergedEvent.safetyMeasures.map((measure, index) => (
-                            <div key={index} className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full">
-                                {measure}
-                            </div>
-                        ))}
+                    <div className="flex  gap-3">
+                        {
+                            mergedEvent.safetyMeasures.length > 0 ? (
+                                mergedEvent.safetyMeasures.map((measure, index) => (
+                                    <div key={index} className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full">
+                                        {console.log(measure, "This is the measure")}
+                                        {measure}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-gray-500">No safety measures listed.</div>
+                            )}
                     </div>
                 </section>
                 <hr className="border-gray-300 mb-6" />
@@ -309,11 +315,14 @@ const getEventStatus = (event) => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {mergedEvent?.images.map((image, index) => (
                             <div key={index} className="bg-gray-50 p-2 rounded">
-                                <img
-                                    src={image.url}
-                                    alt={image.name}
+                                <Image
+                                    width={64}
+                                    height={64}
+                                    unoptimized
+                                    src={image}
+                                    alt={image}
                                     className="bg-gray-200 h-16 w-full object-cover mb-2 rounded" />
-                                <p className="text-sm truncate">{image.name}</p>
+                                <p className="text-sm truncate">{image.split('/').pop()}</p>
                                 <p className="text-xs text-gray-500">{image.size}</p>
                             </div>
                         ))}
