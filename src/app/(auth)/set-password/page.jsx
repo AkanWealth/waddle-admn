@@ -48,7 +48,7 @@ export default function PasswordSetupForm() {
     setIsLoading(true);
 
     try {
-      const result = await resetPassword(token, password);
+      const result = await verifyAdminEmail(token, password);
 
       if (result.success) {
         showMessage("Password changed successfully", "Your password has been changed successfully", "success");
