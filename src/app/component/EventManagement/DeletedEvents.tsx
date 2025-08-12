@@ -271,7 +271,7 @@ const DeletedEvents = ({
             <section className="flex flex-col items-center justify-center py-10 h-full">
               <Image
                 src="/emptyFrame.png"
-                alt="No deleted users"
+                alt="No deleted events"
                 width={100}
                 height={100}
               />

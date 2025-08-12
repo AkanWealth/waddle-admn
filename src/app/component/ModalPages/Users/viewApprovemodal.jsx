@@ -136,14 +136,14 @@ useEffect(() => {
             className:
               "bg-[#2853A6] rounded-[12px] hover:bg-green-700 text-white " + commonBtnStyle,
           },
-          reject: {
-            label: "Send Re-engagement Email",
-            onClick: () => {
-              onReject(vendor.id);
-              onClose();
-            },
-            className: "border rounded-[12px] border-[#2853A6] text-[#2853A6] " + commonBtnStyle,
-          },
+          // reject: {
+          //   label: "Send Re-engagement Email",
+          //   onClick: () => {
+          //     onReject(vendor.id);
+          //     onClose();
+          //   },
+          //   className: "border rounded-[12px] border-[#2853A6] text-[#2853A6] " + commonBtnStyle,
+          // },
         };
       case "APPROVED":
       case "Approved":

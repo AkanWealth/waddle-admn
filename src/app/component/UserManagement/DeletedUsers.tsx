@@ -150,7 +150,7 @@ const DeletedUsers = ({
                 <Trash2 className="w-5 h-5 text-[#CC0000]" />
               </div>
               <h3 className="text-[#303237] text-xl font-semibold">
-                Deleted Users{" "}
+                Deleted Accounts{" "}
                 <span className="text-red-500">
                   ({deletedUsersList.length})
                 </span>
