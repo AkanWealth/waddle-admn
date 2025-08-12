@@ -73,6 +73,32 @@ class EventService {
     }
   }
 
+  async updateEvent(eventId: string, eventData: Record<string, unknown>): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      const endpoint = `/api/v1/events/host/${eventId}`;
+
+      const response = await authService.makeAuthenticatedRequest(endpoint, {
+        method: "PATCH",
+
+        body: JSON.stringify(eventData),
+      });
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while creating the event",
+      };
+    }
+  }
+
   async getPaginatedEvents(): Promise<{
     success: boolean;
     data?: unknown;

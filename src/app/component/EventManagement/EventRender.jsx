@@ -198,16 +198,42 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         closeModal();
     };
 
+        const handleEventUpdated = (updatedEvent) => {
+        // Update local paginated events state
+        setPaginatedevents(prevEvents =>
+            prevEvents.map(event =>
+                event.id === updatedEvent.id ? { ...event, ...updatedEvent } : event
+            )
+        );
+        
+        // Update selected event if it matches
+        if (selectedEvent && selectedEvent.id === updatedEvent.id) {
+            setSelectedEvent({ ...selectedEvent, ...updatedEvent });
+        }
+        
+        // Notify parent component to update its data
+        // if (onEventUpdated) {
+        //     onEventUpdated(updatedEvent);
+        // }
+    };
+
     // Updated render modal function to handle different statuses
     const renderModal = () => {
         if (!selectedEvent || !isModalOpen) return null;
 
         const eventStatus = getEventStatus(selectedEvent);
+        // const modalProps = {
+        //     event: selectedEvent,
+        //     isOpen: isModalOpen,
+        //     onClose: closeModal,
+        // };
         const modalProps = {
             event: selectedEvent,
             isOpen: isModalOpen,
             onClose: closeModal,
+            onEventUpdated: handleEventUpdated, // Pass the update handler
         };
+
 
         // Show approval modal for events that can be approved
         if (canApproveEvent(selectedEvent)) {

@@ -1,14 +1,20 @@
+
+
 import React, { useState, useRef, useEffect } from "react";
 import BaseModal from "../../Element/BaseModal";
 import { Calendar, Clock, Upload, ChevronDown, X } from "lucide-react";
 import { eventService } from "@/utils/eventService";
+import { uploadService } from "@/utils/uploadService"; // Add this import
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useMessageContext } from "@/context/toast";
-import {uploadService} from "@/utils/uploadService"; // Adjust path as needed
 
-const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
- const { showMessage } = useMessageContext();
+const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
+  const { showMessage } = useMessageContext();
+  
+  // Add loading state for image uploads
+  const [imageUploading, setImageUploading] = useState(false);
+  
   const [eventData, setEventData] = useState({
     name: "",
     date: "",
@@ -22,7 +28,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventDa
     ticketNumber: "",
     ageRange: { min: 0, max: 18 },
     frequency: "",
-    images: [],
+    images: [], // This will now store URLs instead of File objects
     facilities: [],
     tags: [],
     eventType: "Outdoor",
@@ -153,14 +159,13 @@ const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventDa
   const [eventType, setEventType] = useState('Outdoor');
 
   const categories = [
-  { value: "indoors", label: "Indoors", emoji: "⛱️" },
-  { value: "outdoors", label: "Outdoors", emoji: "🏠" },
-  { value: "classes", label: "Classes", emoji: "🧍‍♂️" },
-  { value: "playground", label: "Playground", emoji: "🛝" },
-  { value: "food-cafe", label: "Food & Café", emoji: "🥤" },
-  { value: "days-out", label: "Days Out", emoji: "🌞" },
-];
-
+    { value: "indoors", label: "Indoors", emoji: "⛱️" },
+    { value: "outdoors", label: "Outdoors", emoji: "🏠" },
+    { value: "classes", label: "Classes", emoji: "🧍‍♂️" },
+    { value: "playground", label: "Playground", emoji: "🛝" },
+    { value: "food-cafe", label: "Food & Café", emoji: "🥤" },
+    { value: "days-out", label: "Days Out", emoji: "🌞" },
+  ];
 
   const timeSlots = [
     "08:00AM",
@@ -206,9 +211,7 @@ const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventDa
   };
 
   const handleLocationFocus = () => {
-    if (!isEditMode) {
-      setShowLocationDropdown(true);
-    }
+    setShowLocationDropdown(true);
   };
 
   const handleLocationSelect = (location) => {
@@ -247,117 +250,142 @@ const EventCreationModal = ({ isOpen, onClose, onSave, eventData: initialEventDa
     }));
   };
 
-  const handleFileSelect = (e) => {
-    if (!isEditMode) {
-      const files = Array.from(e.target.files);
-      setEventData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...files],
-      }));
+  // Updated handleFileSelect to upload images immediately
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setImageUploading(true);
+    
+    try {
+      // Upload images to storage
+      const uploadResult = await uploadService.uploadImages("events", files);
+      
+      if (uploadResult.success && uploadResult.data) {
+        // Add the uploaded image URLs to the existing images
+        setEventData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...uploadResult.data],
+        }));
+        showMessage("Images uploaded", "Images uploaded successfully!", "success");
+      } else {
+        showMessage("Upload failed", uploadResult.message || "Failed to upload images", "error");
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      showMessage("Upload failed", "An error occurred while uploading images", "error");
+    } finally {
+      setImageUploading(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Updated handleDrop to upload images immediately
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    
+    if (imageFiles.length === 0) return;
+
+    setImageUploading(true);
+    
+    try {
+      // Upload images to storage
+      const uploadResult = await uploadService.uploadImages("events", imageFiles);
+      
+      if (uploadResult.success && uploadResult.data) {
+        // Add the uploaded image URLs to the existing images
+        setEventData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...uploadResult.data],
+        }));
+        showMessage("Images uploaded", "Images uploaded successfully!", "success");
+      } else {
+        showMessage("Upload failed", uploadResult.message || "Failed to upload images", "error");
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      showMessage("Upload failed", "An error occurred while uploading images", "error");
+    } finally {
+      setImageUploading(false);
     }
   };
 
   const handleDragOver = (e) => {
-    if (!isEditMode) {
-      e.preventDefault();
-    }
+    e.preventDefault();
   };
 
-  const handleDrop = (e) => {
-    if (!isEditMode) {
-      e.preventDefault();
-      const files = Array.from(e.dataTransfer.files);
-      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-      setEventData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...imageFiles],
-      }));
+  // Updated removeImage to delete from storage
+  const removeImage = async (index) => {
+    const imageUrl = eventData.images[index];
+    
+    try {
+      // Extract filename from URL for deletion
+      const filename = imageUrl.split('/').pop();
+      
+      if (filename) {
+        // Delete from storage
+        const deleteResult = await uploadService.deleteSingleImage("events", filename);
+        
+        if (deleteResult.success) {
+          // Remove from local state
+          setEventData((prev) => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index),
+          }));
+          showMessage("Image removed", "Image deleted successfully", "success");
+        } else {
+          showMessage("Delete failed", deleteResult.message || "Failed to delete image", "error");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      showMessage("Delete failed", "An error occurred while deleting the image", "error");
     }
   };
-
-  const removeImage = (index) => {
-    if (!isEditMode) {
-      setEventData((prev) => ({
-        ...prev,
-        images: prev.images.filter((_, i) => i !== index),
-      }));
-    }
-  };
-
-  // const handleSafetyInputChange = (e) => {
-  //   setCurrentSafetyInput(e.target.value);
-  // };
-
-  // const handleSafetyInputKeyDown = (e) => {
-  //   if (e.key === "Enter") {
-  //     e.preventDefault();
-  //     const trimmedInput = currentSafetyInput.trim();
-  //     if (trimmedInput && !eventData.safetyMeasures.includes(trimmedInput)) {
-  //       setEventData((prev) => ({
-  //         ...prev,
-  //         safetyMeasures: [...prev.safetyMeasures, trimmedInput],
-  //       }));
-  //       setCurrentSafetyInput("");
-  //     }
-  //   } 
-  //   // else if (e.key === "Backspace" && currentSafetyInput === "") {
-  //   //   setEventData((prev) => ({
-  //   //     ...prev,
-  //   //     safetyMeasures: prev.safetyMeasures.slice(0, -1),
-  //   //   }));
-  //   // }
-  // };
-
-  // const removeSafetyMeasure = (index) => {
-  //   if (!isEditMode) {
-  //     setEventData((prev) => ({
-  //       ...prev,
-  //       safetyMeasures: prev.safetyMeasures.filter((_, i) => i !== index),
-  //     }));
-  //   }
-  // };
-
 
   const handleSafetyInputChange = (e) => {
-  setCurrentSafetyInput(e.target.value);
-};
+    setCurrentSafetyInput(e.target.value);
+  };
 
-const handleSafetyInputKeyDown = (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const trimmed = currentSafetyInput.trim();
+  const handleSafetyInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const trimmed = currentSafetyInput.trim();
 
-    // Ignore if empty or duplicate (case-insensitive)
-    if (
-      trimmed &&
-      !eventData.safetyMeasures.some(
-        (m) => m.toLowerCase() === trimmed.toLowerCase()
-      )
-    ) {
-      setEventData((prev) => ({
-        ...prev,
-        safetyMeasures: [...prev.safetyMeasures, trimmed],
-      }));
-      setCurrentSafetyInput("");
+      // Ignore if empty or duplicate (case-insensitive)
+      if (
+        trimmed &&
+        !eventData.safetyMeasures.some(
+          (m) => m.toLowerCase() === trimmed.toLowerCase()
+        )
+      ) {
+        setEventData((prev) => ({
+          ...prev,
+          safetyMeasures: [...prev.safetyMeasures, trimmed],
+        }));
+        setCurrentSafetyInput("");
+      }
+    } else if (e.key === "Backspace" && currentSafetyInput === "") {
+      if (eventData.safetyMeasures.length > 0) {
+        setEventData((prev) => ({
+          ...prev,
+          safetyMeasures: prev.safetyMeasures.slice(0, -1),
+        }));
+      }
     }
-  } else if (e.key === "Backspace" && currentSafetyInput === "") {
-    if (!isEditMode && eventData.safetyMeasures.length > 0) {
-      setEventData((prev) => ({
-        ...prev,
-        safetyMeasures: prev.safetyMeasures.slice(0, -1),
-      }));
-    }
-  }
-};
+  };
 
-const removeSafetyMeasure = (index) => {
-  if (!isEditMode) {
+  const removeSafetyMeasure = (index) => {
     setEventData((prev) => ({
       ...prev,
       safetyMeasures: prev.safetyMeasures.filter((_, i) => i !== index),
     }));
-  }
-};
+  };
 
   function transformFrontendToBackend(frontendData) {
     function convertTime12to24(time12h) {
@@ -408,7 +436,7 @@ const removeSafetyMeasure = (index) => {
       facilities: frontendData.facilities || [],
       tags: frontendData.tags || [],
       eventType: (frontendData.eventType || "INDOOR").toUpperCase(),
-      files: frontendData.images
+      files: frontendData.images // Now contains URLs instead of File objects
     };
   }
 
@@ -428,35 +456,10 @@ const removeSafetyMeasure = (index) => {
       capacity: capacity,
       eventType: eventType
     };
-  
-    let uploadedImageUrls = [];
-    
-    // Upload images if there are any new File objects (not in edit mode)
-    if (!isEditMode && completeEventData.images && completeEventData.images.length > 0) {
-      // Filter out any existing URLs and only upload new File objects
-      const filesToUpload = completeEventData.images.filter(file => file instanceof File);
-      
-      if (filesToUpload.length > 0) {
-        showMessage("Uploading images...", "Please wait while we upload your images.", "info");
-        
-        const uploadResult = await uploadService.uploadImages("events", filesToUpload);
-        
-        if (!uploadResult.success) {
-          showMessage("Upload failed", "Failed to upload images. Please try again.", "error");
-          return;
-        }
-        
-        uploadedImageUrls = uploadResult.data || [];
-      }
-      
-      // Combine existing URLs (if any) with newly uploaded URLs
-      const existingUrls = completeEventData.images.filter(file => typeof file === 'string');
-      completeEventData.images = [...existingUrls, ...uploadedImageUrls];
-    }
-  
+
     const backendData = transformFrontendToBackend(completeEventData);
     console.log("Sending to backend:", backendData);
-  
+
     let result;
     if (isEditMode && initialEventData) {
       // Add event ID for update
@@ -464,19 +467,35 @@ const removeSafetyMeasure = (index) => {
     } else {
       result = await eventService.createEventAsAdmin(backendData);
     }
-  
+
     if (result.success) {
-      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`, "success");
-  
-      onSave && onSave(eventData);
-      onClose();
+      showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`,"success");
+
+
+      //   onSave && onSave(eventData);
+      //   onEventEdited()
+
+      // onClose();
+        if (isEditMode && onEventEdited) {
+                const updatedEventData = {
+                    ...initialEventData,
+                    ...backendData,
+                    id: initialEventData.id
+                };
+                onEventEdited(updatedEventData);
+            }
+
+            if (onSave) {
+                onSave(eventData);
+            }
+
+            onClose();
     } else {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
-      showMessage("Save failed", `Failed to ${isEditMode ? 'update' : 'create'} event. Please try again.`, "error");
     }
+    console.log(result);
   };
-  
-  // Also update the saveAsDraft function:
+
   const saveAsDraft = async () => {
     const completeEventData = {
       ...eventData,
@@ -485,96 +504,18 @@ const removeSafetyMeasure = (index) => {
       capacity: capacity,
       eventType: eventType
     };
-  
-    let uploadedImageUrls = [];
-    
-    // Upload images if there are any new File objects
-    if (completeEventData.images && completeEventData.images.length > 0) {
-      const filesToUpload = completeEventData.images.filter(file => file instanceof File);
-      
-      if (filesToUpload.length > 0) {
-        showMessage("Uploading images...", "Please wait while we upload your images.", "info");
-        
-        const uploadResult = await uploadService.uploadImages("events", filesToUpload);
-        
-        if (!uploadResult.success) {
-          showMessage("Upload failed", "Failed to upload images. Please try again.", "error");
-          return;
-        }
-        
-        uploadedImageUrls = uploadResult.data || [];
-      }
-      
-      // Combine existing URLs (if any) with newly uploaded URLs
-      const existingUrls = completeEventData.images.filter(file => typeof file === 'string');
-      completeEventData.images = [...existingUrls, ...uploadedImageUrls];
-    }
-  
     const backendData = transformFrontendToBackend(completeEventData);
     const result = await eventService.draftEventAsAdmin(backendData);
-  
+
     if (result.success) {
-      showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.", "success");
+      showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.","success");
       console.log("Save as draft:", eventData);
       onSave && onSave({ ...eventData, status: "draft" });
       onClose();
     } else {
       console.error("Error saving draft:", result.error);
-      showMessage("Draft save failed", "Failed to save draft. Please try again.", "error");
     }
   };
-
-  // const handleSubmit = async () => {
-  //   const completeEventData = {
-  //     ...eventData,
-  //     fee: eventFee,
-  //     ticketNumber: ticketNumber,
-  //     capacity: capacity,
-  //     eventType: eventType
-  //   };
-
-  //   const backendData = transformFrontendToBackend(completeEventData);
-  //   console.log("Sending to backend:", backendData);
-
-  //   let result;
-  //   if (isEditMode && initialEventData) {
-  //     // Add event ID for update
-  //     result = await eventService.updateEvent(initialEventData.id, backendData);
-  //   } else {
-  //     result = await eventService.createEventAsAdmin(backendData);
-  //   }
-
-  //   if (result.success) {
-  //     showMessage("Event saved successfully", `${isEditMode ? 'Your changes have been saved successfully.' : 'Your event has been published.'}`,"success");
-
-  //     onSave && onSave(eventData);
-  //     onClose();
-  //   } else {
-  //     console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
-  //   }
-  //   console.log(result);
-  // };
-
-  // const saveAsDraft = async () => {
-  //   const completeEventData = {
-  //     ...eventData,
-  //     fee: eventFee,
-  //     ticketNumber: ticketNumber,
-  //     capacity: capacity,
-  //     eventType: eventType
-  //   };
-  //   const backendData = transformFrontendToBackend(completeEventData);
-  //   const result = await eventService.draftEventAsAdmin(backendData);
-
-  //   if (result.success) {
-  //     showMessage("Event saved as draft", "You can edit and publish it anytime from your dashboard.","success");
-  //     console.log("Save as draft:", eventData);
-  //     onSave && onSave({ ...eventData, status: "draft" });
-  //     onClose();
-  //   } else {
-  //     console.error("Error saving draft:", result.error);
-  //   }
-  // };
 
   const selectedCategory = categories.find(
     (cat) => cat.value === eventData.category
@@ -598,7 +539,7 @@ const removeSafetyMeasure = (index) => {
     >
       <div className="mb-4 text-sm text-gray-700">
         {isEditMode 
-          ? "You are editing an event that has already been Approved. Some fields are restricted from editing"
+          ? "Edit your event details. All fields are now fully editable."
           : "Add exciting events for families in Colchester. All events must meet our safety and compliance guidelines."
         }
       </div>
@@ -650,7 +591,6 @@ const removeSafetyMeasure = (index) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={eventData.name}
                 onChange={handleInputChange}
-                disabled={isEditMode} // Restrict editing in edit mode
               />
             </div>
 
@@ -672,7 +612,6 @@ const removeSafetyMeasure = (index) => {
                   value={eventData.location}
                   onChange={handleInputChange}
                   onFocus={handleLocationFocus}
-                  disabled={isEditMode} // Restrict editing in edit mode
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -689,47 +628,6 @@ const removeSafetyMeasure = (index) => {
                   />
                 </svg>
               </div>
-
-              {/* {showLocationDropdown && !isEditMode && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                  {locationResults.map((location) => (
-                    <div
-                      key={location.id}
-                      className="flex items-start p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                      onClick={() => handleLocationSelect(location)}
-                    >
-                      <div className="text-orange-500 mr-2 mt-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <div>{location.address}</div>
-                        <div className="text-sm text-gray-500">
-                          {location.city}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )} */}
             </div>
           </div>
 
@@ -768,7 +666,6 @@ const removeSafetyMeasure = (index) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={eventData.date}
                 onChange={handleInputChange}
-                disabled={isEditMode} // Restrict editing in edit mode
               />
             </div>
             <div className="relative">
@@ -776,8 +673,8 @@ const removeSafetyMeasure = (index) => {
                 Event Time <span className="text-red-500">*</span>
               </label>
               <div
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
-                onClick={() => !isEditMode && setShowTimeDropdown(!showTimeDropdown)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
+                onClick={() => setShowTimeDropdown(!showTimeDropdown)}
               >
                 <span
                   className={eventData.time ? "text-gray-900" : "text-gray-400"}
@@ -786,7 +683,7 @@ const removeSafetyMeasure = (index) => {
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               </div>
-              {showTimeDropdown && !isEditMode && (
+              {showTimeDropdown && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
                   {timeSlots.map((time) => (
                     <div
@@ -812,8 +709,8 @@ const removeSafetyMeasure = (index) => {
               Event Category <span className="text-red-500">*</span>
             </label>
             <div
-              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
-              onClick={() => !isEditMode && setShowCategoryDropdown(!showCategoryDropdown)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
+              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
             >
               <span
                 className={selectedCategory ? "text-gray-900" : "text-gray-400"}
@@ -829,7 +726,7 @@ const removeSafetyMeasure = (index) => {
               </span>
               <ChevronDown className="h-4 w-4 text-gray-400" />
             </div>
-            {showCategoryDropdown && !isEditMode && (
+            {showCategoryDropdown && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                 {categories.map((category) => (
                   <div
@@ -856,15 +753,15 @@ const removeSafetyMeasure = (index) => {
                 <div className="flex">
                   <div ref={capacityRef} className="relative min-w-22">
                     <div
-                      className={`flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                      onClick={() => !isEditMode && setShowCapacityDropdown(!showCapacityDropdown)}
+                      className="flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-l-md cursor-pointer"
+                      onClick={() => setShowCapacityDropdown(!showCapacityDropdown)}
                     >
                       <span className="text-gray-700">
                         {capacity === "limited" ? "Limited" : "Unlimited"}
                       </span>
                       <ChevronDown className="h-4 w-4 text-gray-500" />
                     </div>
-                    {showCapacityDropdown && !isEditMode && (
+                    {showCapacityDropdown && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                         <div
                           className="px-3 py-2 cursor-pointer hover:bg-gray-50"
@@ -887,7 +784,7 @@ const removeSafetyMeasure = (index) => {
                     className="flex-1 px-3 py-2 border border-gray-300 border-l-0 rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={ticketNumber}
                     onChange={(e) => setTicketNumber(e.target.value)}
-                    disabled={capacity !== "limited" || isEditMode}
+                    disabled={capacity !== "limited"}
                   />
                 </div>
               </div>
@@ -895,7 +792,7 @@ const removeSafetyMeasure = (index) => {
               <div>
                 <label
                   htmlFor="fee"
-                  className="block t text-base font-semibold text-[#121212] mb-1"
+                  className="block text-base font-semibold text-[#121212] mb-1"
                 >
                   Event Fee (£)
                 </label>
@@ -917,8 +814,8 @@ const removeSafetyMeasure = (index) => {
                 Event Frequency <span className="text-gray-400">(Optional)</span>
               </label>
               <div
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${!isEditMode ? 'cursor-pointer' : 'cursor-not-allowed'} bg-white flex justify-between items-center`}
-                onClick={() => !isEditMode && setShowFrequencyDropdown(!showFrequencyDropdown)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
+                onClick={() => setShowFrequencyDropdown(!showFrequencyDropdown)}
               >
                 <span
                   className={
@@ -929,7 +826,7 @@ const removeSafetyMeasure = (index) => {
                 </span>
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               </div>
-              {showFrequencyDropdown && !isEditMode && (
+              {showFrequencyDropdown && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                   {frequencyOptions.map((option) => (
                     <div
@@ -980,7 +877,6 @@ const removeSafetyMeasure = (index) => {
                     }
                   ]}
                   railStyle={{ backgroundColor: '#e5e7eb' }}
-                  disabled={isEditMode}
                 />
               </div>
             </div>
@@ -998,15 +894,13 @@ const removeSafetyMeasure = (index) => {
                   className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
                 >
                   <span>{measure}</span>
-                  {!isEditMode && (
-                    <button
-                      type="button"
-                      onClick={() => removeSafetyMeasure(index)}
-                      className="ml-1 text-blue-600 hover:text-blue-800"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeSafetyMeasure(index)}
+                    className="ml-1 text-blue-600 hover:text-blue-800"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
               ))}
               <input
@@ -1020,7 +914,6 @@ const removeSafetyMeasure = (index) => {
                 value={currentSafetyInput}
                 onChange={handleSafetyInputChange}
                 onKeyDown={handleSafetyInputKeyDown}
-                disabled={isEditMode}
               />
             </div>
             <p className="text-sm text-gray-800 mt-2">
@@ -1039,7 +932,7 @@ const removeSafetyMeasure = (index) => {
             onChange={(newFacilities) =>
               setEventData({ ...eventData, facilities: newFacilities })
             }
-            disabled={isEditMode}
+            disabled={false}
           />
 
           <div>
@@ -1059,7 +952,6 @@ const removeSafetyMeasure = (index) => {
                     checked={eventType === type}
                     onChange={() => setEventType(type)}
                     className="form-radio text-blue-600"
-                    disabled={isEditMode}
                   />
                   <span>{type}</span>
                 </label>
@@ -1072,7 +964,7 @@ const removeSafetyMeasure = (index) => {
             onChange={(newTags) =>
               setEventData({ ...eventData, tags: newTags })
             }
-            disabled={isEditMode}
+            disabled={false}
           />
 
           {/* Upload Photo/Flyer */}
@@ -1081,76 +973,81 @@ const removeSafetyMeasure = (index) => {
               Upload Event Photo/Flyer
             </label>
             <div
-              className={`border-2 border-dashed border-gray-300 rounded-md p-6 text-center relative min-h-32 ${isEditMode ? 'bg-gray-50' : ''}`}
+              className={`border-2 border-dashed border-gray-300 rounded-md p-6 text-center relative min-h-32 ${imageUploading ? 'opacity-50' : ''}`}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
+              {imageUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2853A6]"></div>
+                    <span className="text-[#2853A6] font-medium">Uploading images...</span>
+                  </div>
+                </div>
+              )}
+              
               {eventData?.images?.length === 0 ? (
                 <div>
                   <div className="flex justify-center mb-2">
                     <Upload className="h-8 w-8 text-gray-400" />
                   </div>
                   <p className="text-sm font-medium text-gray-700">
-                    {isEditMode ? "Images cannot be changed in edit mode" : "Drag and drop your cover image"}
+                    Drag and drop your cover image
                   </p>
-                  {!isEditMode && (
-                    <>
-                      <p className="text-xs text-gray-500 mt-1">PNG, JPEG</p>
-                      <button
-                        type="button"
-                        className="mt-4 px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-700"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        Choose File
-                      </button>
-                    </>
-                  )}
+                  <p className="text-xs text-gray-500 mt-1">PNG, JPEG</p>
+                  <button
+                    type="button"
+                    className="mt-4 px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                  >
+                    Choose File
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
-                    {console.log(eventData, "This is the event in edit event")}
-                    {eventData?.images?.map((file, index) => (
+                    {eventData?.images?.map((imageUrl, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={typeof file === 'string' ? file : URL.createObjectURL(file)}
+                          src={imageUrl}
                           alt={`Preview ${index + 1}`}
                           className="w-full h-20 object-cover rounded border"
+                          onError={(e) => {
+                            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNmMtMi4yMSAwLTQtMS43OS00LTRzMS43OS00IDQtNCA0IDEuNzkgNCA0LTEuNzkgNC00IDR6TTEyIDZjLTQuNDEgMC04IDMuNTktOCA4czMuNTkgOCA4IDggOC0zLjU5IDgtOC0zLjU5LTgtOC04ek0xMiA4YzIuMjEgMCA0IDEuNzkgNCA0cy0xLjc5IDQtNCA0LTQtMS43OS00LTQgMS43OS00IDQtNHoiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+';
+                          }}
                         />
-                        {!isEditMode && (
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          disabled={imageUploading}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
                     ))}
                   </div>
-                  {!isEditMode && (
-                    <button
-                      type="button"
-                      className="px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-500"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      Add More Images
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                  >
+                    Add More Images
+                  </button>
                 </div>
               )}
 
-              {!isEditMode && (
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={imageUploading}
+              />
             </div>
           </div>
         </div>
@@ -1198,13 +1095,15 @@ const removeSafetyMeasure = (index) => {
                 <button
                   onClick={saveAsDraft}
                   className="py-3 px-4 border border-[#2853A6] text-[#2853A6] font-semibold hover:bg-blue-50 rounded-md transition-colors"
+                  disabled={imageUploading}
                 >
                   Save as Draft
                 </button>
               )}
               <button
                 onClick={handleSubmit}
-                className="py-3 px-4 bg-[#2853A6] text-white font-semibold hover:bg-blue-600 rounded-md transition-colors"
+                className="py-3 px-4 bg-[#2853A6] text-white font-semibold hover:bg-blue-600 rounded-md transition-colors disabled:opacity-50"
+                disabled={imageUploading}
               >
                 {isEditMode ? "Save Changes" : "Create Event"}
               </button>

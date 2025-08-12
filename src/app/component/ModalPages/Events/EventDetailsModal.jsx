@@ -14,7 +14,8 @@ const EventDetailsModal = ({
     onClose,
     onApprove,
     onReject,
-    onEdit
+    onEdit,
+    onEventUpdated
 }) => {
     console.log("This is the event that is selected",event)
     
@@ -185,6 +186,21 @@ const getEventStatus = (event) => {
         },
       };
 
+          const handleEventEdited = (updatedEventData) => {
+        console.log("Event has been edited:", updatedEventData);
+        
+        // Close the edit modal
+        setEditModalOpen(false);
+        
+        // Notify parent component about the update
+        if (onEventUpdated) {
+            onEventUpdated({
+                id: event.id,
+                ...updatedEventData
+            });
+        }
+    };
+
 
     // Render icon based on detail type
     const renderIcon = (iconType) => {
@@ -344,7 +360,7 @@ const getEventStatus = (event) => {
     </div> */}
             </div>
         </BaseModal>
- <EventCreationModal
+ {/* <EventCreationModal
                 isOpen={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 onSave={(updatedEvent) => {
@@ -353,6 +369,17 @@ const getEventStatus = (event) => {
                 }}
                 isEditMode={true} // Add this crucial prop
                 eventData={eventToEdit} // Pass the event to edit
+            /> */}
+
+            <EventCreationModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                onSave={(updatedEvent) => {
+                    setEditModalOpen(false);
+                }}
+                onEventEdited={handleEventEdited} // ADD THIS PROP
+                isEditMode={true}
+                eventData={eventToEdit}
             />
 
         <ApproveEventModal

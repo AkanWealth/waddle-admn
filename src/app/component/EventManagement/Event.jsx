@@ -454,6 +454,7 @@ export default function EventManagement() {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSave={handleSaveEvent}
+          onEventEdited={fetchEvents()}
         />
       )}
 
