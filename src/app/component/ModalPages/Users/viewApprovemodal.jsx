@@ -386,7 +386,7 @@ useEffect(() => {
       <Loader2 className="animate-spin h-5 w-5 mr-2" />
       Loading events...
     </div>
-  ) : prevEvents.length === 0 ? (
+  ) : prevEvents.length === 0 || eventStats.pastEvents < 1 ? (
     <p className="text-gray-500 text-sm">No past events found</p>
   ) : (
     <table className="min-w-full divide-y divide-gray-200">
