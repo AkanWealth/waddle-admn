@@ -529,9 +529,15 @@ const VendorDetailsModal = ({
   };
 
   const getFileType = (url) => {
+    console.log(url, "This is the url")
   const ext = url?.split('.').pop().toLowerCase();
+  console.log(ext, "This is the url extension of this stuff")
   if (ext === 'pdf') return 'PDF';
   if (ext === 'doc' || ext === 'docx') return 'DOC';
+  if (ext === 'xls' || ext === 'xlsx') return 'XLS';
+  if (ext === 'ppt' || ext === 'pptx') return 'PPT';
+  if (ext === 'jpg' || ext === 'jpeg') return 'JPG';
+  if (ext === 'png') return 'PNG';
   return '';
 };
 
@@ -706,38 +712,46 @@ const VendorDetailsModal = ({
             {/* Business License */}
 <div>
   <h4 className="text-gray-700 mb-3">Business License Document</h4>
-  <div className="inline-flex items-center">
-    <div className="border rounded-lg overflow-hidden mr-2">
-      <div className="w-12 h-14 relative bg-white p-2">
-        <div className="w-full h-full border-2 border-gray-200 flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </div>
-        {vendorData.attachment && (
-          <div className="absolute bottom-0 right-0 w-6 h-4 bg-red-600 text-white text-xs flex items-center justify-center">
-            {getFileType(vendorData.attachment) || 'FILE'}
-          </div>
-        )}
+  <a
+  href={vendorData.attachment}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center hover:bg-gray-50 p-2 rounded-lg transition"
+>
+  <div className="border rounded-lg overflow-hidden mr-2">
+    <div className="w-12 h-14 relative bg-white p-2">
+      <div className="w-full h-full border-2 border-gray-200 flex items-center justify-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
       </div>
+      {vendorData.attachment && (
+        <div className="absolute bottom-0 right-0 w-6 h-4 bg-red-600 text-white text-xs flex items-center justify-center">
+          {getFileType(vendorData.attachment) || 'FILE'}
+        </div>
+      )}
     </div>
-    <span className="text-sm text-gray-600">
-      {vendorData.attachment
-        ? `View ${getFileType(vendorData.attachment) || 'Document'}`
-        : 'No document uploaded'}
-    </span>
   </div>
+
+  <span className="text-sm text-blue-600 underline">
+    {vendorData.attachment
+      ? `View ${getFileType(vendorData.attachment) || 'Document'}`
+      : 'No document uploaded'}
+  </span>
+</a>
+
+
 </div>
 
           </div>
@@ -891,38 +905,45 @@ const VendorDetailsModal = ({
           {/* Business License */}
           <div>
   <h4 className="text-gray-700 mb-3">Business License Document</h4>
-  <div className="inline-flex items-center">
-    <div className="border rounded-lg overflow-hidden mr-2">
-      <div className="w-12 h-14 relative bg-white p-2">
-        <div className="w-full h-full border-2 border-gray-200 flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </div>
-        {vendorData.businessLicense && (
-          <div className="absolute bottom-0 right-0 w-6 h-4 bg-red-600 text-white text-xs flex items-center justify-center">
-            {getFileType(vendorData.businessLicense) || 'FILE'}
-          </div>
-        )}
+  <a
+  href={vendorData.attachment}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center hover:bg-gray-50 p-2 rounded-lg transition"
+>
+  <div className="border rounded-lg overflow-hidden mr-2">
+    <div className="w-12 h-14 relative bg-white p-2">
+      <div className="w-full h-full border-2 border-gray-200 flex items-center justify-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
       </div>
+      {vendorData.attachment && (
+        <div className="absolute bottom-0 right-0 w-6 h-4 bg-red-600 text-white text-xs flex items-center justify-center">
+          {getFileType(vendorData.attachment) || 'FILE'}
+        </div>
+      )}
     </div>
-    <span className="text-sm text-gray-600">
-      {vendorData.businessLicense
-        ? `View ${getFileType(vendorData.businessLicense) || 'Document'}`
-        : 'No document uploaded'}
-    </span>
   </div>
+
+  <span className="text-sm text-blue-600 underline">
+    {vendorData.attachment
+      ? `View ${getFileType(vendorData.attachment) || 'Document'}`
+      : 'No document uploaded'}
+  </span>
+</a>
+
 </div>
 
         </div>
