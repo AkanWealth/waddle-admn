@@ -230,11 +230,11 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("User Activity");
   const {showMessage} = useToastContext();
   
-  // Date range state - always January 1st to January 1st (next year)
+  // Date range state - defaults to January 1st to January 1st (next year), but fully customizable
   const [dateRange, setDateRange] = useState(() => {
     const currentYear = dayjs().year();
-    const startDate = dayjs().year(currentYear).month(0).date(1); // January 1st of next year
-    const endDate = dayjs().year(currentYear + 1).month(0).date(1); // January 1st of current year
+    const startDate = dayjs().year(currentYear).month(0).date(1); // January 1st of current year
+    const endDate = dayjs().year(currentYear + 1).month(0).date(1); // January 1st of next year
 
     return {
       startDate: startDate.format("YYYY-MM-DD"),
@@ -242,30 +242,20 @@ export default function Dashboard() {
     };
   });
 
-  // Handle start date change - automatically set to January 1st and adjust end date
+  // Handle start date change - allow any date selection
   const handleStartDateChange = (newStartDate) => {
-    const selectedDate = dayjs(newStartDate);
-    const startYear = selectedDate.year();
-    const startDate = dayjs().year(startYear).month(0).date(1); // January 1st of selected year
-    const endDate = dayjs().year(startYear + 1).month(0).date(1); // January 1st of next year
-    
-    setDateRange({
-      startDate: startDate.format("YYYY-MM-DD"),
-      endDate: endDate.format("YYYY-MM-DD")
-    });
+    setDateRange(prevRange => ({
+      ...prevRange,
+      startDate: newStartDate
+    }));
   };
 
-  // Handle end date change - automatically set to January 1st and adjust start date
+  // Handle end date change - allow any date selection
   const handleEndDateChange = (newEndDate) => {
-    const selectedDate = dayjs(newEndDate);
-    const endYear = selectedDate.year();
-    const endDate = dayjs().year(endYear).month(0).date(1); // January 1st of selected year
-    const startDate = dayjs().year(endYear - 1).month(0).date(1); // January 1st of previous year
-    
-    setDateRange({
-      startDate: startDate.format("YYYY-MM-DD"),
-      endDate: endDate.format("YYYY-MM-DD")
-    });
+    setDateRange(prevRange => ({
+      ...prevRange,
+      endDate: newEndDate
+    }));
   };
 
   // Function to handle export report

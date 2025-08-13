@@ -205,6 +205,32 @@ class AdminService {
         }
     }   
 
+    async deleteAdmin(adminId){
+        try {
+            if (!adminId) {
+                return {
+                    success: false,
+                    error: 'Admin ID is required for deletion'
+                };
+            }
+
+            await authService.makeAuthenticatedRequest(`/api/v1/host/${adminId}`, {
+                method: 'DELETE'
+            });
+
+            return {
+                success: true,
+                message: 'Admin deleted successfully'
+            };
+        } catch (error) {
+            console.error('Error deleting admin:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to delete admin'
+            };
+        }
+    }
+
     async restoreUser(userId) {
         try {
             await authService.makeAuthenticatedRequest(`/api/v1/users/restore/${userId}`, { method: "PATCH" });
@@ -217,6 +243,21 @@ class AdminService {
             return {
                 success: false,
                 error: error.message || "Failed to restore user"
+            };
+        }
+    }
+    async restoreAdmin(adminId){
+        try {
+            await authService.makeAuthenticatedRequest(`/api/v1/host/restore/${adminId}`, { method: "PATCH" });
+            return {
+                success: true,
+                message: "Admin restored successfully"
+            };
+        } catch (error) {
+            console.error("Error restoring admin:", error);
+            return {
+                success: false,
+                error: error.message || "Failed to restore admin"
             };
         }
     }
