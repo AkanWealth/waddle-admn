@@ -283,105 +283,10 @@ useEffect(() => {
 
 
 
-          {(vendor.status == "Approved" ||
-            vendor.status === "Active" ||
-            vendor.status === "APPROVED" ||
-            vendor.status==="SUSPENDED"||
+          {( 
             vendor.status==="REJECTED"||
             vendor.status === "Inactive") && (
-//             <>
-//               <h4 className="text-lg font-medium text-gray-800 mb-4">
-//                 Event Details
-//               </h4>
-//               {loadingEvents ? (
-//   <div className="flex items-center justify-center text-gray-500 py-6">
-//     <Loader2 className="animate-spin h-5 w-5 mr-2" />
-//     Loading stats...
-//   </div>
-// ) : (
 
-//               <div className="grid grid-cols-2 gap-4 mb-6">
-//                 {[
-// { label: "Total Events Created", value: eventStats.totalEventsCreated },
-//   { label: "Upcoming Events", value: eventStats.upcomingEvents },
-//   { label: "Past Events", value: eventStats.pastEvents },
-//   { label: "Total Attendees", value: eventStats.totalAttendees },
-//                 ].map(({ label, value }) => (
-//                   <div key={label} className="flex items-center">
-//                     <div className="mr-2">
-//                       <svg
-//                         xmlns="http://www.w3.org/2000/svg"
-//                         className="h-5 w-5 text-gray-600"
-//                         fill="none"
-//                         viewBox="0 0 24 24"
-//                         stroke="currentColor"
-//                       >
-//                         <path d="..." /> {/* Use correct icon path */}
-//                       </svg>
-//                     </div>
-//                     <div>
-//                       <div className="text-sm text-gray-500">{label}</div>
-//                       <div className="font-medium">{value}</div>
-//                     </div>
-//                   </div>
-//                 ))}
-//               </div>
-// )}
-//               {
-//                 vendor.status!=="REJECTED" &&(
-// <>
-// <h4 className="text-lg font-medium text-gray-800 mb-4">
-//   Past Events
-// </h4>
-// <div className="overflow-x-auto mb-6">
-//   {loadingEvents ? (
-//     <div className="flex items-center justify-center text-gray-500 py-6">
-//       <Loader2 className="animate-spin h-5 w-5 mr-2" />
-//       Loading events...
-//     </div>
-//   ) : prevEvents.length === 0 ? (
-//     <p className="text-gray-500 text-sm">No past events found</p>
-//   ) : (
-//     <table className="min-w-full divide-y divide-gray-200">
-//       <thead>
-//         <tr>
-//           {["Event Name", "Date", "Location", "Total Attendees"].map((h) => (
-//             <th
-//               key={h}
-//               className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-//             >
-//               {h}
-//             </th>
-//           ))}
-//         </tr>
-//       </thead>
-//       <tbody className="bg-white divide-y divide-gray-200">
-//         {prevEvents.map((event) => (
-//           <tr key={event.id}>
-//             <td className="px-4 py-2 whitespace-nowrap">{event.name}</td>
-//             <td className="px-4 py-2 whitespace-nowrap">
-//               {formatCustomDate(event.date, "DD-MM-YYYY")}
-//             </td>
-//             <td className="px-4 py-2 whitespace-nowrap">{event.address}</td>
-//             <td className="px-4 py-2 whitespace-nowrap">{event.ticket_booked}</td>
-//           </tr>
-//         ))}
-//       </tbody>
-//     </table>
-//   )}
-// </div>
-
-// </>
-
-
-//                 )
-
-                
-//               }
-
-
-
-//             </>
 
 <div>
   <h4 className="text-gray-700 mb-3">Business License Document</h4>
@@ -427,6 +332,105 @@ useEffect(() => {
 
 </div>
           )}
+
+          {
+                        (vendor.status === "Active" ||
+            vendor.status === "APPROVED" || vendor.status==="SUSPENDED"|| vendor.status == "Approved" ) && (
+                          <>
+              <h4 className="text-lg font-medium text-gray-800 mb-4">
+                Event Details
+              </h4>
+              {loadingEvents ? (
+  <div className="flex items-center justify-center text-gray-500 py-6">
+    <Loader2 className="animate-spin h-5 w-5 mr-2" />
+    Loading stats...
+  </div>
+) : (
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {[
+{ label: "Total Events Created", value: eventStats.totalEventsCreated },
+  { label: "Upcoming Events", value: eventStats.upcomingEvents },
+  { label: "Past Events", value: eventStats.pastEvents },
+  { label: "Total Attendees", value: eventStats.totalAttendees },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center">
+                    <div className="mr-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-gray-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="..." /> {/* Use correct icon path */}
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">{label}</div>
+                      <div className="font-medium">{value}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+)}
+              {
+                vendor.status!=="REJECTED" &&(
+<>
+<h4 className="text-lg font-medium text-gray-800 mb-4">
+  Past Events
+</h4>
+<div className="overflow-x-auto mb-6">
+  {loadingEvents ? (
+    <div className="flex items-center justify-center text-gray-500 py-6">
+      <Loader2 className="animate-spin h-5 w-5 mr-2" />
+      Loading events...
+    </div>
+  ) : prevEvents.length === 0 ? (
+    <p className="text-gray-500 text-sm">No past events found</p>
+  ) : (
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead>
+        <tr>
+          {["Event Name", "Date", "Location", "Total Attendees"].map((h) => (
+            <th
+              key={h}
+              className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {prevEvents.map((event) => (
+          <tr key={event.id}>
+            <td className="px-4 py-2 whitespace-nowrap">{event.name}</td>
+            <td className="px-4 py-2 whitespace-nowrap">
+              {formatCustomDate(event.date, "DD-MM-YYYY")}
+            </td>
+            <td className="px-4 py-2 whitespace-nowrap">{event.address}</td>
+            <td className="px-4 py-2 whitespace-nowrap">{event.ticket_booked}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
+</>
+
+
+                )
+
+                
+              }
+
+
+
+            </>
+            )
+          }
         </div>
       </BaseModal>
 
