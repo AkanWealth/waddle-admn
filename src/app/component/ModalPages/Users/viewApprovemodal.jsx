@@ -10,6 +10,7 @@ import { InfoIcon, Phone, Mail, MapPin, Globe, Loader2 } from "lucide-react";
 import { userService } from "@/utils/userService";
 import formatCustomDate from "@/lib/formatDate";
 import { useToastContext } from "@/context/toast";
+import { getFileType } from "@/lib/getFileType";
 
 const VendorApproveDetailsModal = ({
   vendor,
@@ -288,99 +289,143 @@ useEffect(() => {
             vendor.status==="SUSPENDED"||
             vendor.status==="REJECTED"||
             vendor.status === "Inactive") && (
-            <>
-              <h4 className="text-lg font-medium text-gray-800 mb-4">
-                Event Details
-              </h4>
-              {loadingEvents ? (
-  <div className="flex items-center justify-center text-gray-500 py-6">
-    <Loader2 className="animate-spin h-5 w-5 mr-2" />
-    Loading stats...
-  </div>
-) : (
+//             <>
+//               <h4 className="text-lg font-medium text-gray-800 mb-4">
+//                 Event Details
+//               </h4>
+//               {loadingEvents ? (
+//   <div className="flex items-center justify-center text-gray-500 py-6">
+//     <Loader2 className="animate-spin h-5 w-5 mr-2" />
+//     Loading stats...
+//   </div>
+// ) : (
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {[
-{ label: "Total Events Created", value: eventStats.totalEventsCreated },
-  { label: "Upcoming Events", value: eventStats.upcomingEvents },
-  { label: "Past Events", value: eventStats.pastEvents },
-  { label: "Total Attendees", value: eventStats.totalAttendees },
-                ].map(({ label, value }) => (
-                  <div key={label} className="flex items-center">
-                    <div className="mr-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path d="..." /> {/* Use correct icon path */}
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">{label}</div>
-                      <div className="font-medium">{value}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-)}
-              {
-                vendor.status!=="REJECTED" &&(
-<>
-<h4 className="text-lg font-medium text-gray-800 mb-4">
-  Past Events
-</h4>
-<div className="overflow-x-auto mb-6">
-  {loadingEvents ? (
-    <div className="flex items-center justify-center text-gray-500 py-6">
-      <Loader2 className="animate-spin h-5 w-5 mr-2" />
-      Loading events...
-    </div>
-  ) : prevEvents.length === 0 ? (
-    <p className="text-gray-500 text-sm">No past events found</p>
-  ) : (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead>
-        <tr>
-          {["Event Name", "Date", "Location", "Total Attendees"].map((h) => (
-            <th
-              key={h}
-              className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {prevEvents.map((event) => (
-          <tr key={event.id}>
-            <td className="px-4 py-2 whitespace-nowrap">{event.name}</td>
-            <td className="px-4 py-2 whitespace-nowrap">
-              {formatCustomDate(event.date, "DD-MM-YYYY")}
-            </td>
-            <td className="px-4 py-2 whitespace-nowrap">{event.address}</td>
-            <td className="px-4 py-2 whitespace-nowrap">{event.ticket_booked}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
+//               <div className="grid grid-cols-2 gap-4 mb-6">
+//                 {[
+// { label: "Total Events Created", value: eventStats.totalEventsCreated },
+//   { label: "Upcoming Events", value: eventStats.upcomingEvents },
+//   { label: "Past Events", value: eventStats.pastEvents },
+//   { label: "Total Attendees", value: eventStats.totalAttendees },
+//                 ].map(({ label, value }) => (
+//                   <div key={label} className="flex items-center">
+//                     <div className="mr-2">
+//                       <svg
+//                         xmlns="http://www.w3.org/2000/svg"
+//                         className="h-5 w-5 text-gray-600"
+//                         fill="none"
+//                         viewBox="0 0 24 24"
+//                         stroke="currentColor"
+//                       >
+//                         <path d="..." /> {/* Use correct icon path */}
+//                       </svg>
+//                     </div>
+//                     <div>
+//                       <div className="text-sm text-gray-500">{label}</div>
+//                       <div className="font-medium">{value}</div>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+// )}
+//               {
+//                 vendor.status!=="REJECTED" &&(
+// <>
+// <h4 className="text-lg font-medium text-gray-800 mb-4">
+//   Past Events
+// </h4>
+// <div className="overflow-x-auto mb-6">
+//   {loadingEvents ? (
+//     <div className="flex items-center justify-center text-gray-500 py-6">
+//       <Loader2 className="animate-spin h-5 w-5 mr-2" />
+//       Loading events...
+//     </div>
+//   ) : prevEvents.length === 0 ? (
+//     <p className="text-gray-500 text-sm">No past events found</p>
+//   ) : (
+//     <table className="min-w-full divide-y divide-gray-200">
+//       <thead>
+//         <tr>
+//           {["Event Name", "Date", "Location", "Total Attendees"].map((h) => (
+//             <th
+//               key={h}
+//               className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//             >
+//               {h}
+//             </th>
+//           ))}
+//         </tr>
+//       </thead>
+//       <tbody className="bg-white divide-y divide-gray-200">
+//         {prevEvents.map((event) => (
+//           <tr key={event.id}>
+//             <td className="px-4 py-2 whitespace-nowrap">{event.name}</td>
+//             <td className="px-4 py-2 whitespace-nowrap">
+//               {formatCustomDate(event.date, "DD-MM-YYYY")}
+//             </td>
+//             <td className="px-4 py-2 whitespace-nowrap">{event.address}</td>
+//             <td className="px-4 py-2 whitespace-nowrap">{event.ticket_booked}</td>
+//           </tr>
+//         ))}
+//       </tbody>
+//     </table>
+//   )}
+// </div>
 
-</>
+// </>
 
 
-                )
+//                 )
 
                 
-              }
+//               }
 
 
 
-            </>
+//             </>
+
+<div>
+  <h4 className="text-gray-700 mb-3">Business License Document</h4>
+  <a
+  href={vendor.attachment}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center hover:bg-gray-50 p-2 rounded-lg transition"
+>
+  <div className="border rounded-lg overflow-hidden mr-2">
+    <div className="w-12 h-14 relative bg-white p-2">
+      <div className="w-full h-full border-2 border-gray-200 flex items-center justify-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+      </div>
+      {vendor.attachment && (
+        <div className="absolute bottom-0 right-0 w-6 h-4 bg-red-600 text-white text-xs flex items-center justify-center">
+          {getFileType(vendor.attachment) || 'FILE'}
+        </div>
+      )}
+    </div>
+  </div>
+
+  <span className="text-sm text-blue-600 underline">
+    {vendor.attachment
+      ? `View ${getFileType(vendor.attachment) || 'Document'}`
+      : 'No document uploaded'}
+  </span>
+</a>
+
+
+</div>
           )}
         </div>
       </BaseModal>
