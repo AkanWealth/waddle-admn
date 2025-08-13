@@ -65,7 +65,7 @@ const EventApproveDetailsModal = ({
           label: "Delete Event",
           onClick: () => openActivateModal(event), // <-- Open the suspend modal
           className:
-            "bg-[#CC0000] cursor-pointertext-white font-medium py-2 px-4 rounded w-full",
+            "bg-[#CC0000] cursor-pointer text-white font-medium py-2 px-4 rounded w-full",
         },
         cancel: {
           label: "Edit Event",

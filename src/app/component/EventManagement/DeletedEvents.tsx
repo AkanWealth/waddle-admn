@@ -292,7 +292,7 @@ const DeletedEvents = ({
               </div>
               <div className="">
                 <h3 className="text-[#303237] text-xl font-semibold">
-                  Permanently Delete User
+                  Permanently Delete Event
                 </h3>
                 <p className="text-[#565C69] text-sm">
                   You&apos;re about to permanently delete {selectedEvent.name}.
@@ -344,7 +344,7 @@ const DeletedEvents = ({
               </div>
               <div className="">
                 <h3 className="text-[#303237] text-xl font-semibold">
-                  Restore User
+                  Restore Event
                 </h3>
                 <p className="text-[#565C69] text-sm">
                   You&apos;re about to restore {selectedEvent.name}. This will
