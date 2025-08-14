@@ -60,7 +60,7 @@ const EventApproveDetailsModal = ({
         },
       };
     } else if (event.status === "APPROVED" || event.status === "Active") {
-      return {
+      return {  
         suspend: {
           label: "Delete Event",
           onClick: () => openActivateModal(event), // <-- Open the suspend modal
@@ -93,6 +93,8 @@ const EventApproveDetailsModal = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   console.log("The event i am looking at", event);
+  const realVendorImage = event?.organiser?.business_logo? `https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/vendors/${event.organiser.business_logo}` : null
+
 
   const eventData = {
    
@@ -274,7 +276,7 @@ const EventApproveDetailsModal = ({
               </div>
               <div className="flex items-center">
                 {renderIcon("location")}
-                <span className="text-[#565C69]">{mergedEvent.details[2].value}</span>
+                <span className="text-[#565C69]">{mergedEvent.address}</span>
               </div>
               <div className="flex items-center">
                 {renderIcon("person")}
@@ -319,40 +321,47 @@ const EventApproveDetailsModal = ({
             <section>
               <h3 className="text-lg font-medium mb-2">Organiser</h3>
               <div className="flex items-start">
-                <div className="mr-3 text-3xl">👨‍🍳</div>
+                <img src={event?.admin?.avatarUrl || realVendorImage || "/Avatar.jpg"} alt="Organizer" className="rounded-full w-12 h-12" />
                 <div className="space-y-1">
                   <p className="font-medium">
-                    {mergedEvent.organizer?.name ||
+                    {console.log(event, "This approve details is for organiser")}
+                    {console.log(event.admin, "This one is admin")}
+                    {mergedEvent.organiser?.name ||
                       `${mergedEvent.admin?.first_name ?? ""} ${
                         mergedEvent.admin?.last_name ?? ""
                       }`.trim()}
                   </p>
                   <p className="text-gray-700">
-                    {mergedEvent.organizer?.company}
+                    {mergedEvent.organiser?.company}
+                    {/* We are coming back */}
                   </p>
                   <div className="flex flex-col sm:flex-row sm:gap-4">
                     <div className="flex items-center">
                       <span className="mr-1">✉️</span>
                       <a
                         href={`mailto:${
-                          mergedEvent.organizer?.email ||
+                          mergedEvent.organiser?.email ||
                           mergedEvent.admin?.email
                         }`}
                         className="text-blue-600 hover:underline"
                       >
                         <p>
-                          {mergedEvent.organizer?.email ||
+                          {mergedEvent.organiser?.email ||
                             `${mergedEvent.admin?.email ?? ""} `.trim()}
                         </p>
                       </a>
                     </div>
-                    <div className="flex items-center">
+                    {
+                      mergedEvent.organiser?.phone && 
+                       <div className="flex items-center">
                       <span className="mr-1">📞</span>
                       <span>
-                        {mergedEvent.organizer?.phone ||
+                        {mergedEvent.organiser?.phone ||
                           `${mergedEvent.admin?.phone ?? ""} `.trim()}
                       </span>
                     </div>
+                    }
+                   
                   </div>
                 </div>
               </div>
@@ -384,8 +393,8 @@ const EventApproveDetailsModal = ({
                 {
                   mergedEvent.files.map(imageUrl=>(
                     <div className="flex rounded-[8px] bg-[#F4F5F8] px-1 py-2 gap-2">
-                      <Image src={imageUrl} alt="Image links" width={40} height={40} unoptimized />
-                      <div className="">
+                      <Image src={imageUrl} alt="Image links" width={60} height={40} unoptimized />
+                      <div className="hidden">
                         <h3 className="text-[12px] font-medium">
                           Thrive in... 
                         </h3>

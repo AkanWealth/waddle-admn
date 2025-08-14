@@ -35,39 +35,20 @@ interface NotificationResponseData {
 // Custom hook for auto-marking notifications as read
 const useAutoMarkAsRead = (
   adminId: string,
-  onNotificationRead: (notificationId: string) => void
+  markNotificationAsRead: (notificationId: string) => Promise<void>
 ) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const observedElementsRef = useRef<Map<string, Element>>(new Map());
 
-  // Mark notification as read function
-  const markNotificationAsRead = useCallback(
-    async (notificationId: string) => {
-      console.log("mARKING")
-      try {
-        const { success } = await notificationService.markAsRead(
-          adminId,
-          notificationId
-        );
-        if (success) {
-          onNotificationRead(notificationId);
-          console.log(`Notification ${notificationId} marked as read`);
-        }
-      } catch (error) {
-        console.error(
-          `Error marking notification ${notificationId} as read:`,
-          error
-        );
-      }
-    },
-    [adminId, onNotificationRead]
-  );
-
   // Initialize intersection observer
   useEffect(() => {
-    if (!adminId) return;
+    if (!adminId) {
+      console.log("No adminId, skipping observer setup");
+      return;
+    }
 
+    console.log("Setting up intersection observer");
     observerRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -76,15 +57,24 @@ const useAutoMarkAsRead = (
           );
           if (!notificationId) return;
 
-          if (entry.isIntersecting) {
-            // Notification is visible - start 2-second timer
+          console.log("Intersection observed:", {
+            notificationId,
+            isIntersecting: entry.isIntersecting,
+            intersectionRatio: entry.intersectionRatio,
+            threshold: entry.intersectionRatio >= 0.3,
+          });
+
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+            // Notification is visible - start timer
             if (!timeoutsRef.current.has(notificationId)) {
-              const timeout = setTimeout(() => {
-                markNotificationAsRead(notificationId);
+              console.log("Starting timer for notification:", notificationId);
+              const timeout = setTimeout(async () => {
+                console.log("Timer fired for notification:", notificationId);
+                await markNotificationAsRead(notificationId);
                 // Clean up after marking as read
                 timeoutsRef.current.delete(notificationId);
                 observedElementsRef.current.delete(notificationId);
-              }, 2000); // 2 seconds delay
+              }, 1000); // 1 second delay
 
               timeoutsRef.current.set(notificationId, timeout);
             }
@@ -92,6 +82,7 @@ const useAutoMarkAsRead = (
             // Notification is no longer visible - cancel timer
             const timeout = timeoutsRef.current.get(notificationId);
             if (timeout) {
+              console.log("Cancelling timer for notification:", notificationId);
               clearTimeout(timeout);
               timeoutsRef.current.delete(notificationId);
             }
@@ -99,14 +90,15 @@ const useAutoMarkAsRead = (
         });
       },
       {
-        // Trigger when 50% of the notification is visible
-        threshold: 0.5,
+        // Trigger when 30% of the notification is visible
+        threshold: [0.3, 0.5, 0.8],
         // Add some margin to ensure notification is properly in view
-        rootMargin: "-10px 0px -10px 0px",
+        rootMargin: "0px 0px -10px 0px",
       }
     );
 
     return () => {
+      console.log("Cleaning up intersection observer");
       // Cleanup on unmount
       if (observerRef.current) {
         observerRef.current.disconnect();
@@ -121,11 +113,23 @@ const useAutoMarkAsRead = (
   // Function to observe a notification element
   const observeNotification = useCallback(
     (element: Element, notificationId: string, isRead: boolean) => {
-      if (!observerRef.current || !element || isRead) return;
+      if (!observerRef.current || !element || isRead) {
+        console.log("Skipping observation:", {
+          notificationId,
+          isRead,
+          hasObserver: !!observerRef.current,
+          hasElement: !!element,
+        });
+        return;
+      }
 
       // Don't observe if already observing this notification
-      if (observedElementsRef.current.has(notificationId)) return;
+      if (observedElementsRef.current.has(notificationId)) {
+        console.log("Already observing notification:", notificationId);
+        return;
+      }
 
+      console.log("Starting to observe notification:", notificationId);
       element.setAttribute("data-notification-id", notificationId);
       observerRef.current.observe(element);
       observedElementsRef.current.set(notificationId, element);
@@ -174,11 +178,11 @@ const useAutoMarkAsRead = (
 
             if (entry.isIntersecting) {
               if (!timeoutsRef.current.has(notificationId)) {
-                const timeout = setTimeout(() => {
-                  markNotificationAsRead(notificationId);
+                const timeout = setTimeout(async () => {
+                  await markNotificationAsRead(notificationId);
                   timeoutsRef.current.delete(notificationId);
                   observedElementsRef.current.delete(notificationId);
-                }, 2000);
+                }, 1000);
 
                 timeoutsRef.current.set(notificationId, timeout);
               }
@@ -192,8 +196,8 @@ const useAutoMarkAsRead = (
           });
         },
         {
-          threshold: 0.5,
-          rootMargin: "-10px 0px -10px 0px",
+          threshold: 0.3,
+          rootMargin: "0px 0px -20px 0px",
         }
       );
     }
@@ -206,7 +210,15 @@ const useAutoMarkAsRead = (
   };
 };
 
-const NotificationModal = () => {
+interface NotificationModalProps {
+  onNotificationRead?: (notificationId: string) => void;
+  onUnreadCountChange?: (count: number) => void;
+}
+
+const NotificationModal = ({
+  onNotificationRead,
+  onUnreadCountChange,
+}: NotificationModalProps) => {
   // Use type assertion for useAuth since it's imported from a JS file
   const { user } = useAuth() as { user: { admin: { id: string } } };
   const adminId = user?.admin?.id;
@@ -220,17 +232,42 @@ const NotificationModal = () => {
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const notificationModalRef = useRef<HTMLDivElement>(null);
 
+  // Mark notification as read function
+  const markNotificationAsRead = useCallback(
+    async (notificationId: string) => {
+      console.log("Marking notification as read:", notificationId);
+      try {
+        const { success } = await notificationService.markAsRead(
+          notificationId,
+          adminId
+        );
+        if (success) {
+          // Update local state
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === notificationId ? { ...n, isRead: true } : n
+            )
+          );
+          // Call the parent callback
+          onNotificationRead?.(notificationId);
+          console.log(`Notification ${notificationId} marked as read`);
+        }
+      } catch (error) {
+        console.error(
+          `Error marking notification ${notificationId} as read:`,
+          error
+        );
+      }
+    },
+    [adminId, onNotificationRead]
+  );
+
   const LIMIT = 10;
 
   // Initialize auto mark as read functionality
   const { observeNotification, cleanupObservations } = useAutoMarkAsRead(
     adminId,
-    (notificationId) => {
-      // Update local state when notification is marked as read
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
-      );
-    }
+    markNotificationAsRead
   );
 
   // Clean up observations when notifications change
@@ -423,13 +460,12 @@ const NotificationModal = () => {
     try {
       // Since we don't have a clear all endpoint, we'll just update locally
       // You can implement this when the external API provides the endpoint
-      const {success}= await notificationService.clearAll(adminId);
-      if(success){
+      const { success } = await notificationService.clearAll(adminId);
+      if (success) {
         setNotifications([]);
         setMeta(null);
         setShowNotificationMenu(false);
       }
-      
 
       // Optional: Show a message that this is a local update only
       console.log("Cleared all notifications (local update only)");
@@ -470,6 +506,11 @@ const NotificationModal = () => {
   const unreadCount = notifications.filter(
     (n) => !n.isRead || n.isRead === false
   ).length;
+
+  // Update parent component with unread count changes
+  useEffect(() => {
+    onUnreadCountChange?.(unreadCount);
+  }, [unreadCount, onUnreadCountChange]);
 
   // Animation variants
   const modalVariants = {
@@ -560,10 +601,9 @@ const NotificationModal = () => {
               }
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Unread 
+              Unread
             </motion.button>
           </div>
-
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -654,6 +694,10 @@ const NotificationModal = () => {
                   ref={(el) => {
                     // Only observe unread notifications
                     if (el && !notification.isRead) {
+                      console.log(
+                        "Setting up observation for notification:",
+                        notification.id
+                      );
                       observeNotification(
                         el,
                         notification.id,
@@ -663,7 +707,7 @@ const NotificationModal = () => {
                   }}
                 >
                   <NotificationItem
-                  isRead={notification.isRead}
+                    isRead={notification.isRead}
                     title={notification.title}
                     description={notification.body}
                     date={new Date(notification.createdAt).toDateString()}
@@ -673,6 +717,21 @@ const NotificationModal = () => {
                         addSuffix: true,
                       }
                     )}
+                    onClick={() => {
+                      // Mark as read immediately when clicked
+                      if (!notification.isRead) {
+                        markNotificationAsRead(notification.id);
+                      }
+                    }}
+                    onHover={() => {
+                      // Mark as read on hover as a backup
+                      if (!notification.isRead) {
+                        // Add a small delay to avoid marking as read too quickly
+                        setTimeout(() => {
+                          markNotificationAsRead(notification.id);
+                        }, 500);
+                      }
+                    }}
                   />
                 </motion.div>
               ))}

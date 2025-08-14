@@ -42,22 +42,28 @@ const EventDetailsModal = ({
             return 'Invalid Time';
         }
     };
-
+//"https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/vendors/1000810155.jpg"
     // Helper function to get organizer info
     const getOrganizerInfo = (event) => {
+        // console.log(event.admin, "This is the organiser na")
+
         if (event.organiser) {
             return {
+                
                 name: event.organiser.name || 'N/A',
                 company: event.organiser.business_name || 'N/A',
                 email: event.organiser.email || 'N/A',
-                phone: event.organiser.phone_number || 'N/A'
+                phone: event.organiser.phone_number || 'N/A',
+                image:event.organiser.business_logo? `https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/vendors/${event.organiser.business_logo}` : null
             };
         } else if (event.admin) {
             return {
                 name: `${event.admin.first_name || ''} ${event.admin.last_name || ''}`.trim(),
                 company: 'Admin',
                 email: event.admin.email || 'N/A',
-                phone: 'N/A'
+                phone: 'N/A',
+                avatarUrl:event.admin.avatarUrl
+
             };
         }
         return {
@@ -301,7 +307,8 @@ const getEventStatus = (event) => {
                                         <h3 className="text-lg font-medium mb-2 text-black">Organiser</h3>
                                         <div className="flex items-start">
                                             <div className="mr-3 text-3xl">
-                                                <img src="/Chief.png" alt="Organizer" className="rounded-full w-12 h-12" />
+                                                {console.log(mergedEvent.organizer, "This is the organiser details")}
+                                                <img src={mergedEvent.organizer.avatarUrl || mergedEvent.organizer.image || "/Avatar.jpg"} alt="Organizer" className="rounded-full w-12 h-12" />
                                             </div>
                                             <div className="space-y-1">
                                                 <p className="font-medium">{mergedEvent.organizer.name}</p>

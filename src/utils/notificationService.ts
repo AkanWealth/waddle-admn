@@ -98,24 +98,27 @@ class NotificationService {
   }
 
   // Add method to mark individual notification as read (if API supports it)
-  async markAsRead(notificationId: string): Promise<ApiResponse> {
-    const endpoint = `/api/v1/notifications/${notificationId}/read`;
+  async markAsRead(
+    notificationId: string,
+    adminId: string
+  ): Promise<ApiResponse> {
+    const endpoint = `/api/v1/notifications/admin/${notificationId}/read/${adminId}`;
+// api.waddleapp.io/api/v1/notifications/admin/{notificationId}/read/{adminId}
+https: try {
+  const response = await authService.makeAuthenticatedRequest(endpoint, {
+    method: "PATCH",
+  });
 
-    try {
-      const response = await authService.makeAuthenticatedRequest(endpoint, {
-        method: "PATCH",
-      });
-
-      return { success: true, data: response };
-    } catch (error: unknown) {
-      return {
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred while marking notification as read",
-      };
-    }
+  return { success: true, data: response };
+} catch (error: unknown) {
+  return {
+    success: false,
+    error:
+      error instanceof Error
+        ? error.message
+        : "An unexpected error occurred while marking notification as read",
+  };
+}
   }
 
   async markAllAsRead(adminId: string): Promise<ApiResponse> {

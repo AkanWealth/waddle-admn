@@ -9,6 +9,8 @@ interface NotificationItemProps {
   description: string;
   date: string;
   timeAgo: string;
+  onClick?: () => void;
+  onHover?: () => void;
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
@@ -17,13 +19,17 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   description,
   date,
   timeAgo,
+  onClick,
+  onHover,
 }) => {
   return (
     <motion.div
-      className="flex gap-3 p-4 border-b"
+      className="flex gap-3 p-4 border-b cursor-pointer"
       whileHover={{ backgroundColor: "#f9fafb" }}
       transition={{ duration: 0.2 }}
       layout
+      onClick={onClick}
+      onMouseEnter={onHover}
     >
       {/* Icon */}
       <div className="shrink-0 relative">

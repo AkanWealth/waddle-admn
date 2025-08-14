@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { authService } from "@/utils/authService";
 import { useAuth } from "@/context/AuthContext";
+import { notificationService } from "@/utils/notificationService";
 import { 
   User,
   Settings, 
@@ -28,7 +29,8 @@ function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-const notificationRef = useRef(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationRef = useRef(null);
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (
@@ -49,6 +51,31 @@ useEffect(() => {
   // Use AuthContext for user data
   const { user, loading } = useAuth();
   console.log("User from AuthContext:", user);
+  
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (user?.admin?.id) {
+        try {
+          const { success, data } = await notificationService.getUnreadCount(user.admin.id);
+          console.log(data, "This is the data")
+          if (success && data) {
+            //setUnreadCount(5)
+            setUnreadCount(data.unreadCount || 0);
+          }
+        } catch (error) {
+          console.error("Error fetching unread count:", error);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+    
+    // Poll for updates every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    
+    return () => clearInterval(interval);
+  }, [user?.admin?.id]);
   
   // Generate user profile data from AuthContext
   const userProfile = user ? {
@@ -202,11 +229,13 @@ useEffect(() => {
           {/* Right side elements */}
           <div className="ml-auto flex items-center space-x-6">
             {/* Notification bell */}
-            <button   onClick={() => setShowNotification((prev) => !prev)} className="w-9 h-9 flex items-center  cursor-pointer justify-center relative p-1 rounded-full bg-[#E5E5E5] hover:bg-gray-100 focus:outline-none">
+            <button onClick={() => setShowNotification((prev) => !prev)} className="w-9 h-9 flex items-center cursor-pointer justify-center relative p-1 rounded-full bg-[#E5E5E5] hover:bg-gray-100 focus:outline-none">
               <FaBell className="h-5 w-5 text-[#2853A6]" />
-              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-2 h-2 flex items-center justify-center text-xs">
-                
-              </span>
+              {unreadCount > 0 && (
+                <span className="z-50 absolute top-0 right-0 bg-red-500 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
             
             {/* User profile */}
@@ -251,7 +280,13 @@ useEffect(() => {
       ref={notificationRef}
       className="absolute top-[5.2rem] right-10 z-50 w-[480px] bg-white rounded-lg shadow-lg py-4"
     >
-      <NotificationModal />
+      <NotificationModal 
+        onNotificationRead={(notificationId) => {
+          // Update unread count when a notification is marked as read
+          setUnreadCount(prev => Math.max(0, prev - 1));
+        }}
+        onUnreadCountChange={setUnreadCount}
+      />
     </div>
   </>
 )}
