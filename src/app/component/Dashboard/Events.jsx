@@ -146,9 +146,9 @@ export default function Events({ dateRange }) {
                 <tbody>
                   {topEvents.map((event) => (
                     <tr key={event.id} className="border-b border-gray-100">
-                      <td className="py-4">{event.event}</td>
+                      <td className="py-4 text-gray-600">{event.event}</td>
                       <td className="py-4 text-gray-600">{event.vendor}</td>
-                      <td className="py-4">{event.attendees}</td>
+                      <td className="py-4 text-gray-600">{event.attendees}</td>
                     </tr>
                   ))}
                 </tbody>
