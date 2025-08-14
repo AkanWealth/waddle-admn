@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import formatCustomDate from '@/lib/formatDate';
 import BaseModal from '../../Element/BaseModal';
-import { Clock, CalendarDaysIcon, MapPin,User, BadgeDollarSign, Phone, Mail } from 'lucide-react';
+import { Clock, CalendarDaysIcon, MapPin,User, BadgeDollarSign, Phone, Mail, Tag, CircleCheck } from 'lucide-react';
 import ApproveEventModal from './approveEventModal';
 import RejectEventModal from './RejectEventModal';
 import EventCreationModal from "./createEventModal";
@@ -300,6 +300,55 @@ const getEventStatus = (event) => {
                         {renderIcon('money')}
                         <span>{mergedEvent.details[4].value}</span>
                     </div>
+                    {(event.status === "PENDING" || event.status === "DRAFT") && (
+                        <div className="">
+    <div className="flex items-center gap-3">
+      {/* Tags section (only if tags exist) */}
+      {event?.tags?.length > 0 && (
+        <div className="flex items-center gap-1.5">
+          {event.tags.map((item) => (
+            <h4
+              key={item}
+              className="bg-[#EAEEF6] text-[#2853A6] rounded-[8px] px-2 py-1"
+            >
+              {item}
+            </h4>
+          ))}
+        </div>
+      )}
+
+      {/* Indoor/Outdoor always shows if status matches */}
+      <div className="flex items-center">
+        <Tag className="text-[#D45815] h-[17px] w-[15px]" />
+        <h3>{event.eventType === "INDOOR" ? "Indoor" : "Outdoor"}</h3>
+      </div>
+    </div>
+
+    {/* Facilities section (only if facilities exist) */}
+    {event?.facilities?.length > 0 && (
+      <div className="my-3">
+        <h3 className="text-[#1D1D1E] font-bold mb-1.5">Facilities</h3>
+        <div className="flex items-center gap-2">
+          {event.facilities.map((item) => (
+            <div
+              key={item}
+              className="text-[#565C69] flex items-center gap-2"
+            >
+              <CircleCheck className="h-[16px] w-[16px]" />
+              <p>{item}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+                   ) }
+
+                </section>
+
+                <section className="">
+
                 </section>
                 <hr className="border-gray-300 mb-6" />
                 {/* Organizer */}
