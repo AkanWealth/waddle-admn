@@ -480,7 +480,8 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
                 const updatedEventData = {
                     ...initialEventData,
                     ...backendData,
-                    id: initialEventData.id
+                    id: initialEventData.id,
+                    status: initialEventData.status || 'DRAFT' // Preserve existing status or default to DRAFT
                 };
                 onEventEdited(updatedEventData);
             }
@@ -494,6 +495,70 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, result.error);
     }
     console.log(result);
+  };
+
+  const handlePublishEvent = async () => {
+    const completeEventData = {
+      ...eventData,
+      fee: eventFee,
+      ticketNumber: ticketNumber,
+      capacity: capacity,
+      eventType: eventType
+    };
+
+    const backendData = transformFrontendToBackend(completeEventData);
+    console.log("Publishing event:", backendData);
+
+    // Set isPublished to true for publishing
+    backendData.isPublished = true;
+
+    const result = await eventService.publishMyDraft(initialEventData.id, backendData);
+
+    if (result.success) {
+      showMessage("Event published successfully", "Your event has been published and is now live!", "success");
+      
+      if (onEventEdited) {
+        const updatedEventData = {
+          ...initialEventData,
+          ...backendData,
+          id: initialEventData.id,
+          isPublished: true,
+          status: 'APPROVED' // Set the status to APPROVED when published
+        };
+        onEventEdited(updatedEventData);
+      }
+
+      if (onSave) {
+        onSave({ ...eventData, isPublished: true, status: 'APPROVED' });
+      }
+
+      onClose();
+    } else {
+      console.error("Error publishing event:", result.error);
+      showMessage("Publish failed", "Failed to publish event. Please try again.", "error");
+    }
+  };
+
+  // Check if all required fields are filled for publishing
+  const isAllFieldsFilled = () => {
+    const requiredFields = [
+      eventData.name,
+      eventData.date,
+      eventData.time,
+      eventData.category,
+      eventData.location,
+      eventData.description,
+      eventData.facilities.length > 0,
+      eventData.tags.length > 0,
+      eventData.images.length > 0
+    ];
+    
+    return requiredFields.every(field => {
+      if (typeof field === 'string') {
+        return field.trim() !== '';
+      }
+      return field;
+    });
   };
 
   const saveAsDraft = async () => {
@@ -1100,9 +1165,26 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
                   Save as Draft
                 </button>
               )}
+              {isEditMode && (
+                <button
+                  onClick={handlePublishEvent}
+                  className={`py-3 px-4 font-semibold rounded-md transition-colors ${
+                    isAllFieldsFilled() 
+                      ? 'bg-[#2853A6] text-white hover:bg-blue-600' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  disabled={imageUploading || !isAllFieldsFilled()}
+                >
+                  Publish Event
+                </button>
+              )}
               <button
                 onClick={handleSubmit}
-                className="py-3 px-4 bg-[#2853A6] text-white font-semibold hover:bg-blue-600 rounded-md transition-colors disabled:opacity-50"
+                className={`py-3 px-4 font-semibold rounded-md transition-colors disabled:opacity-50 ${
+                  isEditMode && isAllFieldsFilled()
+                    ? 'border border-[#2853A6] text-[#2853A6] hover:bg-blue-50'
+                    : 'bg-[#2853A6] text-white hover:bg-blue-600'
+                }`}
                 disabled={imageUploading}
               >
                 {isEditMode ? "Save Changes" : "Create Event"}

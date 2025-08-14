@@ -585,6 +585,25 @@ export default function EventManagement() {
     await fetchEvents();
   };
 
+  // Handle event updates (for editing/publishing)
+  const handleEventUpdated = async (updatedEvent) => {
+    console.log("Event updated:", updatedEvent);
+    
+    // Update the local event list
+    setEventList(prevEvents =>
+      prevEvents.map(event =>
+        event.id === updatedEvent.id ? { ...event, ...updatedEvent } : event
+      )
+    );
+    
+    // Also update filtered list
+    setFilteredEventList(prevEvents =>
+      prevEvents.map(event =>
+        event.id === updatedEvent.id ? { ...event, ...updatedEvent } : event
+      )
+    );
+  };
+
   // Check window size for responsive design
   useEffect(() => {
     const handleResize = () => {
@@ -906,6 +925,7 @@ export default function EventManagement() {
                 dateFilter={dateFilter}
                 mobileView={mobileView}
                 isLoading={isLoading}
+                onEventUpdated={handleEventUpdated}
               />
             )}
           </div>

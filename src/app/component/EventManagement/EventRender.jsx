@@ -8,7 +8,7 @@ import { useRecommendationsStore } from '@/stores/useRecommendationStore';
 import { eventService } from "@/utils/eventService";
 import { useToastContext } from "@/context/toast";
 
-export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView, isLoading }) {
+export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView, isLoading, onEventUpdated }) {
     
     // State management
     const [paginatedevents, setPaginatedevents] = useState([]);
@@ -212,9 +212,9 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
         }
         
         // Notify parent component to update its data
-        // if (onEventUpdated) {
-        //     onEventUpdated(updatedEvent);
-        // }
+        if (onEventUpdated) {
+            onEventUpdated(updatedEvent);
+        }
     };
 
     // Updated render modal function to handle different statuses
