@@ -193,7 +193,8 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             
             // Prepare request body
             const requestBody = {
-                isApproved: false
+                isApproved: false,
+                rejectionReason:reason
             };
             
             // // Add reason if provided
@@ -202,6 +203,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             // }
             
             // Make API call to reject vendor
+            console.log("Rejection reason", requestBody)
             await authService.makeAuthenticatedRequest(`/api/v1/organisers/${vendorId}/approve`, {
                 method: 'PATCH',
                 headers: {
