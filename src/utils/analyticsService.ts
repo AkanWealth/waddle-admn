@@ -61,6 +61,28 @@ class AnalyticsService {
     }
   }
 
+  async getEventBookingActivityData(period: string) {
+    try {
+      const url = `/api/v1/host/analytics/booking/${period}`;
+
+      const response = await authService.makeAuthenticatedRequest(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log(response, "This one here");
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch event analytics data",
+      };
+    }
+  }
+
   async exportReport(startDate?: string, endDate?: string) {
     try {
       // Define the base URL

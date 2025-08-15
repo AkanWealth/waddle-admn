@@ -55,7 +55,11 @@ interface EventAnalyticsState {
   hasData: boolean;
   isLoading: boolean;
   error: string | null;
+  bookingPeriod: "7days" | "monthly" | "yearly";
+  isBookingLoading: boolean;
+  bookingError: string | null;
   fetchEventAnalytics: (startDate?: string, endDate?: string) => Promise<void>;
+  fetchBookingData: (period?: "7days" | "monthly" | "yearly") => Promise<void>;
 }
 
 export const useEventAnalyticsStore = create<EventAnalyticsState>((set) => ({
@@ -65,6 +69,9 @@ export const useEventAnalyticsStore = create<EventAnalyticsState>((set) => ({
   hasData: false,
   isLoading: false,
   error: null,
+  bookingPeriod: "7days",
+  isBookingLoading: false,
+  bookingError: null,
 
   fetchEventAnalytics: async (startDate?: string, endDate?: string) => {
     set({ isLoading: true, error: null });
@@ -76,27 +83,67 @@ export const useEventAnalyticsStore = create<EventAnalyticsState>((set) => ({
       );
 
       if (response.success) {
+        set({
+          eventStats: response.data.eventStats || [],
+          topEvents: response.data.topEvents || [],
+          hasData: response.data.hasData || false,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        set({
+          eventStats: [],
+          topEvents: [],
+          hasData: false,
+          isLoading: false,
+          error: response.error || "Failed to fetch event analytics",
+        });
       }
-
-      set({
-        eventStats: response.data.eventStats || [],
-        topEvents: response.data.topEvents || [],
-        bookingData: response.data.bookingData || [],
-        hasData: response.data.hasData || false,
-        isLoading: false,
-        error: null,
-      });
     } catch (error) {
       set({
         eventStats: [],
         topEvents: [],
-        bookingData: [],
         hasData: false,
         isLoading: false,
         error:
           error instanceof Error
             ? error.message
             : "Failed to fetch event analytics",
+      });
+    }
+  },
+
+  fetchBookingData: async (
+    period: "7days" | "monthly" | "yearly" = "7days"
+  ) => {
+    set({ isBookingLoading: true, bookingError: null, bookingPeriod: period });
+
+    try {
+      const response = await analyticsService.getEventBookingActivityData(
+        period
+      );
+
+      if (response.success) {
+        set({
+          bookingData: response.data || [],
+          isBookingLoading: false,
+          bookingError: null,
+        });
+      } else {
+        set({
+          bookingData: [],
+          isBookingLoading: false,
+          bookingError: response.error || "Failed to fetch booking data",
+        });
+      }
+    } catch (error) {
+      set({
+        bookingData: [],
+        isBookingLoading: false,
+        bookingError:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch booking data",
       });
     }
   },

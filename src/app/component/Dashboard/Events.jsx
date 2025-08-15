@@ -26,18 +26,23 @@ export default function Events({ dateRange }) {
     hasData, 
     isLoading, 
     error, 
-    fetchEventAnalytics 
+    bookingPeriod,
+    isBookingLoading,
+    bookingError,
+    fetchEventAnalytics,
+    fetchBookingData
   } = useEventAnalyticsStore();
 
   // State for chart time filter
-  const [timeFilter, setTimeFilter] = useState("Monthly");
+  const [timeFilter, setTimeFilter] = useState("7 Last Days");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("Monthly");
+  const [selectedFilter, setSelectedFilter] = useState("7 Last Days");
 
   // Fetch data on component mount
   useEffect(() => {
     fetchEventAnalytics(dateRange.startDate, dateRange.endDate);
-  }, [fetchEventAnalytics, dateRange]);
+    fetchBookingData('7days'); // Default to 7days
+  }, [fetchEventAnalytics, fetchBookingData, dateRange]);
 
   // Handle time filter change
   const handleTimeFilterChange = (filter) => {
@@ -45,27 +50,23 @@ export default function Events({ dateRange }) {
     setSelectedFilter(filter);
     setShowDropdown(false);
     
-    // Calculate date ranges based on filter
-    const now = new Date();
-    let startDate
-    let endDate
-    
+    // Map filter to period parameter
+    let period;
     switch (filter) {
       case '7 Last Days':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        endDate = now.toISOString();
+        period = '7days';
         break;
       case 'Monthly':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+        period = 'monthly';
         break;
       case 'Yearly':
-        startDate = new Date(now.getFullYear() - 1, 0, 1).toISOString();
-        endDate = new Date(now.getFullYear() + 1, 0, 1).toISOString();
+        period = 'yearly';
         break;
+      default:
+        period = '7days';
     }
     
-    fetchEventAnalytics(startDate, endDate);
+    fetchBookingData(period);
   };
 
   // For demo: toggle between data and empty state
@@ -218,7 +219,21 @@ export default function Events({ dateRange }) {
             </div>
           </div>
           
-          {hasData && bookingData.length > 0 ? (
+          {isBookingLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-lg">Loading booking data...</div>
+            </div>
+          ) : bookingError ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="text-red-800">Error loading booking data: {bookingError}</div>
+              <button 
+                onClick={() => fetchBookingData(bookingPeriod)}
+                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md text-sm"
+              >
+                Retry
+              </button>
+            </div>
+          ) : hasData && bookingData.length > 0 ? (
             <div className="h-64 flex items-end">
               {bookingData.map((item, index) => (
                 <div key={index} className="flex flex-col items-center flex-1">
@@ -226,7 +241,7 @@ export default function Events({ dateRange }) {
                     className="w-6 bg-blue-500 rounded-t-sm" 
                     style={{ height: `${(item.bookings / maxBooking) * 200}px` }}
                   ></div>
-                  <div className="text-xs mt-2 text-gray-500">{item.day}</div>
+                  <div className="text-xs mt-2 text-gray-500">{item.period}</div>
                 </div>
               ))}
             </div>
