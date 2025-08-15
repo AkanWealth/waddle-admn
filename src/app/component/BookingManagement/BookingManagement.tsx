@@ -16,7 +16,7 @@ import {
   // useInitializeBookingStore,
 } from "@/stores/useBookingStore";
 import { VendorData } from "./SampleData";
-import { LoadingSkeleton } from "../Element/LoadingSpinner";
+import { BookingTableSkeleton } from "../Element/LoadingSpinner";
 
 const BookingManagement: React.FC = () => {
   const paginatedBookings = usePaginatedBookings();
@@ -100,8 +100,8 @@ const BookingManagement: React.FC = () => {
       {isOpenBookingDetails && <BookingDetailsModal />}
       <>
         {isLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <LoadingSkeleton />
+          <div className="w-full">
+            <BookingTableSkeleton />
           </div>
         ) : (
           <>

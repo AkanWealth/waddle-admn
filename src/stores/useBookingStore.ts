@@ -293,6 +293,7 @@ export const useBookingStore = create<BookingStore>()(
         ),
 
       getStatusBadge: (status: string) => {
+        console.log(status, "This is the status for get status badge")
         const baseClasses =
           "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
         switch (status) {
@@ -304,6 +305,8 @@ export const useBookingStore = create<BookingStore>()(
           case "cancelled":
           case "canceled":
           case "Canceled":
+          case "Failed":
+            console.log("Shoulf run this one")
             return `${baseClasses} bg-[#FFDEDE] text-[#CB1A14]`;
           default:
             return `${baseClasses} bg-gray-100 text-gray-800`;

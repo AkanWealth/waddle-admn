@@ -19,6 +19,7 @@ const renderStatusIcon = (status: string) => {
     case "closed":
     case "cancelled":
     case "canceled":
+    case "failed":
       return <CircleX className="h-4 w-4" />;
     default:
       return null;

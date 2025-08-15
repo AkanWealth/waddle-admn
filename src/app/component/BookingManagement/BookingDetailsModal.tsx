@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   Calendar,
@@ -11,11 +11,13 @@ import {
   CircleX,
 } from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
-import { GuardianDetailsData } from "./SampleData";
+// import { GuardianDetailsData } from "./SampleData";
 // import GuardianDetailsModal from "./GuardianDetailsModal";
 import Image from "next/image";
 import SVGAssets from "@/assets/svg";
 import formatCustomDate from "@/lib/formatDate";
+import { GuardianDetailsTableSkeleton } from "../Element/LoadingSpinner";
+import { bookingsService } from "@/utils/bookingService";
 
 const renderStatusIcon = (status: string) => {
   switch (status.toLowerCase()) {
@@ -38,9 +40,48 @@ const BookingDetailsModal = () => {
     selectedEvent,
     isOpenBookingDetails,
     closeBookingDetailsModal,
-    openGuardianDetailsModal,
+   // openGuardianDetailsModal,
     // isOpenGuardianDetails,
   } = useBookingStore();
+
+  // State for guardian data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [guardianData, setGuardianData] = useState<any[]>([]);
+  const [isLoadingGuardians, setIsLoadingGuardians] = useState(false);
+  const [guardianError, setGuardianError] = useState<string | null>(null);
+
+  // Fetch guardian data when modal opens
+  useEffect(() => {
+    if (isOpenBookingDetails && selectedEvent?.id) {
+      fetchGuardianData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenBookingDetails, selectedEvent?.id]);
+
+  const fetchGuardianData = async () => {
+    if (!selectedEvent?.id) return;
+
+    setIsLoadingGuardians(true);
+    setGuardianError(null);
+
+    try {
+      const response = await bookingsService.getAllBookingConsent(
+        selectedEvent.id
+      );
+      if (response.success) {
+        setGuardianData(response.data?.consent || []);
+      } else {
+        setGuardianError(response.error || "Failed to fetch guardian data");
+        setGuardianData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching guardian data:", error);
+      setGuardianError("Failed to fetch guardian data");
+      setGuardianData([]);
+    } finally {
+      setIsLoadingGuardians(false);
+    }
+  };
 
   if (!isOpenBookingDetails) return;
   if (!selectedEvent) return;
@@ -122,8 +163,8 @@ const BookingDetailsModal = () => {
           <div className="bg-gray-50 p-3 rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Tickets booked</span>
-              <span className="font-semibold">
-                {selectedEvent.event.ticket_booked}
+              <span className="text-gray-600 font-semibold">
+                {selectedEvent.ticket_quantity}
               </span>
             </div>
             <div className="flex justify-between text-sm font-semibold">
@@ -131,7 +172,7 @@ const BookingDetailsModal = () => {
               <span className="text-gray-900">
                 £
                 {(
-                  selectedEvent.event.price * selectedEvent.event.ticket_booked
+                  selectedEvent.event.price * selectedEvent.ticket_quantity
                 ).toLocaleString()}
               </span>
             </div>
@@ -142,20 +183,27 @@ const BookingDetailsModal = () => {
               Organizer
             </h4>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10  rounded-full flex items-center justify-center">
                 <Image
-                  src={ SVGAssets.DownloadReportIcon}
+                  src={
+                    selectedEvent?.event?.organiser?.business_logo
+                      ? `https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/vendors/${selectedEvent.event.organiser.business_logo}`
+                      : "/Avatar.jpg"
+                  }
                   alt="Organiser logo"
                   width={50}
                   height={50}
-                  className="h-full w-full"
+                  className="h-full w-full rounded-full"
+                  unoptimized
                 />
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900">
                   {selectedEvent?.event?.organiser?.business_name}
                 </div>
-                <div className="text-sm text-gray-600">Mary Jane</div>
+                <div className="text-sm text-gray-600">
+                  {selectedEvent?.event?.organiser?.name}
+                </div>
               </div>
             </div>
             <div className="mt-2 flex items-center gap-4">
@@ -175,12 +223,12 @@ const BookingDetailsModal = () => {
               <h4 className="text-sm font-semibold text-gray-900">
                 Guardian details
               </h4>
-              <button
+              {/* <button
                 onClick={openGuardianDetailsModal}
                 className="text-blue-600 text-sm hover:text-blue-800"
               >
                 See all
-              </button>
+              </button> */}
             </div>
 
             <div className="w-full">
@@ -193,33 +241,39 @@ const BookingDetailsModal = () => {
               </div>
 
               <div className="space-y-1">
-                {GuardianDetailsData.map((guardian, index) => (
-                  <div
-                    key={index}
-                    className="grid grid-cols-5 gap-2 text-sm text-gray-700 py-3 px-3 bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900">
-                      {guardian.name}
-                    </div>
-                    <div className="text-gray-600 break-all">
-                      {guardian.email}
-                    </div>
-                    <div className="text-gray-600">{guardian.phone}</div>
-                    <div className="text-gray-600">
-                      {guardian.children || "N/A"}
-                    </div>
-                    <div className="text-center font-medium">
-                      {guardian.count}
-                    </div>
+                {isLoadingGuardians ? (
+                  <GuardianDetailsTableSkeleton />
+                ) : guardianError ? (
+                  <div className="text-center py-8 text-red-500">
+                    {guardianError}
                   </div>
-                ))}
+                ) : guardianData.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No guardian data available
+                  </div>
+                ) : (
+                  guardianData.map((guardian, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-5 gap-2 text-sm text-gray-700 py-3 px-3 bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">
+                        {guardian.name}
+                      </div>
+                      <div className="text-gray-600 break-all">
+                        {guardian.email}
+                      </div>
+                      <div className="text-gray-600">{guardian.phone}</div>
+                      <div className="text-gray-600">
+                        {guardian.children || "N/A"}
+                      </div>
+                      <div className="text-center font-medium">
+                        {guardian.count}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-
-              {GuardianDetailsData.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No guardian data available
-                </div>
-              )}
             </div>
           </div>
         </div>

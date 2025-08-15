@@ -1,8 +1,6 @@
 import { authService } from "./authService";
 import { baseUrl } from "../lib/envfile";
 
-
-
 export interface BookingResponse {
   success: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,16 +16,16 @@ class BookingsService {
   }
 
   // Get all bookings for the logged-in user
-  async getAllBookings(){
+  async getAllBookings() {
     try {
       //http://localhost:3030/api/v1/bookings/host/all
       const response = await authService.makeAuthenticatedRequest(
         `/api/v1/bookings`
       );
-      console.log("Testing a couple",response)
+      console.log("Testing a couple", response);
       return { success: true, data: response };
     } catch (error: unknown) {
-      console.log(error, "This is error")
+      console.log(error, "This is error");
       return {
         success: false,
         error:
@@ -36,16 +34,16 @@ class BookingsService {
     }
   }
 
-  async getAllVendorRevenue(){
+  async getAllVendorRevenue() {
     try {
       //http://localhost:3030/api/v1/bookings/host/all
       const response = await authService.makeAuthenticatedRequest(
         `/api/v1/bookings/vendors/revenue`
       );
-      console.log("Testing a couple",response)
+      console.log("Testing a couple", response);
       return { success: true, data: response };
     } catch (error: unknown) {
-      console.log(error, "This is error")
+      console.log(error, "This is error");
       return {
         success: false,
         error:
@@ -54,15 +52,15 @@ class BookingsService {
     }
   }
 
-  async getAllVendorBooking(){
+  async getAllVendorBooking() {
     try {
       const response = await authService.makeAuthenticatedRequest(
         `/api/v1/bookings/vendors/report`
       );
-      console.log("Testing a couple right here",response)
+      console.log("Testing a couple right here", response);
       return { success: true, data: response };
     } catch (error: unknown) {
-      console.log(error, "This is error")
+      console.log(error, "This is error");
       return {
         success: false,
         error:
@@ -70,16 +68,32 @@ class BookingsService {
       };
     }
   }
-  
-  async getBookingRevenueData(period:string, status?:string){
+
+  async getBookingRevenueData(period: string, status?: string) {
     try {
       const response = await authService.makeAuthenticatedRequest(
         `/api/v1/payments/revenue/admin?period=${period}&status=${status}`
       );
-      console.log("Testing a couple right here",response)
+      console.log("Testing a couple right here", response);
       return { success: true, data: response };
     } catch (error: unknown) {
-      console.log(error, "This is error")
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to fetch bookings",
+      };
+    }
+  }
+
+  async getAllBookingConsent(bookingId: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/bookings/consent/${bookingId}`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
       return {
         success: false,
         error:
