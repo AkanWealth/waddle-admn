@@ -520,11 +520,11 @@ export default function EventManagement() {
   const statusDropdownRef = useRef(null);
   const filterDropdownRef = useRef(null);
 
-  // Status options
+  // Status options - updated to match backend enum
   const statusOptions = [
     "All",
     "Approved",
-    "Pending",
+    "Pending", 
     "Draft",
     "Non-compliant",
     "Crowd sourced",
@@ -625,6 +625,7 @@ export default function EventManagement() {
     setIsLoading(true);
     const result = await eventService.getPaginatedEvents();
     if (result.success && Array.isArray(result.data?.events)) {
+      console.log("Fetched events:", result.data.events); // Debug log
       setEventList(result.data.events);
     } else {
       console.error(result.error || "Failed to fetch events");
@@ -641,6 +642,13 @@ export default function EventManagement() {
   useEffect(() => {
     let filtered = [...eventList];
 
+    console.log("Filtering events:", {
+      totalEvents: eventList.length,
+      searchTerm,
+      statusFilter,
+      dateFilter
+    });
+
     // Search filter
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
@@ -650,32 +658,46 @@ export default function EventManagement() {
         event.organiser?.name?.toLowerCase().includes(searchLower) ||
         event.admin?.name?.toLowerCase().includes(searchLower)
       );
+      console.log("After search filter:", filtered.length);
     }
 
     // Status filter
     if (statusFilter && statusFilter.length > 0) {
       filtered = filtered.filter(event => {
         const eventStatus = getEventStatusForFilter(event);
-        return statusFilter.includes(eventStatus);
+        const isIncluded = statusFilter.includes(eventStatus);
+        console.log(`Event ${event.name}: status=${eventStatus}, filter=${statusFilter}, included=${isIncluded}`);
+        return isIncluded;
       });
+      console.log("After status filter:", filtered.length);
     }
 
     // Date filter
     if (dateFilter.from || dateFilter.to) {
       filtered = filtered.filter(event => {
-        const eventDate = new Date(event.date);
+        // Handle different date fields that might exist
+        const eventDate = event.createdAt;
+        if (!eventDate) {
+          console.log(`Event ${event.name}: No date field found`);
+          return false;
+        }
+        
+        const eventDateObj = new Date(eventDate);
         const fromDate = dateFilter.from ? new Date(dateFilter.from) : null;
-        const toDate = dateFilter.to ? new Date(dateFilter.to) : null;
+        const toDate = dateFilter.to ? new Date(dateFilter.to + 'T23:59:59') : null; // Include entire day
+
+        console.log(`Event ${event.name}: eventDate=${eventDate}, eventDateObj=${eventDateObj}, fromDate=${fromDate}, toDate=${toDate}`);
 
         if (fromDate && toDate) {
-          return eventDate >= fromDate && eventDate <= toDate;
+          return eventDateObj >= fromDate && eventDateObj <= toDate;
         } else if (fromDate) {
-          return eventDate >= fromDate;
+          return eventDateObj >= fromDate;
         } else if (toDate) {
-          return eventDate <= toDate;
+          return eventDateObj <= toDate;
         }
         return true;
       });
+      console.log("After date filter:", filtered.length);
     }
 
     setFilteredEventList(filtered);
@@ -713,7 +735,28 @@ export default function EventManagement() {
 
   // Helper function to get event status for filtering
   const getEventStatusForFilter = (event) => {
+    // Handle soft delete first
     if (event.isDeleted) return "Non-compliant";
+    
+    // Use backend status if available
+    if (event.status) {
+      switch (event.status) {
+        case 'APPROVED':
+          return 'Approved';
+        case 'PENDING':
+          return 'Pending';
+        case 'DRAFT':
+          return 'Draft';
+        case 'NON_COMPLIANT':
+          return 'Non-compliant';
+        case 'CROWD_SOURCED':
+          return 'Crowd sourced';
+        default:
+          return event.status;
+      }
+    }
+    
+    // Fallback to old logic for backward compatibility
     if (event.isPublished) return "Approved";
     return "Draft";
   };
@@ -804,12 +847,7 @@ export default function EventManagement() {
                                       statusFilter.filter((s) => s !== status)
                                     );
                                   } else {
-                                    setStatusFilter([
-                                      ...statusFilter.filter(
-                                        (s) => s !== "All"
-                                      ),
-                                      status,
-                                    ]);
+                                    setStatusFilter([status]);
                                   }
                                 }
                               }}
@@ -866,11 +904,11 @@ export default function EventManagement() {
                           onChange={(e) =>
                             handleDateChange("from", e.target.value)
                           }
-                          className="w-full p-2 border border-gray-300 rounded"
+                          className="w-full text-black p-2 border border-gray-300 rounded"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-600 mb-1">
+                        <label className="block text-sm text-black mb-1">
                           To
                         </label>
                         <input
@@ -879,7 +917,7 @@ export default function EventManagement() {
                           onChange={(e) =>
                             handleDateChange("to", e.target.value)
                           }
-                          className="w-full p-2 border border-gray-300 rounded"
+                          className="w-full p-2 border border-gray-300 rounded text-black"
                         />
                       </div>
                     </div>
