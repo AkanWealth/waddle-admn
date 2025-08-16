@@ -89,7 +89,8 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                 reason: item.reason || item.category || item.subject || "N/A",
                 lastUpdated: formatDate(item.createdAt),
                 status: mapStatus(item.status),
-                file:item.file
+                file:item.file,
+                description:item.description
             }));
         }
         return [];
@@ -164,6 +165,7 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
     };
 
     const opendisputeDetails = (dispute) => {
+        console.log(dispute, "This is the dispute we have")
         setSelectedDispute(dispute);
         setIsModalOpen(true);
     };

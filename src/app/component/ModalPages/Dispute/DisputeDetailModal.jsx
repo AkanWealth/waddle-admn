@@ -11,6 +11,7 @@ import {
 import BaseModal from '../../Element/BaseModal';
 import { useToastContext } from '@/context/toast';
 import { disputeService } from '@/utils/disputeService';
+import { getFileType } from '@/lib/getFileType';
 
 const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
   const [response, setResponse] = useState('');
@@ -181,7 +182,7 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
     reference: dispute?.booking,
     dateEscalated: dispute?.lastUpdated,
     status: dispute?.status || "In Review",
-    vendorStatement: "The customer is requesting a refund after attending half of the event. The event was delivered as promised, but they claim dissatisfaction"
+    vendorStatement: dispute?.description || "The customer is requesting a refund after attending half of the event. The event was delivered as promised, but they claim dissatisfaction"
   };
 
   return (
@@ -253,11 +254,15 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
         {
           dispute?.file ? 
           <div className="flex items-center p-3">
+          <a href={dispute?.file} target="_blank" rel="noopener noreferrer" className='flex items-center hover:underline'>
           <FileText className="w-5 h-5 text-blue-500 mr-3" />
           <div>
-            <p className="text-sm font-medium">Complaint_Summary.pdf</p>
-            <p className="text-xs text-gray-500">200 KB</p>
+            <p className="text-sm font-medium">
+                {dispute?.file.split("/").pop()}
+              </p>
+            <p className="text-xs text-gray-500">{getFileType(dispute?.file)}</p>
           </div>
+          </a>
         </div>
           :
           <div className="flex items-center p-3">

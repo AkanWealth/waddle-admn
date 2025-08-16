@@ -56,7 +56,7 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                 vendor: item.vendorName || item.vendor || "N/A",
                 reason: item.reason || item.category || item.subject || "N/A",
                 lastUpdated: formatDate(item.lastUpdated || item.updatedAt || item.createdAt),
-                status: item.status || "Pending"
+                status: item.status || "Pending",
             }));
         }
         

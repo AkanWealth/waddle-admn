@@ -140,7 +140,7 @@ export default function Payment() {
                     {/* Tabs and Search/Filter */}
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-5 px-2 rounded-lg">
                         {/* Tabs - always visible, even on mobile */}
-                        <div className="flex mb-4 lg:mb-0 border-1 rounded-lg border-gray-200 px-2 overflow-x-auto">
+                        {/* <div className="flex mb-4 lg:mb-0 border-1 rounded-lg border-gray-200 px-2 overflow-x-auto">
                             {["Transaction", "Vendor Payment"].map((tab) => (
                                 <button
                                     key={tab}
@@ -152,7 +152,7 @@ export default function Payment() {
                                     {tab}
                                 </button>
                             ))}
-                        </div>
+                        </div> */}
 
                         {/* Search and Filter */}
                         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
@@ -234,22 +234,22 @@ export default function Payment() {
 
                     {/* Render the appropriate table based on active tab */}
                     <div className="overflow-x-auto">
-                        {activeTab === "Transaction" && (
+                        {/* {activeTab === "Transaction" && ( */}
                             <TransactionTable
                                 currentPage={currentPage}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
                                 mobileView={mobileView} />
-                        )}
-                        {activeTab === "Vendor Payment" && (
+                        {/* )} */}
+                        {/* {activeTab === "Vendor Payment" && (
                             <VendorsPaymentTable
                                 currentPage={currentPage}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
                                 mobileView={mobileView} />
-                        )}
+                        )} */}
                         
                     </div>
 
