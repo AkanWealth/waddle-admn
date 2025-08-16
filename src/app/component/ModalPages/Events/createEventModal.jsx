@@ -405,14 +405,13 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
       ? frontendData.fee
       : "0.0";
 
+      console.log(frontendData.ticketNumber, "This is the quantity")
     const total_ticket =
-      frontendData.ticketNumber && frontendData.ticketNumber.trim() !== ""
-        ? frontendData.ticketNumber
-        : frontendData.capacity && typeof frontendData.capacity === "string"
-        ? frontendData.capacity === "limited"
-          ? "0"
-          : frontendData.capacity
-        : "0";
+      frontendData.capacity === "limited"
+        ? frontendData.ticketNumber && String(frontendData.ticketNumber).trim() !== ""
+          ? String(frontendData.ticketNumber)
+          : "0"
+        : "unlimited";
 
     const instructions = frontendData.safetyMeasures && frontendData.safetyMeasures.length > 0
       ? frontendData.safetyMeasures
