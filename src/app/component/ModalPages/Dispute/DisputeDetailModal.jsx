@@ -258,7 +258,7 @@ const DisputeDetailModal = ({ isOpen, onClose, dispute }) => {
           <FileText className="w-5 h-5 text-blue-500 mr-3" />
           <div>
             <p className="text-sm font-medium">
-                {dispute?.file.split("/").pop()}
+               View Here
               </p>
             <p className="text-xs text-gray-500">{getFileType(dispute?.file)}</p>
           </div>
