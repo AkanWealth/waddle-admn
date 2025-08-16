@@ -21,7 +21,7 @@ import { BookingTableSkeleton } from "../Element/LoadingSpinner";
 const BookingManagement: React.FC = () => {
   const paginatedBookings = usePaginatedBookings();
   const totalPages = useTotalPages();
-  const { paginatedVendors, totalPages: vendorTotalPages } =
+  const { totalPages: vendorTotalPages } =
     usePaginatedVendors(VendorData);
 
   const fetchBookingData = useBookingStore((state) => state.fetchBookingData);
@@ -49,9 +49,6 @@ const BookingManagement: React.FC = () => {
   const shouldShowPagination = () => {
     if (activeTab === "Bookings") {
       return paginatedBookings.length >= 1;
-    }
-    if (activeTab === "Revenue") {
-      return paginatedVendors.length >= 1;
     }
     return false;
   };
@@ -84,19 +81,23 @@ const BookingManagement: React.FC = () => {
             ))}
           </nav>
 
-          <SearchFilterBar />
+          {activeTab === "Bookings" && <SearchFilterBar />}
         </div>
       </header>
-
-      <StatusFilterModal
-        isOpen={isStatusModalOpen}
-        onClose={() => setStatusModalOpen(false)}
-        onApply={setStatusFilter}
-        initialSelected={statusFilter}
-      />
-
-      <MainBookingFilter isOpen={isMainFilterOpen} onClose={toggleMainFilter} />
-
+      {activeTab === "Bookings" && (
+        <StatusFilterModal
+          isOpen={isStatusModalOpen}
+          onClose={() => setStatusModalOpen(false)}
+          onApply={setStatusFilter}
+          initialSelected={statusFilter}
+        />
+      )}
+      {activeTab === "Bookings" && (
+        <MainBookingFilter
+          isOpen={isMainFilterOpen}
+          onClose={toggleMainFilter}
+        />
+      )}
       {isOpenBookingDetails && <BookingDetailsModal />}
       <>
         {isLoading ? (

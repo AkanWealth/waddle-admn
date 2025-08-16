@@ -293,7 +293,7 @@ export const useBookingStore = create<BookingStore>()(
         ),
 
       getStatusBadge: (status: string) => {
-        console.log(status, "This is the status for get status badge")
+        console.log(status, "This is the status for get status badge");
         const baseClasses =
           "px-2 py-1 rounded-[8px] text-xs font-normal flex items-center gap-1.5";
         switch (status) {
@@ -306,7 +306,7 @@ export const useBookingStore = create<BookingStore>()(
           case "canceled":
           case "Canceled":
           case "Failed":
-            console.log("Shoulf run this one")
+            console.log("Shoulf run this one");
             return `${baseClasses} bg-[#FFDEDE] text-[#CB1A14]`;
           default:
             return `${baseClasses} bg-gray-100 text-gray-800`;
@@ -501,21 +501,31 @@ export const usePaginatedVendors = (vendors: IVendor[]) => {
   const filteredVendors = useFilteredVendors(vendors);
   const pagination = useBookingStore((state) => state.pagination);
 
-  const totalPages = Math.ceil(
-    filteredVendors.length / pagination.itemsPerPage
-  );
-  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
-  const paginatedVendors = filteredVendors.slice(
-    startIndex,
-    startIndex + pagination.itemsPerPage
-  );
+  return React.useMemo(() => {
+    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+    const paginatedVendors = filteredVendors.slice(
+      startIndex,
+      startIndex + pagination.itemsPerPage
+    );
 
-  return {
-    filteredVendors,
-    paginatedVendors,
-    totalPages,
-    startIndex,
-  };
+    // Only count pages that actually have data
+    const actualTotalPages = Math.ceil(
+      filteredVendors.length / pagination.itemsPerPage
+    );
+
+    // If the current page has no data and it's not page 1, adjust totalPages
+    const totalPages =
+      paginatedVendors.length === 0 && pagination.currentPage > 1
+        ? Math.max(1, actualTotalPages)
+        : actualTotalPages;
+
+    return {
+      filteredVendors,
+      paginatedVendors,
+      totalPages,
+      startIndex,
+    };
+  }, [filteredVendors, pagination.currentPage, pagination.itemsPerPage]);
 };
 
 export const useRevenueStore = create<StoreState>((set) => ({
