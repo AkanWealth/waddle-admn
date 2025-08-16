@@ -9,7 +9,7 @@ type StatusFilterModalProps = {
   initialSelected?: string[];
 };
 
-const statusOptions = ["Confirmed", "Pending", "Canceled"];
+const statusOptions = ["Confirmed", "Pending", "Failed"];
 
 export default function StatusFilterModal({
   isOpen,

@@ -401,7 +401,7 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
 
 export default MainBookingFilter;
 
-const statusOptions = ["Confirmed", "Pending", "Canceled"];
+const statusOptions = ["Confirmed", "Pending", "Failed"];
 
 interface StatusDropdownProps {
   value: string;
