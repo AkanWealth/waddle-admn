@@ -16,7 +16,8 @@ export default function Payment() {
     
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(2);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +32,7 @@ export default function Payment() {
 
     // Define status options for each tab
     const statusOptions = {
-        "Transaction": ["Successful", "Pending", "Cancelled", "Failed", "Refunded"],
+        "Transaction": ["SUCCESSFUL", "PENDING", "FAILED", "REFUNDED"],
         "vendorPayment": ["Completed", "Pending", "Overdue"],
         // "Admin Users": ["Active", "Inactive", "Pending"]
     };
@@ -80,33 +81,19 @@ export default function Payment() {
         setFilterOpen(false);
         // Logic for applying filters would update the data in the respective tables
     };
-    const handleAdminUserSuccess = (userData) => {
-    console.log('Admin user created/updated successfully:', userData);
-    showMessage("Success", "Admin user created/updated successfully", "success");
-    setIsCreateAdminModalOpen(false);
-
     
-};
-
+    // Handle pagination update from Transaction component
+    const handlePaginationUpdate = (pagination) => {
+        setTotalPages(pagination.totalPages);
+        setTotalItems(pagination.total);
+    };
 
     // Reset filters
     const resetFilters = () => {
         setStatusFilter([]);
         setDateFilter({ from: "", to: "" });
     };
-// useEffect(() => {
-//         // Call the API when the component mounts
-//         axios.get("http://16.171.113.84/api/v1/users/all")
-//             .then(response => {
-//                 console.log("API response:", response.data); // See the response in your browser console
-//                 // You can also set it to state if you want to display it
-//                 // setUsers(response.data);
-//             })
-//             .catch(error => {
-//                 console.error("API error:", error);
-//             });
-//     }, []);
-    // Check window size for responsive design
+
     useEffect(() => {
         const handleResize = () => {
             setMobileView(window.innerWidth < 768);
@@ -135,6 +122,7 @@ export default function Payment() {
             {/* Main content */}
             <div className="bg-white rounded-lg shadow-sm">
                 <div className="p-6">
+                    <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4">All {activeTab}</h2>
 
                     {/* Tabs and Search/Filter */}
@@ -231,6 +219,7 @@ export default function Payment() {
                             </div>
                         </div>
                     </div>
+                    </div>
 
                     {/* Render the appropriate table based on active tab */}
                     <div className="overflow-x-auto">
@@ -240,7 +229,8 @@ export default function Payment() {
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
-                                mobileView={mobileView} />
+                                mobileView={mobileView}
+                                onPaginationUpdate={handlePaginationUpdate} />
                         {/* )} */}
                         {/* {activeTab === "Vendor Payment" && (
                             <VendorsPaymentTable
