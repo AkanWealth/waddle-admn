@@ -58,6 +58,7 @@ export default function ProfileSecurityPage({
                 // Update profile settings with fetched data
                 const updatedSettings = {
                     ...profileSettings,
+                    
                     firstName: userData.admin.first_name  || '',
                     lastName: userData.admin.last_name || '',
                     email: userData.admin.email || '',

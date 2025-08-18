@@ -4,15 +4,17 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { Loader2,  UserRoundPen } from "lucide-react";
+import { Loader2, SquarePen, UserRoundPen } from "lucide-react";
 import clsx from "clsx";
+import { useAuth } from "@/context/AuthContext";
 
 export default function UserImageUpload({ imageUrl, onUpload }: any) {
-  const [preview, setPreview] = useState(imageUrl || null);
+  const [preview, setPreview] = useState<string | null>(imageUrl || null);
   const [uploading, setUploading] = useState(false);
+  const { user }: { user?: { admin?: { avatarUrl?: string } } } = useAuth();
 
   const onDrop = useCallback(
-    async (acceptedFiles: any[]) => {
+    async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (!file) return;
 
@@ -57,10 +59,22 @@ export default function UserImageUpload({ imageUrl, onUpload }: any) {
         ) : preview ? (
           <Image
             src={preview}
-            alt="User profile"
+            alt="User profile preview"
             fill
             className="object-cover rounded-full"
+            unoptimized
           />
+        ) : user?.admin?.avatarUrl ? (
+          <>
+            <Image
+              src={user.admin.avatarUrl}
+              alt="User profile"
+              fill
+              className="object-cover rounded-full"
+              unoptimized
+            />
+            <SquarePen className="z-[100000]  self-end" />
+          </>
         ) : (
           <UserRoundPen className="w-6 h-6 text-[#1A1717]" />
         )}
