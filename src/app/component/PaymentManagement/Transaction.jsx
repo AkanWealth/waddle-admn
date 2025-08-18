@@ -5,7 +5,19 @@ import StatusBadge from "./StatusBadge";
 import { paymentService } from "@/utils/paymentService";
 import TransactionDetailsModal from "../ModalPages/Payment/PaymentDetailsModal";
 
-export default function TransactionTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, onPaginationUpdate }) {
+/**
+ * TransactionTable component for displaying payment transactions
+ * @param {Object} props - Component props
+ * @param {number} props.currentPage - Current page number
+ * @param {string} props.searchTerm - Search term for filtering
+ * @param {Array} props.statusFilter - Array of status filters
+ * @param {Object} props.dateFilter - Date filter object with from and to properties
+ * @param {string} props.paymentStatus - Payment status filter
+ * @param {string} props.bookingStatus - Booking status filter
+ * @param {boolean} props.mobileView - Whether to show mobile view
+ * @param {Function} props.onPaginationUpdate - Callback for pagination updates
+ */
+export default function TransactionTable({ currentPage, searchTerm, statusFilter, dateFilter, paymentStatus, bookingStatus, mobileView, onPaginationUpdate }) {
     const [allTransactions, setAllTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [paginatedTransactions, setPaginatedTransactions] = useState([]);
@@ -32,10 +44,27 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
             const params = {
                 page,
                 limit,
-                ...(statusFilter.length > 0 && { status: statusFilter.join(',') }),
+                ...(paymentStatus && { paymentStatus: paymentStatus.toUpperCase() }),
+                ...(bookingStatus && { 
+                    bookingStatus: (() => {
+                        switch (bookingStatus) {
+                            case "No Booking":
+                                return "NO_BOOKING";
+                            case "Successful":
+                                return "SUCCESSFUL";
+                            case "Cancelled":
+                                return "CANCELLED";
+                            default:
+                                return bookingStatus.toUpperCase();
+                        }
+                    })()
+                }),
                 ...(dateFilter.from && { startDate: dateFilter.from }),
                 ...(dateFilter.to && { endDate: dateFilter.to })
             };
+
+            // Debug logging
+            console.log('Fetching transactions with params:', params);
 
             const response = await paymentService.getAllPayments(params);
             
@@ -107,7 +136,7 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
     // Load data on component mount and when filters change
     useEffect(() => {
         fetchTransactions(currentPage);
-    }, [currentPage, statusFilter, dateFilter]);
+    }, [currentPage, statusFilter, dateFilter, paymentStatus, bookingStatus]);
 
     // Apply search filter
     useEffect(() => {
@@ -126,8 +155,22 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
             );
         }
 
+        // Apply client-side payment status filter
+        if (paymentStatus) {
+            results = results.filter(
+                transaction => transaction.paymentStatus.toLowerCase() === paymentStatus.toLowerCase()
+            );
+        }
+
+        // Apply client-side booking status filter
+        if (bookingStatus) {
+            results = results.filter(
+                transaction => transaction.bookingStatus.toLowerCase() === bookingStatus.toLowerCase()
+            );
+        }
+
         setFilteredTransactions(results);
-    }, [allTransactions, searchTerm]);
+    }, [allTransactions, searchTerm, paymentStatus, bookingStatus]);
 
     // Pagination logic - use API pagination instead of client-side
     useEffect(() => {

@@ -16,7 +16,8 @@ class PaymentService {
   async getAllPayments(params?: {
     page?: number;
     limit?: number;
-    status?: "PENDING" | "CANCELLED" | "SUCCESSFUL" | "FAILED" | "REFUNDED";
+    paymentStatus?: "SUCCESSFUL" | "PENDING" | "FAILED" | "REFUNDED";
+    bookingStatus?: "SUCCESSFUL" | "NO_BOOKING" | "CANCELLED";
     userId?: string;
     eventId?: string;
     startDate?: string;

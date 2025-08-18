@@ -3,11 +3,12 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useToastContext } from "@/context/toast";
-import { Search, Plus, Trash2, Filter, ChevronDown, Menu, X } from "lucide-react";
+import { Search, Plus, Trash2, Filter, ChevronDown, Menu, X, XIcon } from "lucide-react";
 import VendorsPaymentTable from "./VendorPayment";
 import TransactionTable from "./Transaction";
 
 import PaginationComponent from "../Element/PaginationComponent";
+import StatusDropdown from "./StatusDropdown";
 // import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
 
 export default function Payment() {
@@ -26,6 +27,9 @@ export default function Payment() {
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
     const { showMessage } = useToastContext();
+    const [paymentStatus, setPaymentStatus] = useState("");
+    const [bookingStatus, setBookingStatus] = useState("");
+
     
     // Mobile responsive states
     const [mobileView, setMobileView] = useState(false);
@@ -56,6 +60,7 @@ export default function Payment() {
 
     // Handle search input change
     const handleSearchChange = (e) => {
+        console.log('Search term change:', e.target.value);
         setSearchTerm(e.target.value);
         setCurrentPage(1); // Reset to first page when searching
     };
@@ -72,6 +77,7 @@ export default function Payment() {
 
     // Handle date filter change
     const handleDateChange = (type, value) => {
+        console.log('Date filter change:', { type, value });
         setDateFilter({ ...dateFilter, [type]: value });
         setCurrentPage(1); // Reset to first page when filtering
     };
@@ -92,6 +98,50 @@ export default function Payment() {
     const resetFilters = () => {
         setStatusFilter([]);
         setDateFilter({ from: "", to: "" });
+    };
+
+    // Handle apply filter button click
+    const handleApply = () => {
+        // Convert dropdown values to statusFilter array format
+        const newStatusFilter = [];
+        if (paymentStatus) {
+            newStatusFilter.push(paymentStatus.toUpperCase());
+        }
+        if (bookingStatus) {
+            // Map booking status to correct backend format
+            let mappedBookingStatus;
+            switch (bookingStatus) {
+                case "No Booking":
+                    mappedBookingStatus = "NO_BOOKING";
+                    break;
+                case "Successful":
+                    mappedBookingStatus = "SUCCESSFUL";
+                    break;
+                case "Cancelled":
+                    mappedBookingStatus = "CANCELLED";
+                    break;
+                default:
+                    mappedBookingStatus = bookingStatus.toUpperCase();
+            }
+            newStatusFilter.push(mappedBookingStatus);
+        }
+        
+        console.log('Applying filters:', { paymentStatus, bookingStatus, newStatusFilter, dateFilter });
+        
+        setStatusFilter(newStatusFilter);
+        setFilterOpen(false);
+        setCurrentPage(1); // Reset to first page when applying filters
+    };
+
+    // Handle clear filter button click
+    const handleClear = () => {
+        console.log('Clearing all filters');
+        setPaymentStatus("");
+        setBookingStatus("");
+        setDateFilter({ from: "", to: "" });
+        setStatusFilter([]);
+        setFilterOpen(false);
+        setCurrentPage(1); // Reset to first page when clearing filters
     };
 
     useEffect(() => {
@@ -165,55 +215,48 @@ export default function Payment() {
 
                                 {/* Filter dropdown */}
                                 {filterOpen && (
-                                    <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
-                                        <h3 className="font-medium text-gray-700 mb-3">Filter by Status</h3>
-                                        <div className="space-y-2 mb-4">
-                                            {getCurrentStatusOptions().map((status) => (
-                                                <label key={status} className="flex items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={statusFilter.includes(status)}
-                                                        onChange={() => handleStatusChange(status)}
-                                                        className="rounded text-blue-600 mr-2" />
-                                                    <span className="text-gray-700">{status}</span>
-                                                </label>
-                                            ))}
+                                    <div className="absolute right-0 mt-2 w-[450px] text-black bg-white rounded-lg shadow-lg border border-gray-200 z-10 p-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-[#303237] font-semibold text-[18px]">Filter By</h3>
+                                            <XIcon className="h-[20.5px] w-[20.5px] cursor-pointer" onClick={() => setFilterOpen(!filterOpen)} />
                                         </div>
-
-                                        <h3 className="font-medium text-gray-700 mb-3">Filter by Date</h3>
-                                        <div className="space-y-2 mb-4">
-                                            <div>
-                                                <label className="block text-sm text-gray-600 mb-1">From</label>
-                                                <input
-                                                    type="date"
-                                                    value={dateFilter.from}
-                                                    onChange={(e) => handleDateChange("from", e.target.value)}
-                                                    className="w-full p-2 border border-gray-300 rounded" />
+                                        <div className="my-[30px] flex flex-col gap-[24px]">
+                                             <div className="flex flex-col gap-2">
+                                                 <label className="block text-sm text-[#303237] mb-1 font-medium">Start Date</label>
+                                                 <input
+                                                     type="date"
+                                                     value={dateFilter.from}
+                                                     onChange={(e) => handleDateChange("from", e.target.value)}
+                                                     className="w-full p-2 border border-gray-300 rounded" />
+                                             </div>
+                                             <div className="flex flex-col gap-2">
+                                                 <label className="block text-sm text-[#303237] mb-1 font-medium">End Date</label>
+                                                 <input
+                                                     type="date"
+                                                     value={dateFilter.to}
+                                                     onChange={(e) => handleDateChange("to", e.target.value)}
+                                                     className="w-full p-2 border border-gray-300 rounded" />
+                                             </div>
+                                             <div className="flex flex-col gap-3">
+                                                <label className="block text-sm font-medium text-gray-700">Payment Status</label>
+                                                <StatusDropdown usedFor="payment" value={paymentStatus} onChange={setPaymentStatus} />
                                             </div>
-                                            <div>
-                                                <label className="block text-sm text-gray-600 mb-1">To</label>
-                                                <input
-                                                    type="date"
-                                                    value={dateFilter.to}
-                                                    onChange={(e) => handleDateChange("to", e.target.value)}
-                                                    className="w-full p-2 border border-gray-300 rounded" />
+                                            <div className="flex flex-col gap-3">
+                                                <label className="block text-sm font-medium text-gray-700">Booking Status</label>
+                                                <StatusDropdown usedFor="booking"  value={bookingStatus} onChange={setBookingStatus}  />
                                             </div>
                                         </div>
-
-                                        <div className="flex justify-between">
+                                        <div className="flex justify-between items-center gap-4 mt-6 flex-col">
                                             <button
-                                                onClick={resetFilters}
-                                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                                            >
-                                                Reset
+                                                onClick={handleApply}
+                                                className="bg-[#2853A6] hover:bg-[#1e3d7a] text-white font-medium py-2 px-4 rounded-xl w-full transition-colors">Apply Filter
                                             </button>
-                                            <button
-                                                onClick={applyFilters}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                            >
-                                                Apply
+                                            <button onClick={handleClear}   className="border border-[#CC0000] text-[#CC0000] hover:bg-[#CC0000] hover:text-white font-medium py-2 px-4 rounded-xl w-full transition-colors">
+                                                Clear
                                             </button>
                                         </div>
+                                            
+
                                     </div>
                                 )}
                             </div>
@@ -223,12 +266,17 @@ export default function Payment() {
 
                     {/* Render the appropriate table based on active tab */}
                     <div className="overflow-x-auto">
+                        {/* Debug logging */}
+                        {console.log('TransactionTable props:', { currentPage, searchTerm, statusFilter, dateFilter, paymentStatus, bookingStatus })}
+                        
                         {/* {activeTab === "Transaction" && ( */}
                             <TransactionTable
                                 currentPage={currentPage}
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
+                                paymentStatus={paymentStatus}
+                                bookingStatus={bookingStatus}
                                 mobileView={mobileView}
                                 onPaginationUpdate={handlePaginationUpdate} />
                         {/* )} */}
