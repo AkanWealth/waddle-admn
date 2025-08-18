@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import BaseModal from '../../Element/BaseModal';
+import { BanknoteArrowDown, Calendar, CircleX, Clock, HandCoins, PoundSterling, UserRound, Wallet } from 'lucide-react';
+import formatMoney, { subtractAndFormat } from '@/lib/formatMoney';
+import capitalizeFirstLetter from '@/lib/capitalizeFirstLetter';
+import StatusBadge from '../../PaymentManagement/StatusBadge';
 
 // Transaction Details Modal - Main modal that shows different content based on status
 const TransactionDetailsModal = ({ transaction, isOpen, onClose, onRefund }) => {
@@ -50,51 +54,148 @@ const TransactionDetailsModal = ({ transaction, isOpen, onClose, onRefund }) => 
     const renderTransactionDetails = () => (
         <div className="space-y-6">
             {/* Status Badge */}
-            <div className="flex mb-6 py-2 border-t border-gray-300">
+            {/* <div className="flex mb-6 py-2 border-t border-gray-300">
                 <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(transaction.status)}`}>
-                    {transaction.status}
                 </span>
-            </div>
-
+            </div> */}
+            {console.log(transaction, "This is the transaction")}
             {/* Transaction Info Grid */}
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-2 my-3.5">
                 <div className="space-y-4">
+                    {transaction.paymentStatus !== "SUCCESSFUL" && 
+
                     <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Transaction ID</label>
+                        <label className="block text-base  text-[#7E8494]">Payment Status</label>
+                        <StatusBadge status={transaction.paymentStatus} />
+                    </div>
+}
+                    <div className='flex items-center justify-between'>
+                        <div className="">
+                            <label className="block text-base font-normal text-[#7E8494] mb-1">#Transaction ID</label>
+                        </div>
                         <p className="text-gray-900 font-medium">{transaction.id}</p>
                     </div>
                     
                     <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">User</label>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <UserRound className='h-[16px] w-[16px]'/>
+                            <label className="block text-base font-normal text-[#7E8494]">User</label>
+                        </div>
                         <p className="text-gray-900">{transaction.userName}</p>
                     </div>
                     
                     <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Event</label>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <Calendar className='h-[16px] w-[16px]'/>
+                            <label className="block text-base font-normal text-[#7E8494]">Event</label>
+                        </div>
                         <p className="text-gray-900">{transaction.eventName}</p>
                     </div>
                     
                     <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Date</label>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <Clock className='h-[16px] w-[16px]'/>
+                            <label className="block text-base font-normal text-[#7E8494]">Date</label>
+                        </div>
                         <p className="text-gray-900">{formatDate(transaction.transactionDate)}</p>
                     </div>
+                    
+                      {
+                    transaction.paymentStatus == "FAILED" &&
+                     <div className="bg-[#FFEBEB] text-[#CC0000] p-4 flex flex-col gap-2 rounded-[8px]">
+                        <div className="flex items-center gap-2">
+                            <CircleX className='h-[18px] w-[17px] font-light' />
+                            <h3 className="font-semibold">Payment Failed - No Booking Created</h3>
+                        </div>
+                        <p className="text-sm">Since the payment failed, no booking was created for this transaction.</p>
+                     </div>
+                      }
+
+                    {
+                    transaction.paymentStatus != "FAILED" && transaction.paymentStatus != "PENDING" && 
+                    <div className='flex items-center justify-between'>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <Clock className='h-[16px] w-[16px]'/>
+                            <label className="block text-base font-normal text-[#7E8494]">Booking Created</label>
+                        </div>
+                        <p className="text-gray-900">{formatDate(transaction.booking.createdAt)}</p>
+                         </div>
+                    }
+
+
+                   {transaction.paymentStatus != "FAILED" && transaction.paymentStatus != "PENDING" && 
+                    <div className='flex items-center justify-between'>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <PoundSterling className='h-[16px] w-[16px]' />
+                            <label className="block text-base font-normal text-[#7E8494]">Amount Paid</label>
+                        </div>
+                        <p className="text-gray-900">£{formatMoney(transaction.amountPaid)}</p>
+                    </div>
+                    }
+
+                    {transaction.paymentStatus == "FAILED" && 
+                    <div className='flex items-center justify-between'>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <PoundSterling className='h-[16px] w-[16px]' />
+                            <label className="block text-base font-normal text-[#7E8494]">Attempted Amount</label>
+                        </div>
+                        <p className="text-gray-900">{transaction.amount}</p>
+                    </div>
+                    }
+                    <div className='flex items-center justify-between'>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <Wallet className='h-[16px] w-[16px]' />
+                            <label className="block text-base font-normal text-[#7E8494]">Payment Method</label>
+                        </div>
+                        <p className="text-gray-900">Card</p>
+                    </div>
+                {
+                    transaction.paymentStatus != "FAILED" && transaction.paymentStatus != "PENDING" && 
+                    <div className='flex items-center justify-between'>  
+                        <label className="block text-base font-normal text-[#7E8494]">#Booking ID</label>
+                        <p className="text-[#303237]">{transaction.booking.id}</p>
+                    </div>}
+
+                    {transaction.paymentStatus == "SUCCESSFUL" && 
+                    <>
+                    
+                    <div className='flex items-center justify-between'>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <HandCoins className='h-[16px] w-[16px]' />
+                            <label className="block text-base font-normal text-[#7E8494]">Processing Fee</label>
+                        </div>
+                        <p className="text-[#303237]">£{formatMoney(transaction.processingFee)}</p>
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <div className="text-[#7E8494] flex items-center gap-2">
+                            <BanknoteArrowDown className='h-[16px] w-[16px]'/>
+                            <label className="block text-base font-semibold text-[#303237]">Net Amount</label>
+                        </div>
+                        <p className="text-base font-semibold text-[#303237]">£{formatMoney(transaction.netAmount)}</p>
+                    </div>
+                    </>
+                    }
+                    {transaction.paymentStatus !== "FAILED" && transaction.paymentStatus !== "PENDING" && 
+<>
+
+                    <div className='flex items-center justify-between'>
+                        <label className="block text-base  text-[#7E8494]">Payment Status</label>
+                        <StatusBadge status={transaction.paymentStatus} />
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <label className="block text-base  text-[#7E8494]">Booking Status</label>
+                        <StatusBadge status={transaction.bookingStatus} />
+                    </div>
+                    </>
+}
                 </div>
 
                 <div className="space-y-4">
-                    <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Amount Paid</label>
-                        <p className="text-gray-900 font-medium text-lg">{transaction.amount}</p>
-                    </div>
+
+
                     
-                    <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Payment Method</label>
-                        <p className="text-gray-900">Credit Card</p>
-                    </div>
                     
-                    <div className='flex items-center justify-between'>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Booking ID</label>
-                        <p className="text-gray-900">BK{Math.random().toString(36).substr(2, 6).toUpperCase()}</p>
-                    </div>
+
                     
                     {transaction.status?.toLowerCase() === 'cancelled' && (
                         <div>
