@@ -4,7 +4,7 @@ import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import { recommendationService } from "@/utils/recommendationService";
 import { CircleCheck } from "lucide-react";
 
-const ApprovePlaceModal = (tab: string) => {
+const ApprovePlaceModal = ({ tab }: { tab: "place" | "event" | null }) => {
   const {
     closeShowApproveDetailsModal,
     closeShowPlaceDetailsModal,
@@ -13,8 +13,24 @@ const ApprovePlaceModal = (tab: string) => {
     selectedPlace,
     selectedEvent,
     updatePlaceStatus,
+    showPlaceDetailsModal,
+    showEventDetailsModal,
+    updateEventStatus,
   } = useRecommendationsStore();
   const { showMessage } = useToastContext();
+
+  // Determine acting context robustly
+  const context: "place" | "event" =
+    tab ??
+    (showPlaceDetailsModal && selectedPlace
+      ? "place"
+      : showEventDetailsModal && selectedEvent
+      ? "event"
+      : selectedPlace
+      ? "place"
+      : selectedEvent
+      ? "event"
+      : "place");
 
   const handleApprovePlace = async () => {
     if (!selectedPlace) return;
@@ -41,7 +57,7 @@ const ApprovePlaceModal = (tab: string) => {
     const result = await recommendationService.approveRecommendationPlace(
       selectedEvent.id
     );
-    //  updateEventStatus(selectedEvent.id, "Approved");
+    updateEventStatus(selectedEvent.id, "Approved");
     if (result.success) {
       showMessage(
         "Event Approved!",
@@ -56,10 +72,17 @@ const ApprovePlaceModal = (tab: string) => {
     }
   };
   const handleApprove = () => {
-    if (tab === "place") {
+    if (context === "place") {
       handleApprovePlace();
-    } else {
+    } else if (context === "event") {
       handleApproveEvent();
+    } else {
+      // Fallback: infer from selected item
+      if (selectedPlace) {
+        handleApprovePlace();
+      } else if (selectedEvent) {
+        handleApproveEvent();
+      }
     }
   };
 
@@ -76,12 +99,13 @@ const ApprovePlaceModal = (tab: string) => {
           </div>
           <div>
             <h3 className="font-semibold text-xl text-[#303237] mb-1">
-              Approve This {tab === "place" ? "Place" : "Event"}?
+              Approve This {context === "place" ? "Place" : "Event"}?
             </h3>
             <p className="text-[#565C69] text-[15px]">
               You&apos;re about to approve this parent-recommended{" "}
-              {tab === "place" ? "place" : "event"}. Once approved, it will be
-              published to the app and visible under “Parent Recommendations.”
+              {context === "place" ? "place" : "event"}. Once approved, it will
+              be published to the app and visible under “Parent
+              Recommendations.”
             </p>
           </div>
         </div>
@@ -93,7 +117,7 @@ const ApprovePlaceModal = (tab: string) => {
             type="button"
             className="bg-[#2853A6] rounded-xl text-white flex-1 py-2 font-medium"
           >
-            Approve & Publish
+            {context === "place" ? "Approve Place" : "Approve Event"}
           </button>
           <button
             onClick={() => closeShowApproveDetailsModal()}

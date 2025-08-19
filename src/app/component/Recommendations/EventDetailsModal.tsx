@@ -105,7 +105,7 @@ const EventDetailsModal = ({
               className="text-[#404040]"
             />
           </div>
-          {derivedStatus !== "Approved" && (
+          {derivedStatus === "Pending" && (
             <div className="flex   justify-end my-2.5">
               <div className="w-[80%] flex items-center gap-6">
                 <button

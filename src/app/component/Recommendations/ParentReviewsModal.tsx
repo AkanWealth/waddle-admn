@@ -198,15 +198,31 @@ const ParentReviewsModal: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const { selectedPlace, showParentReviewsModal, closeShowParentReviewsModal } =
-    useRecommendationsStore();
+  const {
+    selectedPlace,
+    selectedEvent,
+    parentReviewsContext,
+    showParentReviewsModal,
+    closeShowParentReviewsModal,
+  } = useRecommendationsStore();
+
+  // Determine context (place/event) from current selection
+  const context: "place" | "event" =
+    parentReviewsContext ?? (selectedEvent ? "event" : "place");
+  const itemId =
+    (context === "event" ? selectedEvent?.id : selectedPlace?.id) ||
+    "cmdzywhqg000mu0mfnasp4lfr";
+  const itemName =
+    context === "event" ? selectedEvent?.name : selectedPlace?.name;
+  const itemStatus =
+    context === "event" ? selectedEvent?.status : selectedPlace?.status;
 
   const fetchReviews = async (pageNum = 1) => {
     try {
       setLoading(true);
       const response =
         await recommendationService.getAllRecommendationsPlacesByPage(
-          selectedPlace?.id || "cmdzywhqg000mu0mfnasp4lfr",
+          itemId,
           pageNum
         );
 
@@ -227,7 +243,7 @@ const ParentReviewsModal: React.FC = () => {
 
   useEffect(() => {
     fetchReviews();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -279,11 +295,11 @@ const ParentReviewsModal: React.FC = () => {
           </h3>
           <p className="text-sm text-gray-500 flex items-center gap-1 mb-1">
             <span className="bg-gray-100 px-2 py-0.5 rounded-full text-xs">
-              {selectedPlace?.status}
+              {itemStatus}
             </span>
           </p>
           <h2 className="text-[20px] font-semibold my-2 text-[#404040]">
-            {selectedPlace?.name || "Fun Forest Walk"}
+            {itemName || "Fun Forest Walk"}
           </h2>
           <div className="flex items-center gap-4">
             <Image
@@ -296,7 +312,10 @@ const ParentReviewsModal: React.FC = () => {
             <div className="flex flex-col gap-1.5">
               <p className="text-sm text-[#303237] flex items-end gap-1">
                 <span className="font-bold  text-[20px]">92%</span>
-                <span className="">of parents recommend this place</span>
+                <span className="">
+                  of parents recommend this{" "}
+                  {context === "place" ? "place" : "event"}
+                </span>
               </p>
               <p className="text-sm text-[#565C69] font-normal">
                 Based on 56 Waddle reviews

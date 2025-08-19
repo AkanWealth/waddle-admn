@@ -65,6 +65,7 @@ interface RecommendationsState {
   setIsLoading: (isLoading: boolean) => void;
 
   showParentReviewsModal: boolean;
+  parentReviewsContext: "place" | "event" | null;
   openShowParentReviewsModal: () => void;
   closeShowParentReviewsModal: () => void;
 
@@ -81,6 +82,7 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
   showApproveDetailsModal: false,
   showRejectDetailsModal: false,
   showParentReviewsModal: false,
+  parentReviewsContext: null,
 
   showEventDetailsModal: false,
 
@@ -143,8 +145,10 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
   openShowRejectDetailsModal: () => set({ showRejectDetailsModal: true }),
   closeShowRejectDetailsModal: () => set({ showRejectDetailsModal: false }),
 
-  openShowParentReviewsModal: () => set({ showParentReviewsModal: true }),
-  closeShowParentReviewsModal: () => set({ showParentReviewsModal: false }),
+  openShowParentReviewsModal: (type?: "place" | "event") =>
+    set({ showParentReviewsModal: true, parentReviewsContext: type ?? null }),
+  closeShowParentReviewsModal: () =>
+    set({ showParentReviewsModal: false, parentReviewsContext: null }),
 
   refreshEvents: async (tab: "Places" | "Events") => {
     set({ isLoading: true });

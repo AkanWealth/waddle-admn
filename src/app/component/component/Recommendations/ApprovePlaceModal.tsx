@@ -17,6 +17,7 @@ const ApprovePlaceModal = () => {
 
     if (result.success) {
       console.log("Place approved:", result.data);
+      
     } else {
       console.error("Error approving place:", result.error);
     }

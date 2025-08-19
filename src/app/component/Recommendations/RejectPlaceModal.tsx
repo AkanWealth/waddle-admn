@@ -16,8 +16,15 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { selectedPlace, selectedEvent, refreshEvents } =
-    useRecommendationsStore();
+  const {
+    selectedPlace,
+    selectedEvent,
+    refreshEvents,
+    showPlaceDetailsModal,
+    showEventDetailsModal,
+    updatePlaceStatus,
+    updateEventStatus,
+  } = useRecommendationsStore();
   const { showMessage } = useMessageContext();
 
   const [suspensionReason, setSuspensionReason] = useState("");
@@ -60,6 +67,8 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
         selectedPlace.id
       );
       if (response.success) {
+        // Optimistically update store status
+        updatePlaceStatus(selectedPlace.id, "Rejected");
         refreshEvents("Places");
         onClose();
         showMessage("Place Rejected!", "Place has been rejected", "success");
@@ -78,6 +87,8 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
         selectedEvent.id
       );
       if (response.success) {
+        // Optimistically update store status
+        updateEventStatus(selectedEvent.id, "Rejected");
         refreshEvents("Events");
         onClose();
         showMessage("Event Rejected!", "Event has been rejected", "success");
@@ -87,13 +98,26 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
     }
   };
 
+  // Determine acting context robustly
+  const context: "place" | "event" =
+    (tab as "place" | "event") ??
+    (showPlaceDetailsModal && selectedPlace
+      ? "place"
+      : showEventDetailsModal && selectedEvent
+      ? "event"
+      : selectedPlace
+      ? "place"
+      : selectedEvent
+      ? "event"
+      : "place");
+
   const handleConfirm = async () => {
     if (!suspensionReason.trim()) {
       setError(true);
       return;
     }
-    console.log(tab, "This is the tab in handleConfirm");
-    if (tab == "place") {
+    console.log(context, "This is the context in handleConfirm");
+    if (context === "place") {
       await handleRejectPlace();
     } else {
       await handleRejectEvent();
@@ -139,7 +163,7 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
           <div className="">
             {!isMobile && (
               <h2 className="text-xl font-semibold text-gray-800">
-                Reject This {tab === "place" ? "Place" : "Event"}?
+                Reject This {context === "place" ? "Place" : "Event"}?
               </h2>
             )}
             <p className="text-gray-700 text-center">
@@ -183,7 +207,7 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
             onClick={handleConfirm}
             className="bg-[#CC0000] flex-1 text-white py-3 px-4 rounded-lg text-sm font-semibold w-full md:w-auto"
           >
-            Reject {tab === "place" ? "Place" : "Event"}
+            {context === "place" ? "Reject Place" : "Reject Event"}
           </button>
           <button
             onClick={onClose}
