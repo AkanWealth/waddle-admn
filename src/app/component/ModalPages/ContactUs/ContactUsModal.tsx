@@ -1,11 +1,13 @@
 import { X } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const ContactUsModal = ({
   setIsOpenContactUsModal,
 }: {
   setIsOpenContactUsModal: (value: boolean) => void;
 }) => {
+  const router = useRouter();
   return (
     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4  z-50">
       <div className="p-[48px] relative bg-white flex flex-col items-center justify-center gap-[32px] rounded-lg shadow-xl max-w-[504px] w-full mx-4 max-h-[90vh] overflow-hidden">
@@ -29,7 +31,10 @@ const ContactUsModal = ({
             get back to you as soon as possible.
           </p>
         </div>
-        <button className="py-[12px] w-full bg-[#2853A6] rounded-[8px] transition-colors cursor-pointer">
+        <button
+          onClick={() => router.push("/")}
+          className="py-[12px] w-full bg-[#2853A6] rounded-[8px] transition-colors cursor-pointer"
+        >
           Back to Home
         </button>
       </div>

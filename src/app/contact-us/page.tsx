@@ -7,11 +7,47 @@ import ImageFiles from "@/assets/assets/images";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import ContactUsModal from "../component/ModalPages/ContactUs/ContactUsModal";
+import axios from "axios";
+import { baseUrl } from "@/lib/envfile";
+import { useForm } from "react-hook-form";
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
+}
 
 const ContactUsPage = () => {
   const [isOpenContactUsModal, setIsOpenContactUsModal] = useState(false);
-  const handleContactUs = () => {
-    setIsOpenContactUsModal(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ContactFormData>();
+
+  const onSubmit = async (data: ContactFormData) => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/v1/notifications/admin/send-email-to-waddle-team-via-contact-us-form`,
+        {
+          email: data.email,
+          name: data.name,
+          message: data.message,
+        }
+      );
+      if (response.data.success) {
+        setIsOpenContactUsModal(true);
+        reset(); // Reset form after successful submission
+      }
+    } catch (err: unknown) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,7 +82,10 @@ const ContactUsPage = () => {
               inquiries. We are here to assist you every step of the way.
             </p>
           </div>
-          <div className="flex flex-col gap-7">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-7"
+          >
             <div className="flex flex-col gap-2">
               <h2 className="text-[#303237] text-[16px] font-bold">
                 <span className="text-[#121212] text-[16px]">Name</span>
@@ -54,9 +93,23 @@ const ContactUsPage = () => {
               </h2>
               <input
                 type="text"
-                className="w-full px-4 py-3 border !text-[#000000] border-[#BDC0CE] outline-none rounded-md"
+                {...register("name", {
+                  required: "Name is required",
+                  minLength: {
+                    value: 2,
+                    message: "Name must be at least 2 characters",
+                  },
+                })}
+                className={`w-full px-4 py-3 border !text-[#000000] border-[#BDC0CE] outline-none rounded-md ${
+                  errors.name ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your name"
               />
+              {errors.name && (
+                <span className="text-red-500 text-sm">
+                  {errors.name.message}
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -65,10 +118,24 @@ const ContactUsPage = () => {
                 <span className="text-[#FF0000] text-[16px]">*</span>
               </h2>
               <input
-                type="text"
-                className="w-full px-4 py-3 border !text-[#000000] border-[#BDC0CE] outline-none rounded-md"
+                type="email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address",
+                  },
+                })}
+                className={`w-full px-4 py-3 border !text-[#000000] border-[#BDC0CE] outline-none rounded-md ${
+                  errors.email ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your email address"
               />
+              {errors.email && (
+                <span className="text-red-500 text-sm">
+                  {errors.email.message}
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -79,9 +146,23 @@ const ContactUsPage = () => {
                 <span className="text-[#FF0000] text-[16px]">*</span>
               </h2>
               <textarea
-                className="w-full px-4 py-3 border min-h-[100px] resize-none !text-[#000000] border-[#BDC0CE] outline-none rounded-md"
+                {...register("message", {
+                  required: "Message is required",
+                  minLength: {
+                    value: 10,
+                    message: "Message must be at least 10 characters",
+                  },
+                })}
+                className={`w-full px-4 py-3 border min-h-[100px] resize-none !text-[#000000] border-[#BDC0CE] outline-none rounded-md ${
+                  errors.message ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your message"
               />
+              {errors.message && (
+                <span className="text-red-500 text-sm">
+                  {errors.message.message}
+                </span>
+              )}
             </div>
             <div className="flex items-center flex-col sm:flex-row justify-between gap-2">
               <p className="text-[#898483]  text-[16px]">
@@ -104,16 +185,24 @@ const ContactUsPage = () => {
                 </Link>
               </p>
               <button
-                onClick={handleContactUs}
-                className="bg-[#2853A6]  flex items-center gap-2 text-white px-8 py-3 rounded-[12px]"
+                type="submit"
+                disabled={isLoading}
+                className={`bg-[#2853A6] flex items-center gap-2 text-white px-8 py-3 rounded-[12px] ${
+                  isLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#1e3f7a]"
+                }`}
               >
                 <span className="text-[#FFFFFF] font-medium text-nowrap text-[16px]">
-                  Send message
+                  {isLoading ? "Sending..." : "Send message"}
                 </span>
-                <ArrowRightIcon className="w-4 h-4" />
+                {!isLoading && <ArrowRightIcon className="w-4 h-4" />}
+                {isLoading && (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                )}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
