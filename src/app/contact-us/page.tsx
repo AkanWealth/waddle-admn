@@ -1,12 +1,19 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Header from "../component/component/Headers/Headers";
 import Footer from "../component/component/Homepage/Footer";
 import Image from "next/image";
 import ImageFiles from "@/assets/assets/images";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+import ContactUsModal from "../component/ModalPages/ContactUs/ContactUsModal";
 
 const ContactUsPage = () => {
+  const [isOpenContactUsModal, setIsOpenContactUsModal] = useState(false);
+  const handleContactUs = () => {
+    setIsOpenContactUsModal(true);
+  };
+
   return (
     <section className="bg-white min-h-screen">
       <header className="sticky top-0 z-50">
@@ -96,7 +103,10 @@ const ContactUsPage = () => {
                   Terms & Conditions
                 </Link>
               </p>
-              <button className="bg-[#2853A6]  flex items-center gap-2 text-white px-8 py-3 rounded-[12px]">
+              <button
+                onClick={handleContactUs}
+                className="bg-[#2853A6]  flex items-center gap-2 text-white px-8 py-3 rounded-[12px]"
+              >
                 <span className="text-[#FFFFFF] font-medium text-nowrap text-[16px]">
                   Send message
                 </span>
@@ -110,6 +120,9 @@ const ContactUsPage = () => {
       <section className="bg-[#EAEEF6] py-[70px] px-4 sm:px-6 lg:px-[80px]">
         <Footer />
       </section>
+      {isOpenContactUsModal && (
+        <ContactUsModal setIsOpenContactUsModal={setIsOpenContactUsModal} />
+      )}
     </section>
   );
 };
