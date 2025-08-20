@@ -714,6 +714,7 @@ import Image from "next/image";
 import RejectPlaceModal from "@/app/component/Recommendations/RejectPlaceModal";
 import ParentReviewsModal from "@/app/component/Recommendations/ParentReviewsModal";
 import EventDetailsModal from "@/app/component/Recommendations/EventDetailsModal";
+import RecommendationStatusFilterModal from "@/app/component/Recommendations/RecommendationStatusFilterModal";
 
 interface Recommendation {
   id: string;
@@ -747,13 +748,21 @@ function determineStatus(event: string): "Pending" | "Rejected" | "Approved" {
 interface SearchFilterProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
-  onFilterClick: () => void;
+  statusFilter: string[];
+  onStatusFilterChange: (filters: string[]) => void;
+  isFilterModalOpen: boolean;
+  onToggleFilterModal: () => void;
+  activeTab: string;
 }
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
   searchTerm,
   onSearchChange,
-  onFilterClick,
+  statusFilter,
+  onStatusFilterChange,
+  isFilterModalOpen,
+  onToggleFilterModal,
+  activeTab,
 }) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -767,13 +776,25 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           className="text-[#272727] w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
         />
       </div>
-      <button
-        onClick={onFilterClick}
-        className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-[#272727]"
-      >
-        <Filter className="w-4 h-4" />
-        Filter
-      </button>
+      <div className="relative">
+        <button
+          onClick={onToggleFilterModal}
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-[#272727]"
+        >
+          <Filter className="w-4 h-4" />
+          {statusFilter.length > 0
+            ? `Filter (${statusFilter.length})`
+            : "Filter"}
+        </button>
+
+        <RecommendationStatusFilterModal
+          isOpen={isFilterModalOpen}
+          onClose={onToggleFilterModal}
+          onApply={onStatusFilterChange}
+          initialSelected={statusFilter}
+          activeTab={activeTab as "Places" | "Events"}
+        />
+      </div>
     </div>
   );
 };
@@ -781,7 +802,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
 // Loading skeleton component
 const TableLoadingSkeleton = ({ activeTab }: { activeTab: string }) => {
   const skeletonRows = Array.from({ length: 7 }, (_, index) => index);
-  
+
   return (
     <div className="w-full overflow-y-hidden relative h-full">
       <table className="w-full table-auto">
@@ -1150,6 +1171,8 @@ const ParentRecommendations: React.FC = () => {
     "place" | "event" | null
   >(null);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const itemsPerPage = 7;
 
   useEffect(() => {
@@ -1157,21 +1180,34 @@ const ParentRecommendations: React.FC = () => {
     // Clear active modal when switching tabs
     setActiveModalId(null);
     setActiveModalType(null);
+    // Clear status filter when switching tabs
+    setStatusFilter([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   // Filtering and pagination logic for each tab
-  const filteredPlaces = places.filter(
-    (item) =>
+  const filteredPlaces = places.filter((item) => {
+    const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.creator.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const filteredEvents = events.filter(
-    (item) =>
+      item.creator.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter.length === 0 || statusFilter.includes(item.status);
+
+    return matchesSearch && matchesStatus;
+  });
+  const filteredEvents = events.filter((item) => {
+    const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.submittedBy.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      item.submittedBy.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter.length === 0 ||
+      statusFilter.includes(determineStatus(item.status));
+
+    return matchesSearch && matchesStatus;
+  });
 
   const totalPages = Math.ceil(
     (activeTab === "Places" ? filteredPlaces.length : filteredEvents.length) /
@@ -1272,8 +1308,12 @@ const ParentRecommendations: React.FC = () => {
     };
   }, [activeModalId]); // Re-run effect when activeModalId changes
 
-  const handleFilterClick = () => {
-    // Handle filter logic here
+  const handleStatusFilterChange = (filters: string[]) => {
+    setStatusFilter(filters);
+  };
+
+  const handleToggleFilterModal = () => {
+    setIsFilterModalOpen(!isFilterModalOpen);
   };
 
   // Get the current status for the modal based on active type
@@ -1317,7 +1357,11 @@ const ParentRecommendations: React.FC = () => {
             <SearchFilter
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
-              onFilterClick={handleFilterClick}
+              statusFilter={statusFilter}
+              onStatusFilterChange={handleStatusFilterChange}
+              isFilterModalOpen={isFilterModalOpen}
+              onToggleFilterModal={handleToggleFilterModal}
+              activeTab={activeTab}
             />
           </div>
           <div className="bg-white relative">
@@ -1384,15 +1428,16 @@ const ParentRecommendations: React.FC = () => {
           </div>
         </div>
       </div>
-      {!isLoading && (activeTab === "Places"
-        ? filteredPlaces.length > 0
-        : filteredEvents.length > 0) && (
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      )}
+      {!isLoading &&
+        (activeTab === "Places"
+          ? filteredPlaces.length > 0
+          : filteredEvents.length > 0) && (
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       {showPlaceDetailsModal && (
         <PlacesDetailsModal selectedPlace={selectedPlace} />
       )}

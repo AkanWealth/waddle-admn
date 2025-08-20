@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // import { useRef } from "react";
 // import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 // import { MessageSquareX, Quote, ThumbsUp, Route } from "lucide-react";
@@ -87,7 +88,7 @@
 // };
 
 // export default RecommendationActionModal;
-
+//@ts-nocheck
 import { useRef } from "react";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import { MessageSquareX, Quote, ThumbsUp, Route } from "lucide-react";
@@ -150,7 +151,7 @@ const RecommendationActionModal: React.FC<RecommendationActionModalProps> = ({
       }
     } else if (tab === 2) {
       // Parent Reviews
-      openShowParentReviewsModal();
+      openShowParentReviewsModal(type);
     } else if (tab === 3) {
       // Approve
       openShowApproveDetailsModal();

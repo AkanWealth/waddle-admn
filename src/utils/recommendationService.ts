@@ -112,6 +112,25 @@ class RecommendationService {
       };
     }
   }
+
+  async getAllRecommendationsEventByPage(crowdSourcedId: string, page: number) {
+    try {
+      //localhost:3030/api/v1/crowd-sourcing/review/{id}/paginated
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/admin/events-review/${crowdSourcedId}/paginated?page=${page}`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
+      };
+    }
+  }
   async getAllRecommendationsPlacesStats(crowdSourcedId: string) {
     try {
       const response = await authService.makeAuthenticatedRequest(
@@ -126,6 +145,98 @@ class RecommendationService {
           error instanceof Error
             ? error.message
             : "Failed to fetch recommendations",
+      };
+    }
+  }
+  async getRecommendationPlacePercentage(crowdSourcedId: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/place/${crowdSourcedId}/recommendation-percentage`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
+      };
+    }
+  }
+  async getRecommendationEventPercentage(crowdSourcedId: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/event/${crowdSourcedId}/attendance-percentage`
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommendations",
+      };
+    }
+  }
+  async flagOrUnflagEventComment(
+    id: string,
+    data: "APPROPRIATE" | "INAPPROPRIATE"
+  ) {
+    try {
+      const payload = {
+        status: data,
+      };
+
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/comment/${id}/flag`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to approve recommendation",
+      };
+    }
+  }
+  async flagOrUnflagPlaceComment(
+    id: string,
+    data: "APPROPRIATE" | "INAPPROPRIATE"
+  ) {
+    try {
+      const payload = {
+        status: data,
+      };
+
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/place-review/${id}/flag`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to approve recommendation",
       };
     }
   }
