@@ -40,7 +40,7 @@ const BookingDetailsModal = () => {
     selectedEvent,
     isOpenBookingDetails,
     closeBookingDetailsModal,
-   // openGuardianDetailsModal,
+    // openGuardianDetailsModal,
     // isOpenGuardianDetails,
   } = useBookingStore();
 
@@ -55,7 +55,7 @@ const BookingDetailsModal = () => {
     if (isOpenBookingDetails && selectedEvent?.id) {
       fetchGuardianData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenBookingDetails, selectedEvent?.id]);
 
   const fetchGuardianData = async () => {
@@ -237,7 +237,7 @@ const BookingDetailsModal = () => {
                 <div>Email</div>
                 <div>Phone</div>
                 <div>Children</div>
-                <div className="text-center">Count</div>
+                <div className="text-center">Age</div>
               </div>
 
               <div className="space-y-1">
@@ -258,17 +258,17 @@ const BookingDetailsModal = () => {
                       className="grid grid-cols-5 gap-2 text-sm text-gray-700 py-3 px-3 bg-white hover:bg-gray-50 border-b border-gray-100 transition-colors"
                     >
                       <div className="font-medium text-gray-900">
-                        {guardian.name}
+                        {selectedEvent.user.name}
                       </div>
                       <div className="text-gray-600 break-all">
-                        {guardian.email}
+                        {selectedEvent.user.email}
                       </div>
-                      <div className="text-gray-600">{guardian.phone}</div>
+                      <div className="text-gray-600">{selectedEvent.user.phone_number || "NA"}</div>
                       <div className="text-gray-600">
-                        {guardian.children || "N/A"}
+                        {guardian.name|| "N/A"}
                       </div>
                       <div className="text-center font-medium">
-                        {guardian.count}
+                        {guardian.age}
                       </div>
                     </div>
                   ))

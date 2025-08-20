@@ -362,7 +362,8 @@ export const useFilteredBookings = () => {
           .includes(filters.searchTerm.toLowerCase()) ||
         booking?.event?.organiser?.name
           .toLowerCase()
-          .includes(filters.searchTerm.toLowerCase());
+          .includes(filters.searchTerm.toLowerCase()) ||
+        booking?.id.toLowerCase().includes(filters.searchTerm.toLowerCase());
 
       // Status filter (array-based from status modal)
       const matchesStatusFilter =
