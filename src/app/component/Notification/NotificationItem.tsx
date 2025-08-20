@@ -1,5 +1,4 @@
 // components/NotificationItem.tsx
-import { MoreVertical } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -86,7 +85,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           whileTap={{ scale: 0.9 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
-          <MoreVertical className="w-4 h-4 mt-2 cursor-pointer" />
+          {/* <MoreVertical className="w-4 h-4 mt-2 cursor-pointer" /> */}
         </motion.div>
       </div>
     </motion.div>
