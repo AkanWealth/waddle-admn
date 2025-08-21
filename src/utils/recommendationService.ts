@@ -98,7 +98,7 @@ class RecommendationService {
     try {
       //localhost:3030/api/v1/crowd-sourcing/review/{id}/paginated
       const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/crowd-sourcing/review/${crowdSourcedId}/paginated?page=${page}`
+        `/api/v1/crowd-sourcing/admin-review/${crowdSourcedId}/paginated?page=${page}`
       );
       return { success: true, data: response };
     } catch (error: unknown) {

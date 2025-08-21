@@ -171,6 +171,11 @@ const ParentReviewsModal: React.FC = () => {
                 : review
             )
           );
+          showMessage(
+            "Review Flagged",
+            "Review has been removed from public view",
+            "success"
+          );
         }
       }
       if (context == "place") {
