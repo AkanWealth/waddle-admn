@@ -34,7 +34,7 @@ const PlacesDetailsModal = ({
 }: {
   selectedPlace: EventDetails;
 }) => {
-  console.log("This is the places own")
+  console.log("This is the places own");
   const handleImageClick = (image: ImageData, index: number) => {
     console.log("Image clicked:", image, "at index:", index);
   };
@@ -278,7 +278,7 @@ export const ParentsVisited: React.FC<ParentsVisitedProps> = ({
   };
   useEffect(() => {
     fetchParents();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

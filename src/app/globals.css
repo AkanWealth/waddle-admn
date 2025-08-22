@@ -292,3 +292,98 @@ body {
 .custom-calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
   border-color: #374151;
 }
+
+/* Dashboard DatePicker Styles */
+.dashboard-datepicker {
+  font-family: Arial, Helvetica, sans-serif;
+  z-index: 1000;
+}
+
+.dashboard-datepicker .react-datepicker__header {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem;
+}
+
+.dashboard-datepicker .react-datepicker__current-month {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-datepicker .react-datepicker__day-name {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.dashboard-datepicker .react-datepicker__day {
+  color: #374151;
+  font-weight: 400;
+  border-radius: 0.25rem;
+  margin: 0.0625rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  line-height: 1.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+}
+
+.dashboard-datepicker .react-datepicker__day:hover {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.dashboard-datepicker .react-datepicker__day--selected {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+}
+
+.dashboard-datepicker .react-datepicker__day--keyboard-selected {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+}
+
+.dashboard-datepicker .react-datepicker__day--disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.dashboard-datepicker .react-datepicker__day--outside-month {
+  color: #d1d5db;
+}
+
+.dashboard-datepicker .react-datepicker__navigation {
+  top: 0.5rem;
+}
+
+.dashboard-datepicker .react-datepicker__navigation-icon::before {
+  border-color: #6b7280;
+  border-width: 2px 2px 0 0;
+  height: 0.5rem;
+  width: 0.5rem;
+}
+
+.dashboard-datepicker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #374151;
+}
+
+.dashboard-datepicker .react-datepicker__input-container input {
+  border: none;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  width: 100%;
+}
+
+.dashboard-datepicker .react-datepicker__input-container input:focus {
+  outline: none;
+  box-shadow: none;
+}

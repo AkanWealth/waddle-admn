@@ -1,185 +1,14 @@
-// "use client";
-// import { useState, useEffect } from "react";
-// import { Calendar, ArrowBigUpDash } from "lucide-react";
-// import { useToastContext } from "@/context/toast";
-// import UserActivity from "./UserActivity";
-// import Events from "./Events";
-// import analyticsService from "@/utils/analyticsService";
-// import { toast as reactToast, ToastContainer } from "react-toastify";
-// import dayjs from "dayjs";
-
-
-
-// // Utility to convert dashboard data to CSV
-// function convertToCSV({ userStats, monthlyData, headings }) {
-//   // User Stats
-//   const userStatsHeader = headings.userStats.join(",");
-//   const userStatsRows = userStats
-//     .map(stat => headings.userStats.map(h => stat[h]).join(","))
-//     .join("\n");
-
-//   // Monthly Data
-//   const monthlyDataHeader = headings.monthlyData.join(",");
-//   const monthlyDataRows = monthlyData
-//     .map(row => headings.monthlyData.map(h => row[h]).join(","))
-//     .join("\n");
-
-//   // Combine as two tables in one CSV (with a blank line between)
-//   return (
-//     userStatsHeader + "\n" +
-//     userStatsRows + "\n\n" +
-//     monthlyDataHeader + "\n" +
-//     monthlyDataRows
-//   );
-// }
-
-// // Function to trigger CSV download
-// function downloadCSV(data) {
-//   try {
-//     const csv = convertToCSV(data);
-//     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-//     const url = URL.createObjectURL(blob);
-//     const a = document.createElement("a");
-//     a.href = url;
-//     a.download = "dashboard-data.csv";
-//     a.style.display = "none";
-//     document.body.appendChild(a);
-//     a.click();
-//     document.body.removeChild(a);
-//     URL.revokeObjectURL(url);
-//     return true;
-//   } catch (error) {
-//     console.error("Download failed:", error);
-//     return false;
-//   }
-// }
-
-// export default function Dashboard() {
-//   // Tab state
-//   const [activeTab, setActiveTab] = useState("User Activity");
-//   const {showMessage} = useToastContext();
-//   // const { toast } = useToastContext();
-
-  
-//   // Date range state (would be connected to a date picker in a real app)
-// const [dateRange, setDateRange] = useState(() => {
-//   const endDate = dayjs();
-//   const startDate = endDate.subtract(1, "year");
-
-//   return {
-//     startDate: startDate.format("MMMM D, YYYY"),
-//     endDate: endDate.format("MMMM D, YYYY"),
-//   };
-// });
-
-
-//   // Function to handle export report
-//   const handleExport = async () => {
-//     try {
-//       console.log("Starting export...");
-//       const response = await analyticsService.exportReport(dateRange.startDate, dateRange.endDate);
-//       console.log("Export response:", response);
-      
-//       if (response.success) {
-//           const downloadSuccess = downloadCSV(response.data);
-          
-//           if (downloadSuccess) {
-//             showMessage("Report Exported", "Your report has been exported as a CSV file", "success");
-//           } else {
-//             showMessage("Download Failed", "The file download failed. Please try again.", "error");
-//           }
-        
-
-//       } else {
-//         console.log("Showing error message...");
-//         showMessage("Error", response.error, "error");
-//       }
-   
-//     // In a real app, this would trigger an API call to generate a report
-//   } catch(error) {
-//     console.log("Caught error:", error);
-//     showMessage("Error", error.message, "error");
-//   }
-//   };
-
-//   return (
-//     <div className="font-inter flex flex-col">
-//       <ToastContainer />
-//       {/* Dashboard header */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 items-center justify-between mb-6 gap-4">
-//         <div>
-//           <h1 className="font-inter text-xl md:text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
-//           <p className="text-gray-500 text-sm">View and manage platform activities here</p>
-//         </div>
-
-//         {/* Date range and export */}
-//         <div className="flex flex-col sm:flex-row lg:justify-end gap-4">
-
-//           <div className="flex items-center border border-gray-300 rounded-lg bg-white px-2 max-w-md">
-//             {/* <Calendar className="w-4 h-4 text-blue-700 mr-2" /> */}
-//             <span className="text-xs text-gray-600 mr-1">From:</span>
-//             <input
-//               type="date"
-//               className="text-sm text-gray-800 mr-3 border rounded px-1"
-//               value={dateRange.startDate}
-//               onChange={e => setDateRange(dr => ({ ...dr, startDate: e.target.value }))}
-//             />
-//             <span className="text-xs text-gray-600 mr-1">To:</span>
-//             <input
-//               type="date"
-//               className="text-sm text-gray-800 border rounded px-1"
-//               value={dateRange.endDate}
-//               onChange={e => setDateRange(dr => ({ ...dr, endDate: e.target.value }))}
-//             />
-//           </div>
-//           <button 
-//             onClick={handleExport}
-//             className="flex items-center justify-center bg-blue-800 text-white rounded-lg p-2 px-4 hover:bg-blue-700 transition-colors"
-//           >
-//             <ArrowBigUpDash className="h-5 w-5 mr-2" />
-//             <span className="text-nowrap">Export Report</span>
-//           </button>
-          
-//         </div>
-//       </div>
-
-//       {/* Tabs */}
-//       <div className="bg-white w-xs text-sm rounded-lg mb-6 border border-gray-300">
-//         <div className="font-inter flex">
-//           {["User Activity", "Events"].map((tab) => (
-//             <button
-//               key={tab}
-//               className={`font-inter py-3 px-8 text-center relative ${
-//                 activeTab === tab
-//                   ? "text-blue-600 font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-600"
-//                   : "text-gray-500"
-//               }`}
-//               onClick={() => setActiveTab(tab)}
-//             >
-//               {tab}
-//             </button>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* Tab Content */}
-//       <div className="shadow-sm">
-//         {activeTab === "User Activity" && <UserActivity dateRange={dateRange} />}
-//         {activeTab === "Events" && <Events dateRange={dateRange} />}
-//       </div>
-//     </div>
-//   );
-// }
-
 "use client";
 import { useState, useEffect } from "react";
-import { Calendar, ArrowBigUpDash } from "lucide-react";
+import { Calendar, ArrowBigUpDash, CalendarDays } from "lucide-react";
 import { useToastContext } from "@/context/toast";
 import UserActivity from "./UserActivity";
 import Events from "./Events";
 import analyticsService from "@/utils/analyticsService";
 import { toast as reactToast, ToastContainer } from "react-toastify";
 import dayjs from "dayjs";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // Utility to convert dashboard data to CSV
 function convertToCSV({ userStats, monthlyData, headings }) {
@@ -230,19 +59,22 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("User Activity");
   const {showMessage} = useToastContext();
   
-  // Date range state - defaults to January 1st to January 1st (next year), but fully customizable
+  // Calculate max date (tomorrow)
+  const maxDate = dayjs().add(1, 'day').toDate();
+  
+  // Date range state - defaults to January 1st of current year to tomorrow
   const [dateRange, setDateRange] = useState(() => {
     const currentYear = dayjs().year();
     const startDate = dayjs().year(currentYear).month(0).date(1); // January 1st of current year
-    const endDate = dayjs().year(currentYear + 1).month(0).date(1); // January 1st of next year
+    const endDate = maxDate; // Tomorrow (respecting the future date restriction)
 
     return {
-      startDate: startDate.format("YYYY-MM-DD"),
-      endDate: endDate.format("YYYY-MM-DD"),
+      startDate: startDate.toDate(),
+      endDate: endDate,
     };
   });
 
-  // Handle start date change - allow any date selection
+  // Handle start date change - allow any date selection up to tomorrow
   const handleStartDateChange = (newStartDate) => {
     setDateRange(prevRange => ({
       ...prevRange,
@@ -250,7 +82,7 @@ export default function Dashboard() {
     }));
   };
 
-  // Handle end date change - allow any date selection
+  // Handle end date change - allow any date selection up to tomorrow
   const handleEndDateChange = (newEndDate) => {
     setDateRange(prevRange => ({
       ...prevRange,
@@ -302,22 +134,40 @@ export default function Dashboard() {
 
         {/* Date range and export */}
         <div className="flex flex-col sm:flex-row lg:justify-end gap-4">
-          <div className="flex items-center border border-gray-300 rounded-lg bg-white px-2 max-w-md">
-            <span className="text-xs text-gray-600 mr-1">From:</span>
-            <input
-              type="date"
-              className="text-sm text-gray-800 mr-3 border rounded px-1"
-              value={dateRange.startDate}
-              onChange={e => handleStartDateChange(e.target.value)}
-            />
-            <span className="text-xs text-gray-600 mr-1">To:</span>
-            <input
-              type="date"
-              className="text-sm text-gray-800 border rounded px-1"
-              value={dateRange.endDate}
-              onChange={e => handleEndDateChange(e.target.value)}
+          {/* From Date */}
+          <div className="flex items-center border border-gray-300 rounded-lg bg-white px-3 py-2">
+            <CalendarDays className="w-4 h-4 text-blue-700 mr-2" />
+            <span className="text-xs text-gray-600 mr-2">From:</span>
+            <DatePicker
+              selected={dateRange.startDate}
+              onChange={handleStartDateChange}
+              maxDate={maxDate}
+              dateFormat="MMM dd, yyyy"
+              className="text-sm text-gray-800 border-none bg-transparent focus:outline-none cursor-pointer min-w-[100px]"
+              placeholderText="Select start date"
+              showPopperArrow={false}
+              popperClassName="dashboard-datepicker"
             />
           </div>
+
+          {/* To Date */}
+          <div className="flex items-center border border-gray-300 rounded-lg bg-white px-3 py-2">
+            <Calendar className="w-4 h-4 text-green-700 mr-2" />
+            <span className="text-xs text-gray-600 mr-2">To:</span>
+            <DatePicker
+              selected={dateRange.endDate}
+              onChange={handleEndDateChange}
+              maxDate={maxDate}
+              minDate={dateRange.startDate}
+              dateFormat="MMM dd, yyyy"
+              className="text-sm text-gray-800 border-none bg-transparent focus:outline-none cursor-pointer min-w-[100px]"
+              placeholderText="Select end date"
+              showPopperArrow={false}
+              popperClassName="dashboard-datepicker"
+            />
+          </div>
+
+          {/* Export Button */}
           <button 
             onClick={handleExport}
             className="flex items-center justify-center bg-blue-800 text-white rounded-lg p-2 px-4 hover:bg-blue-700 transition-colors"
