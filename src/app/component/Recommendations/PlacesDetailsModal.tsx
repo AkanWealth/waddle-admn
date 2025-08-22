@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapPin,
   Tag,
@@ -11,9 +11,11 @@ import Image from "next/image";
 import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import StatusBadge from "./StatusBadge";
+import { recommendationService } from "@/utils/recommendationService";
 type Creator = { name: string; email?: string; profile_picture?: string };
 
 type EventDetails = {
+  id: string;
   name: string;
   description?: string;
   address?: string;
@@ -32,6 +34,7 @@ const PlacesDetailsModal = ({
 }: {
   selectedPlace: EventDetails;
 }) => {
+  console.log("This is the places own")
   const handleImageClick = (image: ImageData, index: number) => {
     console.log("Image clicked:", image, "at index:", index);
   };
@@ -159,6 +162,7 @@ const PlacesDetailsModal = ({
               </div>
               <div className="">
                 <ParentsVisited
+                  id={selectedPlace.id}
                   // parents={[
                   //   {
                   //     id: "1",
@@ -234,11 +238,12 @@ interface Parent {
 }
 
 interface ParentsVisitedProps {
+  id: string;
   parents?: Parent[];
   totalCount?: number;
 }
 
-const ParentsVisited: React.FC<ParentsVisitedProps> = ({
+export const ParentsVisited: React.FC<ParentsVisitedProps> = ({
   parents = [
     {
       id: "1",
@@ -259,9 +264,23 @@ const ParentsVisited: React.FC<ParentsVisitedProps> = ({
         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
     },
   ],
-
+  id,
   totalCount = 23,
 }) => {
+  const fetchParents = async () => {
+    try {
+      const response =
+        await recommendationService.fetchParentsWhoMadePlaceRecommendation(id);
+      console.log(response, "This is the response for parents");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchParents();
+  }, []);
+
+  const [parentVisited, setparentVisited] = useState();
   const displayedParents = parents.slice(0, 3);
   const remainingCount = Math.max(0, totalCount - displayedParents.length);
 

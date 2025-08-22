@@ -11,9 +11,11 @@ import Image from "next/image";
 import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import StatusBadge from "./StatusBadge";
+import { ParentsVisited } from "./PlacesDetailsModal";
 type Creator = { name: string; email?: string; profile_picture?: string };
 
 type EventDetails = {
+  id:string;
   name: string;
   description?: string;
   address?: string;
@@ -52,6 +54,7 @@ const EventDetailsModal = ({
   //   );
   // }
 
+  console.log(selectedEvent, "This is the selectedEvent data")
   const amenities =
     selectedEvent?.facilities && selectedEvent?.facilities.length > 0
       ? selectedEvent?.facilities
@@ -159,6 +162,7 @@ const EventDetailsModal = ({
               </div>
               <div className="">
                 <ParentsVisited
+                id={selectedEvent.id}
                   // parents={[
                   //   {
                   //     id: "1",
@@ -227,78 +231,78 @@ const EventDetailsModal = ({
 
 export default EventDetailsModal;
 
-interface Parent {
-  id: string;
-  name: string;
-  avatar: string;
-}
+// interface Parent {
+//   id: string;
+//   name: string;
+//   avatar: string;
+// }
 
-interface ParentsVisitedProps {
-  parents?: Parent[];
-  totalCount?: number;
-}
+// interface ParentsVisitedProps {
+//   parents?: Parent[];
+//   totalCount?: number;
+// }
 
-const ParentsVisited: React.FC<ParentsVisitedProps> = ({
-  parents = [
-    {
-      id: "1",
-      name: "John Doe",
-      avatar:
-        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      avatar:
-        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-    },
-    {
-      id: "3",
-      name: "Mike Johnson",
-      avatar:
-        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-    },
-  ],
+// const ParentsVisited: React.FC<ParentsVisitedProps> = ({
+//   parents = [
+//     {
+//       id: "1",
+//       name: "John Doe",
+//       avatar:
+//         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
+//     },
+//     {
+//       id: "2",
+//       name: "Jane Smith",
+//       avatar:
+//         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
+//     },
+//     {
+//       id: "3",
+//       name: "Mike Johnson",
+//       avatar:
+//         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
+//     },
+//   ],
 
-  totalCount = 23,
-}) => {
-  const displayedParents = parents.slice(0, 3);
-  const remainingCount = Math.max(0, totalCount - displayedParents.length);
+//   totalCount = 23,
+// }) => {
+//   const displayedParents = parents.slice(0, 3);
+//   const remainingCount = Math.max(0, totalCount - displayedParents.length);
 
-  return (
-    <div className="flex items-center space-x-2 ">
-      <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
-        <div className="flex -space-x-2">
-          {displayedParents.map((parent, index) => (
-            <div
-              key={parent.id}
-              className="relative w-8 h-8 rounded-full border-2 border-white overflow-hidden"
-              style={{ zIndex: displayedParents.length - index }}
-            >
-              <Image
-                src={parent.avatar}
-                alt={parent.name}
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
-            </div>
-          ))}
+//   return (
+//     <div className="flex items-center space-x-2 ">
+//       <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
+//         <div className="flex -space-x-2">
+//           {displayedParents.map((parent, index) => (
+//             <div
+//               key={parent.id}
+//               className="relative w-8 h-8 rounded-full border-2 border-white overflow-hidden"
+//               style={{ zIndex: displayedParents.length - index }}
+//             >
+//               <Image
+//                 src={parent.avatar}
+//                 alt={parent.name}
+//                 fill
+//                 className="object-cover"
+//                 sizes="32px"
+//               />
+//             </div>
+//           ))}
 
-          {remainingCount > 0 && (
-            <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white text-xs font-medium rounded-full border-2 border-white">
-              +{remainingCount}
-            </div>
-          )}
-        </div>
+//           {remainingCount > 0 && (
+//             <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white text-xs font-medium rounded-full border-2 border-white">
+//               +{remainingCount}
+//             </div>
+//           )}
+//         </div>
 
-        <span className="text-sm text-[#1D1D1E] font-medium">
-          Parents Visited
-        </span>
-      </div>
-    </div>
-  );
-};
+//         <span className="text-sm text-[#1D1D1E] font-medium">
+//           Parents Visited
+//         </span>
+//       </div>
+//     </div>
+//   );
+// };
 
 interface ImageGalleryProps {
   images: ImageData[];

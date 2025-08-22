@@ -240,6 +240,28 @@ class RecommendationService {
       };
     }
   }
+
+  async fetchParentsWhoMadePlaceRecommendation(placeId: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/crowd-sourcing/place/${placeId}/parents`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommenndations",
+      };
+    }
+  }
 }
 
 export const recommendationService = new RecommendationService();

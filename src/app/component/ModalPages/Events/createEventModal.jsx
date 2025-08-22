@@ -8,6 +8,8 @@ import { uploadService } from "@/utils/uploadService"; // Add this import
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useMessageContext } from "@/context/toast";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
   const { showMessage } = useMessageContext();
@@ -32,6 +34,7 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
     facilities: [],
     tags: [],
     eventType: "Outdoor",
+    customFrequency: [], // New state for custom frequency dates
   });
   
   const categoryRef = useRef(null);
@@ -43,6 +46,7 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
   // Populate form data when in edit mode
   useEffect(() => {
     if (isEditMode && initialEventData) {
+      console.log(initialEventData, "Initial event data")
       // Map the incoming event data to the form structure
       setEventData({
         name: initialEventData.name || initialEventData.title || "",
@@ -56,11 +60,12 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
         capacity: initialEventData.capacity || "limited",
         ticketNumber: initialEventData.ticketNumber || initialEventData.total_ticket || "",
         ageRange: initialEventData.ageRange || { min: 0, max: 18 },
-        frequency: initialEventData.frequency || "",
         images: initialEventData.files || [],
         facilities: initialEventData.facilities || [],
         tags: initialEventData.tags || [],
         eventType: initialEventData.eventType || "Outdoor",
+        frequency:initialEventData.frequency,
+        customFrequency: initialEventData.customFrequency || [], // Populate custom frequency
       });
       
       // Set individual state variables
@@ -82,11 +87,12 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
         capacity: "limited",
         ticketNumber: "",
         ageRange: { min: 0, max: 18 },
-        frequency: "",
+        frequency:"",
         images: [],
         facilities: [],
         tags: [],
         eventType: "Outdoor",
+        customFrequency: [], // Reset custom frequency
       });
       setCapacity("limited");
       setTicketNumber("");
@@ -150,6 +156,7 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
   const [showCapacityDropdown, setShowCapacityDropdown] = useState(false);
   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
   const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
+  const [showCustomFrequencyCalendar, setShowCustomFrequencyCalendar] = useState(false);
   const [currentSafetyInput, setCurrentSafetyInput] = useState("");
   const fileInputRef = useRef(null);
   const [capacity, setCapacity] = useState("limited");
@@ -196,11 +203,11 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
     { value: "unlimited", label: "Unlimited" },
   ];
 
+  
   const frequencyOptions = [
-    { value: "", label: "Does this event repeat?" },
-    { value: "one-time", label: "No, it's a one-time event" },
+    { value: "oneTime", label: "No, it's a one-time event" },
     { value: "weekly", label: "Weekly" },
-    { value: "Every 2 weeks", label: "Every 2 weeks" },
+    { value: "everyTwoWeeks", label: "Every 2 weeks" },
     { value: "monthly", label: "Monthly" },
     { value: "custom", label: "Custom" },
   ];
@@ -238,6 +245,15 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
   const handleFrequencySelect = (frequency) => {
     setEventData((prev) => ({ ...prev, frequency: frequency.value }));
     setShowFrequencyDropdown(false);
+    
+    // If custom frequency is selected, show the calendar
+    if (frequency.value === "custom") {
+      setShowCustomFrequencyCalendar(true);
+    } else {
+      setShowCustomFrequencyCalendar(false);
+      // Clear custom frequency dates if not custom
+      setEventData((prev) => ({ ...prev, customFrequency: [] }));
+    }
   };
 
   const handleAgeRangeChange = (values) => {
@@ -248,6 +264,67 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
         max: values[1]
       }
     }));
+  };
+
+  // Custom frequency calendar handlers
+  const handleCustomDateSelect = (date) => {
+    // Create a date with the selected date and the event time
+    const eventTime = eventData.time || "10:00AM"; // Default to 10 AM if no time selected
+    const [time, modifier] = eventTime.split(/(AM|PM)/);
+    let [hours, minutes] = time.split(":").map(Number);
+    
+    if (modifier === "PM" && hours < 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+    
+    const dateWithTime = new Date(date);
+    dateWithTime.setHours(hours, minutes, 0, 0);
+    
+    const dateString = dateWithTime.toISOString();
+    setEventData((prev) => {
+      const existingDates = prev.customFrequency || [];
+      const isDateSelected = existingDates.some(d => {
+        const existingDate = new Date(d);
+        return existingDate.toDateString() === date.toDateString();
+      });
+      
+      if (isDateSelected) {
+        // Remove date if already selected
+        return {
+          ...prev,
+          customFrequency: existingDates.filter(d => {
+            const existingDate = new Date(d);
+            return existingDate.toDateString() !== date.toDateString();
+          })
+        };
+      } else {
+        // Add date if not selected
+        return {
+          ...prev,
+          customFrequency: [...existingDates, dateString]
+        };
+      }
+    });
+  };
+
+  const removeCustomDate = (dateToRemove) => {
+    setEventData((prev) => ({
+      ...prev,
+      customFrequency: prev.customFrequency.filter(date => {
+        const existingDate = new Date(date);
+        const removeDate = new Date(dateToRemove);
+        return existingDate.toDateString() !== removeDate.toDateString();
+      })
+    }));
+  };
+
+  const formatCustomDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   // Updated handleFileSelect to upload images immediately
@@ -423,6 +500,8 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
       name: frontendData.name.trim(),
       description: frontendData.description.trim(),
       address: frontendData.location.trim(),
+      frequency: frontendData.frequency,
+      customFrequency: frontendData.frequency === "custom" ? frontendData.customFrequency || [] : undefined,
       price,
       total_ticket,
       date: frontendData.date || new Date().toISOString().split("T")[0],
@@ -436,6 +515,7 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
       tags: frontendData.tags || [],
       eventType: (frontendData.eventType || "INDOOR").toUpperCase(),
       files: frontendData.images // Now contains URLs instead of File objects
+    
     };
   }
 
@@ -551,6 +631,11 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
       eventData.tags.length > 0,
       eventData.images.length > 0
     ];
+    
+    // Additional validation for custom frequency
+    if (eventData.frequency === "custom" && eventData.customFrequency.length === 0) {
+      return false;
+    }
     
     return requiredFields.every(field => {
       if (typeof field === 'string') {
@@ -905,6 +990,62 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
                       {option.label}
                     </div>
                   ))}
+                </div>
+              )}
+              
+              {/* Custom Frequency Calendar */}
+              {eventData.frequency === "custom" && (
+                <div className="mt-4">
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Custom Dates
+                    </label>
+                    <div className="border border-gray-300 rounded-md p-3">
+                      <DatePicker
+                        selected={null}
+                        onChange={handleCustomDateSelect}
+                        inline
+                        highlightDates={eventData.customFrequency.map(date => new Date(date))}
+                        minDate={new Date()}
+                        className="w-full"
+                        calendarClassName="custom-calendar"
+                        dayClassName={date => {
+                          const dateString = date.toDateString();
+                          const isSelected = eventData.customFrequency.some(d => {
+                            const selectedDate = new Date(d);
+                            return selectedDate.toDateString() === dateString;
+                          });
+                          return isSelected ? 'react-datepicker__day--selected' : undefined;
+                        }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Selected Dates Display */}
+                  {eventData.customFrequency.length > 0 && (
+                    <div className="mt-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Selected Dates ({eventData.customFrequency.length})
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {eventData.customFrequency.map((dateString, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                          >
+                            <span>{formatCustomDate(dateString)}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeCustomDate(dateString)}
+                              className="ml-2 text-blue-600 hover:text-blue-800"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
