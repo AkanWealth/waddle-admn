@@ -114,6 +114,15 @@ export const useBookingStore = create<BookingStore>()(
         try {
           const res = await bookingsService.getAllBookings();
           if (res.success && Array.isArray(res.data)) {
+            console.log("Fetched bookings data:", res.data);
+            if (res.data.length > 0) {
+              console.log("Sample booking structure:", res.data[0]);
+              console.log(
+                "Sample booking event date:",
+                res.data[0]?.event?.date
+              );
+              console.log("Sample booking createdAt:", res.data[0]?.createdAt);
+            }
             set({ bookings: res.data }, false, "fetchBookingData");
           } else {
             console.error("Failed to fetch bookings:", res.error);
@@ -393,32 +402,65 @@ export const useFilteredBookings = () => {
 
         try {
           const [startDateStr, endDateStr] = filters.dateRange.split(" - ");
-          const filterStartDate = new Date(startDateStr);
-          const filterEndDate = new Date(endDateStr);
+
+          // Parse the MM/dd/yyyy format from the filter
+          const [startMonth, startDay, startYear] = startDateStr.split("/");
+          const [endMonth, endDay, endYear] = endDateStr.split("/");
+
+          const filterStartDate = new Date(
+            parseInt(startYear),
+            parseInt(startMonth) - 1,
+            parseInt(startDay)
+          );
+          const filterEndDate = new Date(
+            parseInt(endYear),
+            parseInt(endMonth) - 1,
+            parseInt(endDay)
+          );
 
           // Set end date to end of day for inclusive comparison
           filterEndDate.setHours(23, 59, 59, 999);
 
           // Get booking event date - adjust this path based on your data structure
           let bookingDate;
+          let dateSource = "unknown";
 
           // Try different possible date field paths
-          if (booking.event?.date) {
-            bookingDate = new Date(booking.event.date);
+          if (booking.createdAt) {
+            bookingDate = new Date(booking.createdAt);
+            dateSource = "booking.event.date";
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if ((booking.event as any)?.startDate) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             bookingDate = new Date((booking.event as any).startDate);
+            dateSource = "booking.event.startDate";
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } else if ((booking as any).date) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            bookingDate = new Date((booking as any).date);
+            bookingDate = new Date((booking as any).createdAt);
+            dateSource = "booking.date";
           } else if (booking.createdAt) {
             bookingDate = new Date(booking.createdAt);
+            dateSource = "booking.createdAt";
           } else {
             // If no date field found, include the booking
+            console.log("No date field found for booking:", booking.id);
             return true;
           }
+
+          // Debug logging for date comparison
+          console.log("Date Filter Debug:", {
+            bookingId: booking.id,
+            dateSource,
+            bookingDate: bookingDate.toISOString(),
+            filterStartDate: filterStartDate.toISOString(),
+            filterEndDate: filterEndDate.toISOString(),
+            dateRange: filters.dateRange,
+            isInRange:
+              bookingDate >= filterStartDate && bookingDate <= filterEndDate,
+            bookingEventDate: booking.event?.date,
+            bookingCreatedAt: booking.createdAt,
+          });
 
           // Check if booking date is within the filter range
           return bookingDate >= filterStartDate && bookingDate <= filterEndDate;

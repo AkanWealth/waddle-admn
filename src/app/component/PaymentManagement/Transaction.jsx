@@ -44,6 +44,7 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
             const params = {
                 page,
                 limit,
+                ...(searchTerm && { search: searchTerm }), // Add search parameter
                 ...(paymentStatus && { paymentStatus: paymentStatus.toUpperCase() }),
                 ...(bookingStatus && { 
                     bookingStatus: (() => {
@@ -137,41 +138,28 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
     // Load data on component mount and when filters change
     useEffect(() => {
         fetchTransactions(currentPage);
-    }, [currentPage, statusFilter, dateFilter, paymentStatus, bookingStatus]);
+    }, [currentPage, searchTerm, statusFilter, dateFilter, paymentStatus, bookingStatus]);
 
-    // Apply search filter
+    // Apply client-side filters only (search is now handled server-side)
     useEffect(() => {
         let results = [...allTransactions];
 
-        // Apply search
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            results = results.filter(
-                transaction =>
-                    transaction.userName.toLowerCase().includes(term) ||
-                    transaction.eventName.toLowerCase().includes(term) ||
-                    transaction.id.toLowerCase().includes(term) ||
-                    transaction.userEmail.toLowerCase().includes(term) ||
-                    transaction.transactionId.toLowerCase().includes(term)
-            );
-        }
-
-        // Apply client-side payment status filter
-        if (paymentStatus) {
+        // Apply client-side payment status filter (if not already filtered by API)
+        if (paymentStatus && !statusFilter.includes(paymentStatus.toUpperCase())) {
             results = results.filter(
                 transaction => transaction.paymentStatus.toLowerCase() === paymentStatus.toLowerCase()
             );
         }
 
-        // Apply client-side booking status filter
-        if (bookingStatus) {
+        // Apply client-side booking status filter (if not already filtered by API)
+        if (bookingStatus && !statusFilter.includes(bookingStatus.toUpperCase())) {
             results = results.filter(
                 transaction => transaction.bookingStatus.toLowerCase() === bookingStatus.toLowerCase()
             );
         }
 
         setFilteredTransactions(results);
-    }, [allTransactions, searchTerm, paymentStatus, bookingStatus]);
+    }, [allTransactions, paymentStatus, bookingStatus, statusFilter]);
 
     // Pagination logic - use API pagination instead of client-side
     useEffect(() => {

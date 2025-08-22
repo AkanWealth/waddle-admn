@@ -100,10 +100,21 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
     // Only set date range if both dates are provided
     if (newStart && newEnd) {
       try {
-        const formatted = `${format(
-          new Date(newStart),
-          "MM/dd/yyyy"
-        )} - ${format(new Date(newEnd), "MM/dd/yyyy")}`;
+        // Parse the YYYY-MM-DD format and convert to MM/dd/yyyy
+        const startDateParts = newStart.split("-");
+        const endDateParts = newEnd.split("-");
+
+        const formatted = `${startDateParts[1]}/${startDateParts[2]}/${startDateParts[0]} - ${endDateParts[1]}/${endDateParts[2]}/${endDateParts[0]}`;
+
+        // Debug logging
+        console.log("Date Filter Debug - Setting Date Range:", {
+          newStart,
+          newEnd,
+          formatted,
+          startDateObj: new Date(newStart),
+          endDateObj: new Date(newEnd),
+        });
+
         setDateRange(formatted);
       } catch (error) {
         console.error("Error formatting date range:", error);

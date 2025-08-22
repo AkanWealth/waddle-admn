@@ -11,7 +11,7 @@ class PaymentService {
   /**
    * Fetch all payments (admin only).
    * @param params Query parameters for filtering & pagination
-   * Example: { page: 2, limit: 20, status: "SUCCESSFUL", userId: "user_123" }
+   * Example: { page: 2, limit: 20, status: "SUCCESSFUL", userId: "user_123", search: "transaction_id" }
    */
   async getAllPayments(params?: {
     page?: number;
@@ -22,6 +22,7 @@ class PaymentService {
     eventId?: string;
     startDate?: string;
     endDate?: string;
+    search?: string; // Add search parameter for transaction ID, user name, event name, etc.
   }) {
     try {
       // Build query string dynamically
