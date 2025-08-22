@@ -278,8 +278,10 @@ export const ParentsVisited: React.FC<ParentsVisitedProps> = ({
   };
   useEffect(() => {
     fetchParents();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [parentVisited, setparentVisited] = useState();
   const displayedParents = parents.slice(0, 3);
   const remainingCount = Math.max(0, totalCount - displayedParents.length);
