@@ -6,6 +6,11 @@ import { useToastContext } from "@/context/toast";
 import { Search, Plus, Trash2, Filter, ChevronDown, Menu, X, XIcon } from "lucide-react";
 import VendorsPaymentTable from "./VendorPayment";
 import TransactionTable from "./Transaction";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from "dayjs";
+import { CalendarDays, Calendar } from "lucide-react";
+
 
 import PaginationComponent from "../Element/PaginationComponent";
 import StatusDropdown from "./StatusDropdown";
@@ -221,7 +226,7 @@ export default function Payment() {
                                             <XIcon className="h-[20.5px] w-[20.5px] cursor-pointer" onClick={() => setFilterOpen(!filterOpen)} />
                                         </div>
                                         <div className="my-[30px] flex flex-col gap-[24px]">
-                                             <div className="flex flex-col gap-2">
+                                             {/* <div className="flex flex-col gap-2">
                                                  <label className="block text-sm text-[#303237] mb-1 font-medium">Start Date</label>
                                                  <input
                                                      type="date"
@@ -236,7 +241,44 @@ export default function Payment() {
                                                      value={dateFilter.to}
                                                      onChange={(e) => handleDateChange("to", e.target.value)}
                                                      className="w-full p-2 border border-gray-300 rounded" />
-                                             </div>
+                                             </div> */}
+                                             {/* From Date */}
+<div className="flex items-center border border-gray-300 rounded-lg bg-white px-3 py-2">
+  <CalendarDays className="w-4 h-4 text-blue-700 mr-2" />
+  <span className="text-xs text-gray-600 mr-2">From:</span>
+  <DatePicker
+    selected={dateFilter.from ? new Date(dateFilter.from) : null}
+    onChange={(date) =>
+      handleDateChange("from", dayjs(date).format("YYYY-MM-DD"))
+    }
+    maxDate={dayjs().add(1, "day").toDate()} // cap at tomorrow
+    dateFormat="MMM dd, yyyy"
+    className="text-sm text-gray-800 border-none bg-transparent focus:outline-none cursor-pointer min-w-[100px]"
+    placeholderText="Select start date"
+    showPopperArrow={false}
+    popperClassName="event-datepicker"
+  />
+</div>
+
+{/* To Date */}
+<div className="flex items-center border border-gray-300 rounded-lg bg-white px-3 py-2">
+  <Calendar className="w-4 h-4 text-green-700 mr-2" />
+  <span className="text-xs text-gray-600 mr-2">To:</span>
+  <DatePicker
+    selected={dateFilter.to ? new Date(dateFilter.to) : null}
+    onChange={(date) =>
+      handleDateChange("to", dayjs(date).format("YYYY-MM-DD"))
+    }
+    maxDate={dayjs().add(1, "day").toDate()} // prevent selecting beyond tomorrow
+    minDate={dateFilter.from ? new Date(dateFilter.from) : null}
+    dateFormat="MMM dd, yyyy"
+    className="text-sm text-gray-800 border-none bg-transparent focus:outline-none cursor-pointer min-w-[100px]"
+    placeholderText="Select end date"
+    showPopperArrow={false}
+    popperClassName="event-datepicker"
+  />
+</div>
+
                                              <div className="flex flex-col gap-3">
                                                 <label className="block text-sm font-medium text-gray-700">Payment Status</label>
                                                 <StatusDropdown usedFor="payment" value={paymentStatus} onChange={setPaymentStatus} />
