@@ -103,22 +103,22 @@ class NotificationService {
     adminId: string
   ): Promise<ApiResponse> {
     const endpoint = `/api/v1/notifications/admin/${notificationId}/read/${adminId}`;
-// api.waddleapp.io/api/v1/notifications/admin/{notificationId}/read/{adminId}
-https: try {
-  const response = await authService.makeAuthenticatedRequest(endpoint, {
-    method: "PATCH",
-  });
+    // api.waddleapp.io/api/v1/notifications/admin/{notificationId}/read/{adminId}
+    https: try {
+      const response = await authService.makeAuthenticatedRequest(endpoint, {
+        method: "PATCH",
+      });
 
-  return { success: true, data: response };
-} catch (error: unknown) {
-  return {
-    success: false,
-    error:
-      error instanceof Error
-        ? error.message
-        : "An unexpected error occurred while marking notification as read",
-  };
-}
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while marking notification as read",
+      };
+    }
   }
 
   async markAllAsRead(adminId: string): Promise<ApiResponse> {
@@ -208,6 +208,39 @@ https: try {
           error instanceof Error
             ? error.message
             : "An unexpected error occurred while checking for new notifications",
+      };
+    }
+  }
+
+  async notifyUsersOfEventCancellation(
+    eventId: string,
+    message: string
+  ): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    console.log(message, "This is the message")
+    try {
+      const endpoint = `/api/v1/events/admin/${eventId}/cancel/notify`;
+      const payload = {
+        customMessage: message,
+      };
+
+      const response = await authService.makeAuthenticatedRequest(endpoint, {
+        method: "PATCH",
+
+        body: JSON.stringify(payload),
+      });
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error notifying of event cancellation.",
       };
     }
   }

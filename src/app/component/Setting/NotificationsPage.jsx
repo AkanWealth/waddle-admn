@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Bell, AlertTriangle, MessageSquare, Calendar, Mail, Phone, Filter, ChevronDown } from "lucide-react";
 import NotificationTable from "./EventCancellationTable";
 import PaginationComponent from "../Element/PaginationComponent";
+import { eventService } from "@/utils/eventService";
 
 export default function NotificationsPage({ 
     notificationSettings, 
@@ -16,9 +17,61 @@ export default function NotificationsPage({
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
     const [filterOpen, setFilterOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [events, setEvents] = useState([]);
+    const [totalEvents, setTotalEvents] = useState(0);
 
-    // Status options for notifications
-    const statusOptions = ["All", "Cancelled", "Notified", "Pending"];
+    // Status options for notifications - only two states based on isCancelled
+    const statusOptions = [ "Notified", "Not Notified"];
+
+    // Fetch cancelled events
+    const fetchCancelledEvents = async () => {
+        setLoading(true);
+        try {
+            // Determine isCancelled parameter based on status filter
+            let isCancelledParam;
+            if (statusFilter.length > 0) {
+                if (statusFilter.includes("Notified")) {
+                    isCancelledParam = true; // Users are notified
+                } else if (statusFilter.includes("Not Notified")) {
+                    isCancelledParam = false; // Users are NOT notified
+                }
+                // If neither is selected, don't send isCancelled parameter
+            }
+
+            const response = await eventService.viewAllCancelledEventAsAdmin(
+                currentPage,
+                10, // limit
+                searchTerm || undefined,
+                isCancelledParam, // true for notified, false for not notified, undefined for both
+                dateFilter.from || undefined,
+                dateFilter.to || undefined
+            );
+
+            if (response.success && response.data) {
+                setEvents(response.data.events || []);
+                setTotalEvents(response.data.total || 0);
+                setTotalPages(response.data.totalPages || 1);
+            } else {
+                console.error("Failed to fetch cancelled events:", response.error);
+                setEvents([]);
+                setTotalEvents(0);
+                setTotalPages(1);
+            }
+        } catch (error) {
+            console.error("Error fetching cancelled events:", error);
+            setEvents([]);
+            setTotalEvents(0);
+            setTotalPages(1);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch events when dependencies change
+    useEffect(() => {
+        fetchCancelledEvents();
+    }, [currentPage, searchTerm, statusFilter, dateFilter]);
 
     // Handle notification toggle
     const handleNotificationToggle = (setting) => {
@@ -41,17 +94,12 @@ export default function NotificationsPage({
 
     // Handle status filter change
     const handleStatusFilterChange = (status) => {
-        if (status === "All") {
+        if (statusFilter.includes(status)) {
+            // If clicking the same status, clear the filter
             setStatusFilter([]);
         } else {
-            if (statusFilter.includes(status)) {
-                setStatusFilter(statusFilter.filter(s => s !== status));
-            } else {
-                setStatusFilter([
-                    ...statusFilter.filter(s => s !== "All"),
-                    status,
-                ]);
-            }
+            // Replace with new status (only one at a time)
+            setStatusFilter([status]);
         }
         setCurrentPage(1);
     };
@@ -91,74 +139,23 @@ export default function NotificationsPage({
         setTotalPages(totalPages);
     };
 
+    // Transform events data to match the table format
+    const transformedEvents = events.map(event => ({
+        id: event.id,
+        eventName: event.name,
+        organizer: event.organiser?.name || "Unknown",
+        date: new Date(event.date).toLocaleDateString('en-GB'),
+        bookedUsers: `${event.bookings?.length || 0} Parents`,
+        status: event.isCancelled ? "Notified" : "Not Notified",
+        actions: event.isCancelled ? "View Details" : "View & Notify",
+        originalEvent: event // Keep original event data for modal
+    }));
+
+    // Since we're now doing server-side filtering, we can use the transformed events directly
+    const filteredEvents = transformedEvents;
+
     return (
         <div className="space-y-8">
-            {/* Notification Settings */}
-            {/* <div className="max-w-xl bg-white shadow-md rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6">Notification Settings</h3>
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between py-4 border-b border-gray-100">
-                        <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 mr-2">
-    <Bell className="w-5 h-5 text-blue-600" />
-  </div>
-                            <div>
-                                <h4 className="text-base font-medium text-gray-800">Automatically Notify Parents</h4>
-                            </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={notificationSettings.autoNotifyParents}
-                                onChange={() => handleNotificationToggle("autoNotifyParents")}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-
-                    <div className="flex items-center justify-between py-4 border-b border-gray-100">
-                        <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 mr-2">
-    <Bell className="w-5 h-5 text-blue-600" />
-  </div>
-                            <div>
-                                <h4 className="text-base font-medium text-gray-800">Include Refund Policy in Notifications</h4>
-                            </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={notificationSettings.includeRefundPolicy}
-                                onChange={() => handleNotificationToggle("includeRefundPolicy")}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-
-                    <div className="flex items-center justify-between py-4">
-                        <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 mr-2">
-    <Bell className="w-5 h-5 text-blue-600" />
-  </div>
-                            <div>
-                                <h4 className="text-base font-medium text-gray-800">Allow Admin to Customize Messages Before Sending</h4>
-                            </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={notificationSettings.allowAdminCustomize}
-                                onChange={() => handleNotificationToggle("allowAdminCustomize")}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                </div>
-            </div> */}
-
             {/* Event Cancellation Notifications */}
             <div className="bg-white shadow-md rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Event Cancellation Notifications</h3>
@@ -172,7 +169,7 @@ export default function NotificationsPage({
                             placeholder="By Event Name, Organiser, Date"
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-10 text-black pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                     </div>
@@ -209,11 +206,7 @@ export default function NotificationsPage({
                                                     >
                                                         <input
                                                             type="checkbox"
-                                                            checked={
-                                                                status === "All"
-                                                                    ? statusFilter.length === 0
-                                                                    : statusFilter.includes(status)
-                                                            }
+                                                            checked={statusFilter.includes(status)}
                                                             onChange={() => handleStatusFilterChange(status)}
                                                             className="form-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
                                                         />
@@ -278,35 +271,66 @@ export default function NotificationsPage({
                         </div>
 
                         {/* Clear All Button */}
-                        {(statusFilter.length > 0 || dateFilter.from || dateFilter.to || searchTerm) && (
-                            <button
-                                onClick={clearAllFilters}
-                                className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
-                            >
-                                Clear All
-                            </button>
-                        )}
+
                     </div>
                 </div>
 
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <span className="ml-2 text-gray-600">Loading events...</span>
+                    </div>
+                )}
+
+                {/* Filter Summary */}
+                {/* {!loading && (statusFilter.length > 0 || dateFilter.from || dateFilter.to) && (
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="text-sm text-blue-800">
+                            <span className="font-medium">Active Filters:</span>
+                            {statusFilter.length > 0 && (
+                                <span className="ml-2">
+                                    Status: <span className="font-semibold">{statusFilter[0]}</span>
+                                </span>
+                            )}
+                            {dateFilter.from && (
+                                <span className="ml-2">
+                                    From: <span className="font-semibold">{dateFilter.from}</span>
+                                </span>
+                            )}
+                            {dateFilter.to && (
+                                <span className="ml-2">
+                                    To: <span className="font-semibold">{dateFilter.to}</span>
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )} */}
+
                 {/* Notification Table */}
-                <NotificationTable
-                    currentPage={currentPage}
-                    searchTerm={searchTerm}
-                    statusFilter={statusFilter}
-                    dateFilter={dateFilter}
-                    mobileView={mobileView}
-                    onTotalPagesUpdate={handleTotalPagesUpdate}
-                />
+                {!loading && (
+                    <NotificationTable
+                        currentPage={currentPage}
+                        searchTerm={searchTerm}
+                        statusFilter={statusFilter}
+                        dateFilter={dateFilter}
+                        mobileView={mobileView}
+                        onTotalPagesUpdate={handleTotalPagesUpdate}
+                        events={filteredEvents}
+                        totalEvents={totalEvents}
+                    />
+                )}
 
                 {/* Pagination */}
-                <div className="mt-6">
-                    <PaginationComponent
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
-                </div>
+                {!loading && totalPages > 1 && (
+                    <div className="mt-6">
+                        <PaginationComponent
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

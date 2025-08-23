@@ -4,82 +4,30 @@ import { useState, useEffect } from "react";
 import { Calendar, CircleCheck, XCircle, Clock } from "lucide-react";
 import NotificationModal from "../ModalPages/Setting/NotificationModal";
 
-export default function NotificationTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, onTotalPagesUpdate }) {
-    // Sample data with updated status values
-    const [allNotifications, setAllNotifications] = useState([
-        {
-            id: 1,
-            eventName: "Kids Art Workshop",
-            organizer: "FunKids Hub",
-            date: "02-04-2025",
-            bookedUsers: "24 Parents",
-            status: "Notified",
-            actions: "View Details"
-        },
-        {
-            id: 2,
-            eventName: "Science Fair",
-            organizer: "ABC Events",
-            date: "02-04-2025",
-            bookedUsers: "12 Parents",
-            status: "Cancelled",
-            actions: "View & Notify"
-        },
-        {
-            id: 3,
-            eventName: "Happy Kids",
-            organizer: "STEM Club",
-            date: "02-04-2025",
-            bookedUsers: "5 Parents",
-            status: "Notified",
-            actions: "View Details"
-        },
-        {
-            id: 4,
-            eventName: "Zoo Park",
-            organizer: "Limitless Goal",
-            date: "02-04-2025",
-            bookedUsers: "12 Parents",
-            status: "Cancelled",
-            actions: "View & Notify"
-        },
-        {
-            id: 5,
-            eventName: "Kane Events",
-            organizer: "Event Home",
-            date: "02-04-2025",
-            bookedUsers: "39 Parents",
-            status: "Pending",
-            actions: "View Details"
-        },
-        {
-            id: 6,
-            eventName: "Music Workshop",
-            organizer: "Creative Kids",
-            date: "03-04-2025",
-            bookedUsers: "18 Parents",
-            status: "Pending",
-            actions: "View & Notify"
-        },
-        {
-            id: 7,
-            eventName: "Dance Class",
-            organizer: "Move & Groove",
-            date: "04-04-2025",
-            bookedUsers: "25 Parents",
-            status: "Cancelled",
-            actions: "View & Notify"
-        }
-    ]);
-
+export default function NotificationTable({ 
+    currentPage, 
+    searchTerm, 
+    statusFilter, 
+    dateFilter, 
+    mobileView, 
+    onTotalPagesUpdate,
+    events = [],
+    totalEvents = 0
+}) {
+    const [notifications, setNotifications] = useState(events);
     const [filteredNotifications, setFilteredNotifications] = useState([]);
     const [paginatedNotifications, setPaginatedNotifications] = useState([]);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Update notifications when events prop changes
+    useEffect(() => {
+        setNotifications(events);
+    }, [events]);
+
     // Apply search and filters
     useEffect(() => {
-        let results = [...allNotifications];
+        let results = [...notifications];
 
         // Apply search
         if (searchTerm) {
@@ -102,7 +50,7 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
         // Apply date filter (simple implementation - you might want to improve this)
         if (dateFilter.from || dateFilter.to) {
             results = results.filter(notification => {
-                const notificationDate = new Date(notification.date.split('-').reverse().join('-'));
+                const notificationDate = new Date(notification.date.split('/').reverse().join('-'));
                 const fromDate = dateFilter.from ? new Date(dateFilter.from) : null;
                 const toDate = dateFilter.to ? new Date(dateFilter.to) : null;
 
@@ -118,10 +66,10 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
         }
 
         setFilteredNotifications(results);
-    }, [allNotifications, searchTerm, statusFilter, dateFilter]);
+    }, [notifications, searchTerm, statusFilter, dateFilter]);
 
     // Pagination logic
-    const itemsPerPage = 5;
+    const itemsPerPage = 10; // Changed to match API limit
 
     useEffect(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -140,12 +88,10 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
         switch (status) {
             case "Notified":
                 return <CircleCheck className="w-4 h-4 text-green-500" />;
-            case "Cancelled":
+            case "Not Notified":
                 return <XCircle className="w-4 h-4 text-red-500" />;
-            case "Pending":
-                return <Clock className="w-4 h-4 text-yellow-500" />;
             default:
-                return <Check className="w-4 h-4 text-gray-500" />;
+                return <Clock className="w-4 h-4 text-gray-500" />;
         }
     };
 
@@ -154,15 +100,12 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
         switch (status) {
             case "Notified":
                 return "bg-green-100 text-green-800";
-            case "Cancelled":
+            case "Not Notified":
                 return "bg-red-100 text-red-800";
-            case "Pending":
-                return "bg-yellow-100 text-yellow-800";
             default:
                 return "bg-gray-100 text-gray-800";
         }
     };
-
 
     const handleViewProfile = (notification) => {
         setSelectedNotification(notification);
@@ -177,22 +120,27 @@ export default function NotificationTable({ currentPage, searchTerm, statusFilte
 
     // Handle updating notification status
     const handleUpdateNotification = (notificationId, newStatus) => {
-        setAllNotifications(prevNotifications =>
-            prevNotifications.map(notification =>
-                notification.id === notificationId
+        console.log(`Updating notification ${notificationId} to status: ${newStatus}`);
+        
+        // Update the notification status in the local state
+        setNotifications(prevNotifications => 
+            prevNotifications.map(notification => 
+                notification.id === notificationId 
                     ? { ...notification, status: newStatus }
                     : notification
             )
         );
         
-        // Update selected notification if it matches
+        // Also update the selected notification if it's the same one
         if (selectedNotification && selectedNotification.id === notificationId) {
-            setSelectedNotification(prev => ({ ...prev, status: newStatus }));
+            setSelectedNotification(prev => 
+                prev ? { ...prev, status: newStatus } : null
+            );
         }
+        
+        // Close the modal
+        handleCloseModal();
     };
-
-
-
 
     // Render mobile view
     if (mobileView) {

@@ -6,7 +6,11 @@ import { createContext, useContext, ReactNode } from "react";
 import { AlertCircle, X, CheckSquare } from "lucide-react";
 
 interface MessageContextType {
-  showMessage: (message: string, description?: string, status?: "success" | "error" | "default") => void;
+  showMessage: (
+    message: string,
+    description?: string,
+    status?: "success" | "error" | "default"
+  ) => void;
 }
 
 const MessageContext = createContext<MessageContextType | undefined>(undefined);
@@ -16,7 +20,11 @@ interface ToastContextProps {
 }
 
 export function ToastContext({ children }: ToastContextProps) {
-  const showMessage = (message: string, description?: string, status: "success" | "error" | "default" = "default") => {
+  const showMessage = (
+    message: string,
+    description?: string,
+    status: "success" | "error" | "default" = "default"
+  ) => {
     const ToastContent = () => (
       <div className="flex items-start relative pl-6">
         <div className="absolute left-0 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -24,8 +32,12 @@ export function ToastContext({ children }: ToastContextProps) {
             {status === "success" && (
               <CheckSquare className="w-5 h-5 text-green-500" />
             )}
-            {status === "error" && <AlertCircle className="w-5 h-5 text-red-500" />}
-            {status === "default" && <AlertCircle className="w-5 h-5 text-gray-500" />}
+            {status === "error" && (
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            )}
+            {status === "default" && (
+              <AlertCircle className="w-5 h-5 text-gray-500" />
+            )}
           </div>
         </div>
         {/* Content */}
@@ -74,10 +86,10 @@ export function ToastContext({ children }: ToastContextProps) {
           <X size={16} className="text-gray-500" />
         </button>
       ),
-      className:
-        "rounded-md shadow-lg w-96 border-gray-100 overflow-visible",
+      className: "rounded-md shadow-lg w-96 border-gray-100 overflow-visible",
       bodyClassName: "p-0",
       style: getBgColor(),
+      zIndex: 9999,
     };
 
     reactToast(<ToastContent />, toastOptions);
@@ -85,7 +97,15 @@ export function ToastContext({ children }: ToastContextProps) {
 
   return (
     <MessageContext.Provider value={{ showMessage }}>
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={true}
+        closeOnClick={true}
+        pauseOnHover={true}
+        draggable={false}
+        style={{ zIndex: 9999 }}
+      />
       {children}
     </MessageContext.Provider>
   );
@@ -94,7 +114,9 @@ export function ToastContext({ children }: ToastContextProps) {
 export function useToastContext() {
   const context = useContext(MessageContext);
   if (context === undefined) {
-    throw new Error('useToastContext must be used within a ToastContext provider');
+    throw new Error(
+      "useToastContext must be used within a ToastContext provider"
+    );
   }
   return context;
 }
@@ -104,7 +126,9 @@ export function useToastContext() {
 export function useMessageContext() {
   const context = useContext(MessageContext);
   if (context === undefined) {
-    throw new Error('useMessageContext must be used within a ToastContext provider');
+    throw new Error(
+      "useMessageContext must be used within a ToastContext provider"
+    );
   }
   return context;
 }

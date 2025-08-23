@@ -225,6 +225,56 @@ class EventService {
       };
     }
   }
+
+  async viewAllCancelledEventAsAdmin(
+    page: number,
+    limit: number,
+    search?: string,
+    isCancelled?: boolean,
+    startDate?: string,
+    endDate?: string
+  ): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      // Build query string dynamically
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search) {
+        params.append("search", search);
+      }
+      if (typeof isCancelled === "boolean") {
+        params.append("isCancelled", String(isCancelled));
+      }
+      if (startDate) {
+        params.append("startDate", startDate);
+      }
+      if (endDate) {
+        params.append("endDate", endDate);
+      }
+
+      const endpoint = `/api/v1/events/admin/cancel?${params.toString()}`;
+
+      const response = await authService.makeAuthenticatedRequest(endpoint, {
+        method: "GET",
+      });
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while fetching cancelled events",
+      };
+    }
+  }
 }
 
 export const eventService = new EventService();
