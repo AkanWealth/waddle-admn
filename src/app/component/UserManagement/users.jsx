@@ -15,6 +15,8 @@ import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
 import { useRouter, useSearchParams } from 'next/navigation';
 import DeletedUsers from "./DeletedUsers";
 import { useRef } from "react";
+import { usePermissions } from "@/hooks/usePermissions";
+import { CreateGuard, ViewGuard, ManageGuard, DeleteGuard } from "@/components/PermissionGuard";
 
 export default function UserManagement() {
     // State for active tab
@@ -25,6 +27,9 @@ export default function UserManagement() {
     const [activeTab, setActiveTab] = useState(tabFromUrl || "Vendors");
     const [showDeletedUsers, setShowDeletedUsers] = useState(false);
     const [currentPage, setCurrentPage] = useState(pageFromUrl > 0 ? pageFromUrl : 1);
+    
+    // Get user permissions
+    const { canView: canViewUsers, canCreate: canCreateUsers, canManage: canManageUsers, canDelete: canDeleteUsers } = usePermissions();
     
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState("");
@@ -173,24 +178,29 @@ export default function UserManagement() {
                     <p className="text-gray-500">View and manage your registered users here</p>
                 </div>
                 <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
-                    <button
-                        className="flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
-                        onClick={() => setIsCreateAdminModalOpen(true)}
-                    >
-                        <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-                        Add New User
-                    </button>
-                    <button onClick={() => setShowDeletedUsers(true)} className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
-                        <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-                        Deleted Users
-                    </button>
+                    <CreateGuard module="userManagement">
+                        <button
+                            className="flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+                            onClick={() => setIsCreateAdminModalOpen(true)}
+                        >
+                            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                            Add New User
+                        </button>
+                    </CreateGuard>
+                    <ViewGuard module="userManagement">
+                        <button onClick={() => setShowDeletedUsers(true)} className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+                            <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                            Deleted Users
+                        </button>
+                    </ViewGuard>
                 </div>
             </div>
 
             {/* Main content */}
-            <div className="bg-white rounded-lg shadow-sm">
-                <div className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">All {activeTab}</h2>
+            <ViewGuard module="userManagement">
+                <div className="bg-white rounded-lg shadow-sm">
+                    <div className="p-6">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">All {activeTab}</h2>
 
                     {/* Tabs and Search/Filter */}
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-5 px-2 rounded-lg">
@@ -357,22 +367,26 @@ export default function UserManagement() {
                     {/* Pagination */}
                     
                 </div>
-            </div>
+                </div>
+            </ViewGuard>
         </div>
-        <CreateAdminUserModal
+        <CreateGuard module="userManagement">
+            <CreateAdminUserModal
                 isOpen={isCreateAdminModalOpen}
                 onClose={() => setIsCreateAdminModalOpen(false)}
                 onSuccess={handleAdminUserSuccess}
-
-                 />
-                 {showDeletedUsers && (
-                    <DeletedUsers
-                        onClose={() => setShowDeletedUsers(false)}
-                        onUserRestored={() => {
-                            setRefreshKey(prev => prev + 1);
-                        }}
-                    />
-                 )}
+            />
+        </CreateGuard>
+                 <ViewGuard module="userManagement">
+                     {showDeletedUsers && (
+                        <DeletedUsers
+                            onClose={() => setShowDeletedUsers(false)}
+                            onUserRestored={() => {
+                                setRefreshKey(prev => prev + 1);
+                            }}
+                        />
+                     )}
+                 </ViewGuard>
         </>
     );
 }

@@ -17,12 +17,16 @@ import {
 } from "@/stores/useBookingStore";
 import { VendorData } from "./SampleData";
 import { BookingTableSkeleton } from "../Element/LoadingSpinner";
+// import { usePermissions } from "@/hooks/usePermissions";
+import { ViewGuard } from "@/components/PermissionGuard";
 
 const BookingManagement: React.FC = () => {
   const paginatedBookings = usePaginatedBookings();
   const totalPages = useTotalPages();
-  const { totalPages: vendorTotalPages } =
-    usePaginatedVendors(VendorData);
+  const { totalPages: vendorTotalPages } = usePaginatedVendors(VendorData);
+
+  // Get user permissions
+  // const { canView: canViewBookings } = usePermissions();
 
   const fetchBookingData = useBookingStore((state) => state.fetchBookingData);
 
@@ -58,83 +62,89 @@ const BookingManagement: React.FC = () => {
   };
 
   return (
-    <div className=" relative">
-      <header className="p-6 border-b border-gray-200 bg-white">
-        <h1 className="text-xl font-semibold text-gray-900 mb-4">
-          All Bookings
-        </h1>
+    <ViewGuard
+      module="bookingManagement"
+      fallback={null}
+      showFallback={false}
+    >
+      <div className="relative">
+        <header className="p-6 border-b border-gray-200 bg-white">
+          <h1 className="text-xl font-semibold text-gray-900 mb-4">
+            All Bookings
+          </h1>
 
-        <div className="flex justify-between items-center flex-col md:flex-row gap-4">
-          <nav className="flex items-center border border-gray-300 rounded-lg p-0.5">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                className={`font-inter py-3 px-8 text-center relative ${
-                  activeTab === tab
-                    ? "text-blue-600 font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-600"
-                    : "text-gray-500"
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav>
+          <div className="flex justify-between items-center flex-col md:flex-row gap-4">
+            <nav className="flex items-center border border-gray-300 rounded-lg p-0.5">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  className={`font-inter py-3 px-8 text-center relative ${
+                    activeTab === tab
+                      ? "text-blue-600 font-medium after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-blue-600"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
 
-          {activeTab === "Bookings" && <SearchFilterBar />}
-        </div>
-      </header>
-      {activeTab === "Bookings" && (
-        <StatusFilterModal
-          isOpen={isStatusModalOpen}
-          onClose={() => setStatusModalOpen(false)}
-          onApply={setStatusFilter}
-          initialSelected={statusFilter}
-        />
-      )}
-      {activeTab === "Bookings" && (
-        <MainBookingFilter
-          isOpen={isMainFilterOpen}
-          onClose={toggleMainFilter}
-        />
-      )}
-      {isOpenBookingDetails && <BookingDetailsModal />}
-      <>
-        {isLoading ? (
-          <div className="w-full">
-            <BookingTableSkeleton />
+            {activeTab === "Bookings" && <SearchFilterBar />}
           </div>
-        ) : (
-          <>
-            <main className="min-h-[400px] w-full">
-              {activeTab === "Bookings" && (
-                <BookingTable
-                  bookings={paginatedBookings}
-                  getStatusBadge={getStatusBadge}
-                />
-              )}
-
-              {activeTab === "Revenue" && (
-                <section className="w-full">
-                  <RevenueChart />
-                  <RevenueVendorTable />
-                </section>
-              )}
-            </main>
-
-            {shouldShowPagination() && (
-              <footer className="px-6 py-4 border-t border-gray-200">
-                <PaginationComponent
-                  currentPage={currentPage}
-                  totalPages={getCurrentTotalPages()}
-                  onPageChange={setCurrentPage}
-                />
-              </footer>
-            )}
-          </>
+        </header>
+        {activeTab === "Bookings" && (
+          <StatusFilterModal
+            isOpen={isStatusModalOpen}
+            onClose={() => setStatusModalOpen(false)}
+            onApply={setStatusFilter}
+            initialSelected={statusFilter}
+          />
         )}
-      </>
-    </div>
+        {activeTab === "Bookings" && (
+          <MainBookingFilter
+            isOpen={isMainFilterOpen}
+            onClose={toggleMainFilter}
+          />
+        )}
+        {isOpenBookingDetails && <BookingDetailsModal />}
+        <>
+          {isLoading ? (
+            <div className="w-full">
+              <BookingTableSkeleton />
+            </div>
+          ) : (
+            <>
+              <main className="min-h-[400px] w-full">
+                {activeTab === "Bookings" && (
+                  <BookingTable
+                    bookings={paginatedBookings}
+                    getStatusBadge={getStatusBadge}
+                  />
+                )}
+
+                {activeTab === "Revenue" && (
+                  <section className="w-full">
+                    <RevenueChart />
+                    <RevenueVendorTable />
+                  </section>
+                )}
+              </main>
+
+              {shouldShowPagination() && (
+                <footer className="px-6 py-4 border-t border-gray-200">
+                  <PaginationComponent
+                    currentPage={currentPage}
+                    totalPages={getCurrentTotalPages()}
+                    onPageChange={setCurrentPage}
+                  />
+                </footer>
+              )}
+            </>
+          )}
+        </>
+      </div>
+    </ViewGuard>
   );
 };
 

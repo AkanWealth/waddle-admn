@@ -196,7 +196,6 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             const result = await adminService.createAdminUser(formData);
 
             if (result.success) {
-                setSuccess('Admin user invited successfully! They will receive login credentials via email.');
                 showMessage("Admin user invited", "The new admin user has been created and will receive an email with their invitation details.", "success");
                 if (onSuccess) {
                     onSuccess(result.data);
@@ -226,7 +225,7 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
             const result = await adminService.updateAdminUser(editData?.id, formData);
 
             if (result.success) {
-                setSuccess('Admin user updated successfully!');
+                // setSuccess('Admin user updated successfully!');
                 showMessage("Admin user updated", "The admin user details have been updated successfully.", "success");
                 // Call onSuccess callback if provided
                 if (onSuccess) {

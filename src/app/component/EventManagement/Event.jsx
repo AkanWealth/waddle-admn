@@ -18,6 +18,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import { CalendarDays, Calendar } from "lucide-react";
+import { usePermissions } from "@/hooks/usePermissions";
+import { CreateGuard, ViewGuard } from "@/components/PermissionGuard";
 
 
 export default function EventManagement() {
@@ -47,6 +49,9 @@ export default function EventManagement() {
 
   // Mobile responsive states
   const [mobileView, setMobileView] = useState(false);
+
+  // Get user permissions
+  const { canView: canViewEvents, canCreate: canCreateEvents } = usePermissions();
 
   // Add refs for dropdowns
   const statusDropdownRef = useRef(null);
@@ -301,28 +306,33 @@ export default function EventManagement() {
           <p className="text-gray-500">View and manage your event here actually</p>
         </div>
         <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
-          <button 
-            className="cursor-pointer flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
-            onClick={handleCreateEvent}
-          >
-            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-            Create Event
-          </button>
-          <button onClick={()=> setShowDeletedEvents(true)} className="cursor-pointer flex items-center gap-2 border border-[#CC0000] text-[#CC0000] px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
-            <span className="text-[#CC0000]">
-            Deleted Events
-            </span>
-            <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 text-[#CC0000]" />
-          </button>
+          <CreateGuard module="eventManagement">
+            <button 
+              className="cursor-pointer flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
+              onClick={handleCreateEvent}
+            >
+              <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+              Create Event
+            </button>
+          </CreateGuard>
+          <ViewGuard module="eventManagement">
+            <button onClick={()=> setShowDeletedEvents(true)} className="cursor-pointer flex items-center gap-2 border border-[#CC0000] text-[#CC0000] px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
+              <span className="text-[#CC0000]">
+              Deleted Events
+              </span>
+              <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 text-[#CC0000]" />
+            </button>
+          </ViewGuard>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            All Events
-          </h2>
+      <ViewGuard module="eventManagement">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              All Events
+            </h2>
 
           {/* Search and Filter Section */}
           <div className="flex flex-wrap justify-between gap-4 mb-6">
@@ -515,25 +525,30 @@ export default function EventManagement() {
           />
         </div>
       </div>
+      </ViewGuard>
 
       {/* Create Event Modal */}
-      {isCreateModalOpen && (
-        <EventCreationModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          onSave={handleSaveEvent}
-          onEventEdited={fetchEvents} // FIXED: Pass function reference, not function call
-        />
-      )}
+      <CreateGuard module="eventManagement">
+        {isCreateModalOpen && (
+          <EventCreationModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSave={handleSaveEvent}
+            onEventEdited={fetchEvents} // FIXED: Pass function reference, not function call
+          />
+        )}
+      </CreateGuard>
 
-      {showDeletedEvents && (
-        <DeletedEvents
-          onClose={() => setShowDeletedEvents(false)}
-          onUserRestored={() => {
-            setRefreshKey(prev => prev + 1);
-          }}
-        />
-      )}
+      <ViewGuard module="eventManagement">
+        {showDeletedEvents && (
+          <DeletedEvents
+            onClose={() => setShowDeletedEvents(false)}
+            onUserRestored={() => {
+              setRefreshKey(prev => prev + 1);
+            }}
+          />
+        )}
+      </ViewGuard>
     </div>
   );
 }

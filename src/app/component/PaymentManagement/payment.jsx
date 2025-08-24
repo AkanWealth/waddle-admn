@@ -14,6 +14,8 @@ import { CalendarDays, Calendar } from "lucide-react";
 
 import PaginationComponent from "../Element/PaginationComponent";
 import StatusDropdown from "./StatusDropdown";
+import { usePermissions } from "@/hooks/usePermissions";
+import { ViewGuard } from "@/components/PermissionGuard";
 // import CreateAdminUserModal from "../ModalPages/Users/Admin/CreateAdminModal";
 
 export default function Payment() {
@@ -51,6 +53,9 @@ const handleSearchChange = (e) => {
 };    
     // Mobile responsive states
     const [mobileView, setMobileView] = useState(false);
+
+    // Get user permissions
+    const { canView: canViewPayments } = usePermissions();
 
     // Define status options for each tab
     const statusOptions = {
@@ -188,10 +193,11 @@ const handleSearchChange = (e) => {
             </div>
 
             {/* Main content */}
-            <div className="bg-white rounded-lg shadow-sm">
-                <div className="p-6">
-                    <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">All {activeTab}</h2>
+            <ViewGuard module="payment">
+                <div className="bg-white rounded-lg shadow-sm">
+                    <div className="p-6">
+                        <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">All {activeTab}</h2>
 
                     {/* Tabs and Search/Filter */}
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-5 px-2 rounded-lg">
@@ -360,7 +366,8 @@ const handleSearchChange = (e) => {
                         totalPages={totalPages}
                         onPageChange={handlePageChange} />
                 </div>
-            </div>
+                </div>
+            </ViewGuard>
         </div>
 
         </>

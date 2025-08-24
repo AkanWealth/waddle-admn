@@ -715,6 +715,7 @@ import RejectPlaceModal from "@/app/component/Recommendations/RejectPlaceModal";
 import ParentReviewsModal from "@/app/component/Recommendations/ParentReviewsModal";
 import EventDetailsModal from "@/app/component/Recommendations/EventDetailsModal";
 import RecommendationStatusFilterModal from "@/app/component/Recommendations/RecommendationStatusFilterModal";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface Recommendation {
   id: string;
@@ -1175,6 +1176,9 @@ const ParentRecommendations: React.FC = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const itemsPerPage = 7;
 
+  // Get user permissions
+  // const { canView: canViewRecommendations, canManage: canManageRecommendations } = usePermissions();
+
   useEffect(() => {
     refreshEvents(activeTab as "Places" | "Events");
     // Clear active modal when switching tabs
@@ -1327,154 +1331,160 @@ const ParentRecommendations: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-none relative">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Parent-Recommendations
-        </h1>
-        <p className="text-gray-600 text-sm">
-          Discover and manage the latest place suggestions from parents.
-        </p>
-      </div>
-
-      <div className="bg-white px-2 py-2">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
-          <span>
-            {activeTab === "Places"
-              ? "Recommended Places"
-              : "Recommended Events"}
-          </span>{" "}
-          <span className="text-orange-500">
-            {activeTab === "Places"
-              ? `(${filteredPlaces.length})`
-              : `(${filteredEvents.length})`}
-          </span>
-        </h2>
-
+    <ProtectedRoute
+      module="recommendations"
+      redirectTo="/dashboard"
+      fallback={null}
+    >
+      <div className="w-full max-w-none relative">
         <div className="mb-6">
-          <div className="bg-white px-2 py-2 flex items-center justify-between">
-            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-            <SearchFilter
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              statusFilter={statusFilter}
-              onStatusFilterChange={handleStatusFilterChange}
-              isFilterModalOpen={isFilterModalOpen}
-              onToggleFilterModal={handleToggleFilterModal}
-              activeTab={activeTab}
-            />
-          </div>
-          <div className="bg-white relative">
-            {isLoading ? (
-              <TableLoadingSkeleton activeTab={activeTab} />
-            ) : activeTab === "Places" ? (
-              paginatedPlaces.length === 0 ? (
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            Parent-Recommendations
+          </h1>
+          <p className="text-gray-600 text-sm">
+            Discover and manage the latest place suggestions from parents.
+          </p>
+        </div>
+
+        <div className="bg-white px-2 py-2">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <span>
+              {activeTab === "Places"
+                ? "Recommended Places"
+                : "Recommended Events"}
+            </span>{" "}
+            <span className="text-orange-500">
+              {activeTab === "Places"
+                ? `(${filteredPlaces.length})`
+                : `(${filteredEvents.length})`}
+            </span>
+          </h2>
+
+          <div className="mb-6">
+            <div className="bg-white px-2 py-2 flex items-center justify-between">
+              <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+              <SearchFilter
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                statusFilter={statusFilter}
+                onStatusFilterChange={handleStatusFilterChange}
+                isFilterModalOpen={isFilterModalOpen}
+                onToggleFilterModal={handleToggleFilterModal}
+                activeTab={activeTab}
+              />
+            </div>
+            <div className="bg-white relative">
+              {isLoading ? (
+                <TableLoadingSkeleton activeTab={activeTab} />
+              ) : activeTab === "Places" ? (
+                paginatedPlaces.length === 0 ? (
+                  <NoRecommendations />
+                ) : (
+                  <RecommendationsTable
+                    activeTab={activeTab}
+                    data={paginatedPlaces}
+                    activeModalId={activeModalId}
+                    onActionClick={handleActionClickPlace}
+                    onCloseModal={handleCloseModal}
+                    isLoading={isLoading}
+                  />
+                )
+              ) : paginatedEvents.length === 0 ? (
                 <NoRecommendations />
               ) : (
-                <RecommendationsTable
-                  activeTab={activeTab}
-                  data={paginatedPlaces}
-                  activeModalId={activeModalId}
-                  onActionClick={handleActionClickPlace}
-                  onCloseModal={handleCloseModal}
-                  isLoading={isLoading}
-                />
-              )
-            ) : paginatedEvents.length === 0 ? (
-              <NoRecommendations />
-            ) : (
-              <div className="w-full overflow-y-hidden relative h-full">
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Event Name
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Submitted By
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Date Submitted
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Entry Fee
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Category
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Status
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="overflow-y-hidden">
-                    {paginatedEvents.map((item) => (
-                      <TableRowEvents
-                        activeModalId={activeModalId}
-                        key={item.id}
-                        event={item}
-                        onActionClick={() => handleActionClickEvent(item)}
-                        showModal={activeModalId === item.id}
-                        onCloseModal={handleCloseModal}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                <div className="w-full overflow-y-hidden relative h-full">
+                  <table className="w-full table-auto">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Event Name
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Submitted By
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Date Submitted
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Entry Fee
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Category
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Status
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="overflow-y-hidden">
+                      {paginatedEvents.map((item) => (
+                        <TableRowEvents
+                          activeModalId={activeModalId}
+                          key={item.id}
+                          event={item}
+                          onActionClick={() => handleActionClickEvent(item)}
+                          showModal={activeModalId === item.id}
+                          onCloseModal={handleCloseModal}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      {!isLoading &&
-        (activeTab === "Places"
-          ? filteredPlaces.length > 0
-          : filteredEvents.length > 0) && (
-          <PaginationComponent
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
+        {!isLoading &&
+          (activeTab === "Places"
+            ? filteredPlaces.length > 0
+            : filteredEvents.length > 0) && (
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        {showPlaceDetailsModal && (
+          <PlacesDetailsModal selectedPlace={selectedPlace} />
+        )}
+
+        {showEventDetailsModal && (
+          <EventDetailsModal selectedEvent={selectedEvent} />
+        )}
+
+        {showApproveDetailsModal && <ApprovePlaceModal tab={activeModalType} />}
+
+        {showRejectDetailsModal && (
+          <RejectPlaceModal
+            tab={activeModalType}
+            isOpen={showRejectDetailsModal}
+            onClose={closeShowRejectDetailsModal}
+            // onConfirm={handleRejectPlace}
           />
         )}
-      {showPlaceDetailsModal && (
-        <PlacesDetailsModal selectedPlace={selectedPlace} />
-      )}
+        {showParentReviewsModal && <ParentReviewsModal />}
 
-      {showEventDetailsModal && (
-        <EventDetailsModal selectedEvent={selectedEvent} />
-      )}
-
-      {showApproveDetailsModal && <ApprovePlaceModal tab={activeModalType} />}
-
-      {showRejectDetailsModal && (
-        <RejectPlaceModal
-          tab={activeModalType}
-          isOpen={showRejectDetailsModal}
-          onClose={closeShowRejectDetailsModal}
-          // onConfirm={handleRejectPlace}
-        />
-      )}
-      {showParentReviewsModal && <ParentReviewsModal />}
-
-      {/* Centralized Action Modal - Fixed to use correct status based on active type */}
-      {activeModalId && activeModalType && (
-        <div
-          className="fixed z-50 action-modal-container"
-          style={{
-            top: `${modalPosition.top}px`,
-            left: `${modalPosition.left}px`,
-          }}
-        >
-          <RecommendationActionModal
-            type={activeModalType}
-            status={getModalStatus()}
-            onClose={handleCloseModal}
-          />
-        </div>
-      )}
-    </div>
+        {/* Centralized Action Modal - Fixed to use correct status based on active type */}
+        {activeModalId && activeModalType && (
+          <div
+            className="fixed z-50 action-modal-container"
+            style={{
+              top: `${modalPosition.top}px`,
+              left: `${modalPosition.left}px`,
+            }}
+          >
+            <RecommendationActionModal
+              type={activeModalType}
+              status={getModalStatus()}
+              onClose={handleCloseModal}
+            />
+          </div>
+        )}
+      </div>
+    </ProtectedRoute>
   );
 };
 

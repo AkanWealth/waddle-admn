@@ -27,19 +27,21 @@ class AdminService {
 
             let formattedPermissions = {};
         if (Array.isArray(adminData.permissions)) {
+            // Transform permissions array to object format that backend expects
             formattedPermissions = adminData.permissions.reduce((acc, perm) => {
-                if (perm.name && perm.actions) {
-                    acc[perm.name] = {
-                        create: !!perm.actions.create,
-                        view: !!perm.actions.view,
-                        manage: !!perm.actions.manage,
-                        delete: !!perm.actions.delete
+                if (perm.module) {
+                    acc[perm.module] = {
+                        create: !!perm.canCreate,
+                        view: !!perm.canView,
+                        manage: !!perm.canManage,
+                        delete: !!perm.canDelete
                     };
                 }
                 return acc;
             }, {});
         }
 
+ 
             // Prepare the payload with hardcoded password
         const payload = {
             email: adminData.email,
@@ -90,23 +92,28 @@ class AdminService {
 
                     let formattedPermissions = {};
         if (Array.isArray(adminData.permissions)) {
+            // Transform permissions array to object format that backend expects
             formattedPermissions = adminData.permissions.reduce((acc, perm) => {
-                if (perm.name && perm.actions) {
-                    acc[perm.name] = {
-                        create: !!perm.actions.create,
-                        view: !!perm.actions.view,
-                        manage: !!perm.actions.manage,
-                        delete: !!perm.actions.delete
+                if (perm.module) {
+                    acc[perm.module] = {
+                        create: !!perm.canCreate,
+                        view: !!perm.canView,
+                        manage: !!perm.canManage,
+                        delete: !!perm.canDelete
                     };
                 }
                 return acc;
             }, {});
         }
 
+        console.log('Update - Original permissions:', adminData.permissions);
+        console.log('Update - Formatted permissions:', formattedPermissions);
+
             // Prepare the payload (exclude password for updates unless specifically needed)
            console.log('Admin Data:', adminData);
+           console.log('Admin Data permissions:', adminData.permissions);
             const payload = {
-            firstName: adminData.first_name, // match backend's expectation
+            firstName: adminData.first_name,
             lastName: adminData.last_name,
             emailAddress: adminData.email,
             role: adminData.role?.toUpperCase(), // ensure uppercase
@@ -114,7 +121,8 @@ class AdminService {
 
         };
 
-        // Object.keys(payload).forEach(key => 
+        console.log('Final payload being sent:', payload);
+            // Object.keys(payload).forEach(key => 
         //     payload[key] === undefined && delete payload[key]
         // );
             const response = await authService.makeAuthenticatedRequest(`/api/v1/host/admins/${adminId}/edit`, {

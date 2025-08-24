@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { authService } from "@/utils/authService";
 import PaginationComponent from "../Element/PaginationComponent";
+import { usePermissions } from "@/hooks/usePermissions";
+import { ManageGuard, DeleteGuard } from "@/components/PermissionGuard";
 
 export default function AdminUsersTable({
   currentPage,
@@ -43,6 +45,9 @@ export default function AdminUsersTable({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
+
+  // Get user permissions
+  const { canManage: canManageUsers, canDelete: canDeleteUsers } = usePermissions();
 
   // Refs for dropdown positioning
   const dropdownRefs = useRef({});
@@ -356,13 +361,15 @@ export default function AdminUsersTable({
           left: `${position.left}px`,
         }}
       >
-        <button
-          onClick={() => handleAction("edit", admin)}
-          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
-        >
-          <Edit className="w-4 h-4 mr-3" />
-          Edit Admin Details
-        </button>
+        <ManageGuard module="userManagement">
+          <button
+            onClick={() => handleAction("edit", admin)}
+            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+          >
+            <Edit className="w-4 h-4 mr-3" />
+            Edit Admin Details
+          </button>
+        </ManageGuard>
 
         {/* Resend Invite - Only show for Pending status */}
         <button
@@ -397,13 +404,15 @@ export default function AdminUsersTable({
         </button>
 
         <hr className="my-1 border-gray-100" />
-        <button
-          onClick={() => handleAction("delete", admin)}
-          className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
-        >
-          <Trash2 className="w-4 h-4 mr-3" />
-          Delete Admin
-        </button>
+        <DeleteGuard module="userManagement">
+          <button
+            onClick={() => handleAction("delete", admin)}
+            className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+          >
+            <Trash2 className="w-4 h-4 mr-3" />
+            Delete Admin
+          </button>
+        </DeleteGuard>
       </div>
     );
   };
@@ -461,12 +470,14 @@ export default function AdminUsersTable({
                         <StatusBadge status={admin.status} />
                       </td>
                       <td className="py-4 pl-2 text-center">
-                        <button
-                          onClick={() => handleAction("edit", admin)}
-                          className="text-blue-600 hover:underline"
-                        >
-                          Edit
-                        </button>
+                        <ManageGuard module="userManagement">
+                          <button
+                            onClick={() => handleAction("edit", admin)}
+                            className="text-blue-600 hover:underline"
+                          >
+                            Edit
+                          </button>
+                        </ManageGuard>
                       </td>
                     </tr>
                   ))}
