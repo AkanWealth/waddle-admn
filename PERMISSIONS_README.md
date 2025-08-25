@@ -273,3 +273,4 @@ console.log('Can view userManagement:', canView('userManagement'));
 - Permission caching
 - Audit logging for permission changes
 - Bulk permission updates
+

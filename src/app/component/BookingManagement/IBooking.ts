@@ -30,6 +30,8 @@ export type IBooking = {
 };
 
 type Event = {
+  admin: any;
+  adminId: any;
   id: string;
   name: string;
   description: string;

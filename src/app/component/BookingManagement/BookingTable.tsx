@@ -86,7 +86,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
                       <span className="font-semibold block md:hidden">
                         Organiser Name:
                       </span>
-                      {booking?.event?.organiser?.name || "NA"}
+                      {booking?.event?.organiser?.name || "Waddle"}
                     </td>
                     <td className="px-4 py-2 md:py-4 font-normal text-sm text-[#515151] text-nowrap md:table-cell block">
                       <span className="font-semibold block md:hidden">

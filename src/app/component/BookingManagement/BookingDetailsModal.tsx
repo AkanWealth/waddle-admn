@@ -188,6 +188,8 @@ const BookingDetailsModal = () => {
                   src={
                     selectedEvent?.event?.organiser?.business_logo
                       ? `https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/vendors/${selectedEvent.event.organiser.business_logo}`
+                      : selectedEvent?.event?.adminId
+                      ? selectedEvent?.event?.admin?.avatarUrl
                       : "/Avatar.jpg"
                   }
                   alt="Organiser logo"
@@ -199,22 +201,36 @@ const BookingDetailsModal = () => {
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900">
-                  {selectedEvent?.event?.organiser?.business_name}
+                  {selectedEvent?.event?.organiser?.business_name || "Waddle"}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {selectedEvent?.event?.organiser?.name}
+                  {selectedEvent?.event?.organiser?.name || selectedEvent?.event?.admin?.first_name + " " + selectedEvent?.event?.admin?.last_name}
                 </div>
               </div>
             </div>
             <div className="mt-2 flex items-center gap-4">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Mail size={14} />
-                <span>{selectedEvent?.event?.organiser?.email}</span>
+                <span>{selectedEvent?.event?.organiser?.email || selectedEvent?.event?.admin?.email}</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Phone size={14} />
-                <span>{selectedEvent?.event?.organiser?.phone_number}</span>
-              </div>
+              {
+                selectedEvent?.event?.organiser?.phone_number && (
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Phone size={14} />
+                    <span>{selectedEvent?.event?.organiser?.phone_number}</span>
+                  </div>
+                )
+              }
+              {
+                selectedEvent?.event?.admin?.phone_number && (
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Phone size={14} />
+                    <span>{selectedEvent?.event?.admin?.phone_number}</span>
+                  </div>
+                )
+              }
+              
+              
             </div>
           </div>
 
@@ -263,9 +279,11 @@ const BookingDetailsModal = () => {
                       <div className="text-gray-600 break-all">
                         {selectedEvent.user.email}
                       </div>
-                      <div className="text-gray-600">{selectedEvent.user.phone_number || "NA"}</div>
                       <div className="text-gray-600">
-                        {guardian.name|| "N/A"}
+                        {selectedEvent.user.phone_number || "NA"}
+                      </div>
+                      <div className="text-gray-600">
+                        {guardian.name || "N/A"}
                       </div>
                       <div className="text-center font-medium">
                         {guardian.age}

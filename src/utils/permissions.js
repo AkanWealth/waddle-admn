@@ -109,3 +109,4 @@ export const getModulePermissions = (user, module) => {
     canDelete: !!modulePermission.canDelete
   };
 };
+
