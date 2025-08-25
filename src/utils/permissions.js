@@ -13,8 +13,8 @@ export const hasPermission = (user, module, action) => {
   // If no user, no permissions
   if (!user) return false;
   
-  // If user has no permissions array, they are root user with full access
-  if (!user.admin?.permissions || !Array.isArray(user.admin.permissions)) {
+  // If user has no permissions array OR an empty permissions array, they are root user with full access
+  if (!user.admin?.permissions || !Array.isArray(user.admin.permissions) || user.admin.permissions.length === 0) {
     return true;
   }
   
@@ -76,7 +76,7 @@ export const canDelete = (user, module) => {
  * @returns {boolean} - Whether user is root user
  */
 export const isRootUser = (user) => {
-  return !user?.admin?.permissions || !Array.isArray(user.admin.permissions);
+  return !user?.admin?.permissions || !Array.isArray(user.admin.permissions) || user.admin.permissions.length === 0;
 };
 
 /**
