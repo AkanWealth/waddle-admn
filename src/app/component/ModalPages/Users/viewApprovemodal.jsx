@@ -119,6 +119,21 @@ useEffect(() => {
     }
     console.log(`Suspending vendor ${vendorId}: ${reason}`);
   };
+  const handleAccountReactivateVendor = async(vendorId) => {
+    if(vendorId === selectedVendor.id) {
+      const response = await userService.reactivateAccountVendor(vendorId);
+      if (response.success) {
+          showMessage("Vendor Activated!", "The vendor has been notified of the activation.", "success");
+        if (typeof onStatusChange === "function") {
+          onStatusChange(vendorId, "APPROVED");
+        }
+        onClose();
+      } else{
+        console.error("Error reactivating vendor:", response.error);
+        showMessage("Error", "Failed to reactivate vendor", "error");
+        }
+    }
+  };
 
   const getActions = useMemo(() => {
     if (!vendor) return {};
@@ -444,7 +459,7 @@ useEffect(() => {
         vendor={selectedVendor}
         isOpen={modals.activate}
         onClose={() => handleModalClose("activate")}
-        onConfirm={handleReactivateVendor}
+        onConfirm={handleAccountReactivateVendor}
       />
       <EnableVendorModal
         vendor={selectedVendor}

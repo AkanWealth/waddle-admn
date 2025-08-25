@@ -116,6 +116,33 @@ class UserService {
       };
     }
   }
+  async reactivateAccountVendor(vendorId: string): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/organisers/${vendorId}/reactivate`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while suspending the vendor",
+      };
+    }
+  }
 
   async reactivateVendor(vendorId: string): Promise<{
     success: boolean;
