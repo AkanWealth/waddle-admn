@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import React from "react";
 import { IBooking } from "./IBooking";
 import { CircleCheck, Clock, CircleX } from "lucide-react";

@@ -12,7 +12,6 @@
 //   status: "Confirmed" | "Pending" | "Canceled";
 // }
 
-
 export type IBooking = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   organiser: any;
@@ -30,8 +29,9 @@ export type IBooking = {
 };
 
 type Event = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   admin: any;
-  adminId: any;
+  adminId: string | null;
   id: string;
   name: string;
   description: string;
@@ -49,7 +49,6 @@ type Event = {
   isDeleted: boolean;
   createdAt: string; // or Date
   updatedAt: string; // or Date
-  adminId: string | null;
   organiserId: string;
   organiser: Organiser;
 };
@@ -79,7 +78,7 @@ type Organiser = {
   createdAt: string; // or Date
   updatedAt: string; // or Date
   fcmToken: string | null;
-  role: 'ORGANISER';
+  role: "ORGANISER";
   fcmIsOn: boolean;
   isApproved: boolean;
 };
@@ -104,10 +103,9 @@ type User = {
   createdAt: string; // or Date
   updatedAt: string; // or Date
   fcmToken: string | null;
-  role: 'GUARDIAN';
+  role: "GUARDIAN";
   fcmIsOn: boolean;
 };
-
 
 export interface IVendor {
   name: string;
