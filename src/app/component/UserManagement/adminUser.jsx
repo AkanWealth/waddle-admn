@@ -20,6 +20,7 @@ import { authService } from "@/utils/authService";
 import PaginationComponent from "../Element/PaginationComponent";
 import { usePermissions } from "@/hooks/usePermissions";
 import { ManageGuard, DeleteGuard } from "@/components/PermissionGuard";
+import { formatTime } from "./DeletedUsers";
 
 export default function AdminUsersTable({
   currentPage,
@@ -554,6 +555,9 @@ export default function AdminUsersTable({
                     Registration Date
                   </th>
                   <th className="pb-3 px-4 text-left text-sm font-medium text-gray-500">
+                    Time
+                  </th>
+                  <th className="pb-3 px-4 text-left text-sm font-medium text-gray-500">
                     Status
                   </th>
                   <th className="pb-3 px-4 text-left text-sm font-medium text-gray-500">
@@ -578,6 +582,9 @@ export default function AdminUsersTable({
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-600">
                       {admin.registrationDate}
+                    </td>
+                    <td className="py-4 px-4 text-sm text-nowrap text-gray-600">
+                      {formatTime(admin.createdAt)}
                     </td>
                     <td className="py-4 px-4">
                       <StatusBadge status={admin.status} />

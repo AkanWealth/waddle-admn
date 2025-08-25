@@ -6,6 +6,7 @@ import StatusBadge from "./StatusBadge";
 import GuardianDetailsModal from "../ModalPages/Users/Guardian/viewPendingDetail";
 import { authService } from "@/utils/authService";
 import PaginationComponent from "../Element/PaginationComponent";
+import { formatTime } from "./DeletedUsers";
 
 
 
@@ -238,6 +239,7 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
                                 <th className="pb-3 px-4 font-medium">Mobile Number</th>
                                 <th className="pb-3 px-4 font-medium">Email Address</th>
                                 <th className="pb-3 px-4 font-medium">Registration Date</th>
+                                <th className="pb-3 px-4 font-medium">Time</th>
                                 <th className="pb-3 px-4 font-medium">Status</th>
                                 <th className="pb-3 px-4 font-medium">Actions</th>
                             </tr>
@@ -249,6 +251,7 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
                                     <td className="py-4 px-4">{guardian.mobile}</td>
                                     <td className="py-4 px-4">{guardian.email}</td>
                                     <td className="py-4 px-4">{guardian.date}</td>
+                                    <td className="py-4 px-4 text-nowrap">{formatTime(guardian.date)}</td>
                                     <td className="py-4 px-4"><StatusBadge status={guardian.status} /></td>
                                     <td className="py-4 px-4">
                                         <a

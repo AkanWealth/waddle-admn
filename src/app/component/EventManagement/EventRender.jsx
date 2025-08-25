@@ -7,6 +7,7 @@ import EventDetailsModal from "../ModalPages/Events/EventDetailsModal";
 import { useRecommendationsStore } from '@/stores/useRecommendationStore';
 import { eventService } from "@/utils/eventService";
 import { useToastContext } from "@/context/toast";
+import { formatTime } from "./DeletedEvents";
 
 export default function EventTable({ data, currentPage, searchTerm, statusFilter, dateFilter, mobileView, isLoading, onEventUpdated }) {
     
@@ -370,6 +371,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                                     <th className="pb-3 px-4 py-2 font-medium min-w-[200px]">Event Name</th>
                                     <th className="pb-3 px-4 py-2 font-medium min-w-[150px]">Organiser Name</th>
                                     <th className="pb-3 px-4 py-2 font-medium min-w-[120px]">Date</th>
+                                    <th className="pb-3 px-4 py-2 font-medium min-w-[120px]">Time</th>
                                     <th className="pb-3 px-4 py-2 font-medium min-w-[120px]">Location</th>
                                     <th className="pb-3 px-4 py-2 font-medium min-w-[80px]">Status</th>
                                     <th className="pb-3 px-4 py-2 font-medium min-w-[100px]">Action</th>
@@ -388,6 +390,7 @@ export default function EventTable({ data, currentPage, searchTerm, statusFilter
                                             <td className="py-4 px-4">{event.name || 'N/A'}</td>
                                             <td className="py-4 px-4">{event?.organiser?.name || 'Waddle'}</td>
                                             <td className="py-4 px-4">{formatDate(event.createdAt)}</td>
+                                            <td className="py-4 px-4">{formatTime(event.createdAt)}</td>
                                             <td className="py-4 px-4">{event.address || 'N/A'}</td>
                                             <td className="py-4 px-4"><StatusBadge status={eventStatus} /></td>
                                             <td className="py-4 px-4">

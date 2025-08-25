@@ -4,6 +4,7 @@ import { CircleCheck, Clock, CircleX } from "lucide-react";
 import { useBookingStore } from "@/stores/useBookingStore";
 import Image from "next/image";
 import formatCustomDate from "@/lib/formatDate";
+import { formatTime } from "../UserManagement/DeletedUsers";
 
 interface BookingTableProps {
   bookings: IBooking[];
@@ -50,6 +51,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
                     "Booking ID",
                     "Organiser Name",
                     "Date",
+                    "Time",
                     "Status",
                     "Actions",
                   ].map((heading) => (
@@ -93,6 +95,12 @@ const BookingTable: React.FC<BookingTableProps> = ({
                         Date:
                       </span>
                       {formatCustomDate(booking?.createdAt, "DD-MM-YYYY")}
+                    </td>
+                    <td className="px-4 py-2 md:py-4 font-normal text-sm text-[#515151] text-nowrap md:table-cell block">
+                      <span className="font-semibold block md:hidden">
+                        Time:
+                      </span>
+                      {formatTime(booking?.createdAt)}
                     </td>
                     <td className="px-4 py-2 md:py-4 md:table-cell block">
                       <span className="font-semibold block md:hidden">

@@ -7,6 +7,7 @@ import VendorDetailsModal from "../ModalPages/Users/viewPendingDetail";
 import VendorApproveDetailsModal from "../ModalPages/Users/viewApprovemodal";
 import PaginationComponent from "../Element/PaginationComponent";
 import { useToastContext } from "@/context/toast";
+import { formatTime } from "./DeletedUsers";
 
 export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
     const { showMessage } = useToastContext();
@@ -385,6 +386,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                                 <th className="pb-3 px-4 font-medium">Mobile Number</th>
                                 <th className="pb-3 px-4 font-medium">Email Address</th>
                                 <th className="pb-3 px-4 font-medium">Registration Date</th>
+                                <th className="pb-3 px-4 font-medium">Time</th>
                                 <th className="pb-3 px-4 font-medium">Status</th>
                                 <th className="pb-3 px-4 font-medium">Actions</th>
                             </tr>
@@ -396,6 +398,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
                                     <td className="py-4 px-4">{vendor.phone_number}</td>
                                     <td className="py-4 px-4">{vendor.email}</td>
                                     <td className="py-4 px-4">{new Date(vendor.createdAt).toISOString().split('T')[0]}</td>
+                                    <td className="py-4 px-4 text-nowrap">{formatTime(vendor.createdAt)}</td>
                                     <td className="py-4 px-4"><StatusBadge status={vendor.status} /></td>
                                     <td className="py-4 px-4">
                                         <button
