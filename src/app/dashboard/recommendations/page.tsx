@@ -716,6 +716,7 @@ import ParentReviewsModal from "@/app/component/Recommendations/ParentReviewsMod
 import EventDetailsModal from "@/app/component/Recommendations/EventDetailsModal";
 import RecommendationStatusFilterModal from "@/app/component/Recommendations/RecommendationStatusFilterModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { formatTime } from "@/app/component/UserManagement/DeletedUsers";
 
 interface Recommendation {
   id: string;
@@ -819,6 +820,9 @@ const TableLoadingSkeleton = ({ activeTab }: { activeTab: string }) => {
               Date Submitted
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+              Time
+            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
               {activeTab === "Places" ? "Location" : "Entry Fee"}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
@@ -843,6 +847,9 @@ const TableLoadingSkeleton = ({ activeTab }: { activeTab: string }) => {
               </td>
               <td className="py-3 px-4">
                 <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+              </td>
+              <td className="py-3 px-4">
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
               </td>
               <td className="py-3 px-4">
                 <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
@@ -949,6 +956,10 @@ const TableRow: React.FC<TableRowProps> = ({
         {formatCustomDate(recommendation.createdAt, "DD-MM-YYYY")}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
+        {console.log(recommendation, "This is the date")}
+        {formatTime(recommendation.createdAt)}
+      </td>
+      <td className="py-3 px-4 text-sm text-gray-600">
         {recommendation.address}
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">
@@ -1009,6 +1020,9 @@ const RecommendationsTable: React.FC<RecommendationsTableProps> = ({
                 </th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
                   Date Submitted
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                  Time
                 </th>
                 <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
                   Location
@@ -1121,9 +1135,12 @@ const TableRowEvents: React.FC<TableRowEventsProps> = ({
       </td>
       <td className="py-3 px-4 text-sm text-gray-600">{event.submittedBy}</td>
       <td className="py-3 px-4 text-sm text-gray-600">
-        {formatCustomDate(event.dateSubmitted, "DD-MM-YYYY")}
+        {formatCustomDate(event.createdAt, "DD-MM-YYYY")}
       </td>
-      {console.log(event, "This is the event date in our table")}
+      {console.log(event, "This is event")}
+      <td className="py-3 px-4 text-sm text-gray-600">
+        {formatTime(event.createdAt)}
+      </td>
       <td className="py-3 px-4 text-sm text-gray-600">
         {event.isFree ? "Free" : "Paid"}
       </td>
@@ -1404,6 +1421,9 @@ const ParentRecommendations: React.FC = () => {
                         </th>
                         <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
                           Date Submitted
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
+                          Time
                         </th>
                         <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm text-nowrap">
                           Entry Fee

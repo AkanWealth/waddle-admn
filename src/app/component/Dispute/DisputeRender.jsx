@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Clock, TriangleAlert, AlertCircle, CircleCheck, XCircle, TrendingUpDown } from "lucide-react";
 import DisputeDetailModal from "../ModalPages/Dispute/DisputeDetailModal";
 import { disputeService } from "@/utils/disputeService";
+import { formatTime } from "../EventManagement/DeletedEvents";
 
 export default function DisputeTable({ currentPage, searchTerm, statusFilter, dateFilter, mobileView, setHasDisputeData, setTotalDisputes }) {
     // State management
@@ -87,10 +88,11 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                 customer: item.customer?.name || "N/A",
                 vendor: item.vendor?.business_name || item.vendor?.name || "N/A",
                 reason: item.reason || item.category || item.subject || "N/A",
-                lastUpdated: formatDate(item.createdAt),
+                lastUpdated: formatDate(item.updatedAt),
                 status: mapStatus(item.status),
                 file:item.file,
-                description:item.description
+                description:item.description,
+                updatedAt:item.updatedAt
             }));
         }
         return [];
@@ -277,6 +279,9 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                                 Last Updated
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+                                Time
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
                                 Status
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
@@ -301,6 +306,9 @@ export default function DisputeTable({ currentPage, searchTerm, statusFilter, da
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                     {dispute.lastUpdated}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    {formatTime(dispute.updatedAt)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <StatusBadge status={dispute.status} />

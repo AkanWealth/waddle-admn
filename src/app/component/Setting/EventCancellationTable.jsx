@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Calendar, CircleCheck, XCircle, Clock } from "lucide-react";
 import NotificationModal from "../ModalPages/Setting/NotificationModal";
+import { formatTime } from "../UserManagement/DeletedUsers";
+import { formatDate } from "../EventManagement/DeletedEvents";
 
 export default function NotificationTable({ 
     currentPage, 
@@ -222,6 +224,7 @@ export default function NotificationTable({
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Name</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organiser</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booked Users</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -232,7 +235,8 @@ export default function NotificationTable({
                                     <tr key={notification.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{notification.eventName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{notification.organizer}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{notification.date}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(notification.originalEvent.createdAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatTime(notification.originalEvent.createdAt)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{notification.bookedUsers}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <div className={`flex items-center p-1 rounded-lg ${getStatusBadgeColor(notification.status)}`}>
