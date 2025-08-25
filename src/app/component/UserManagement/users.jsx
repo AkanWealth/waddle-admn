@@ -16,7 +16,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import DeletedUsers from "./DeletedUsers";
 import { useRef } from "react";
 import { usePermissions } from "@/hooks/usePermissions";
-import { CreateGuard, ViewGuard, ManageGuard, DeleteGuard } from "@/components/PermissionGuard";
+import { CreateGuard, ViewGuard, ManageGuard, DeleteGuard, RootUserGuard } from "@/components/PermissionGuard";
 
 export default function UserManagement() {
     // State for active tab
@@ -29,7 +29,7 @@ export default function UserManagement() {
     const [currentPage, setCurrentPage] = useState(pageFromUrl > 0 ? pageFromUrl : 1);
     
     // Get user permissions
-    const { canView: canViewUsers, canCreate: canCreateUsers, canManage: canManageUsers, canDelete: canDeleteUsers } = usePermissions();
+    const { canView: canViewUsers, canCreate: canCreateUsers, canManage: canManageUsers, canDelete: canDeleteUsers, isRootUser } = usePermissions();
     
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState("");
@@ -60,6 +60,10 @@ export default function UserManagement() {
 
     // Handle tab change
     const handleTabChange = (tab) => {
+        // Prevent non-root users from switching to Admin Users tab
+        if (tab === "Admin Users" && !isRootUser) {
+            tab = "Vendors";
+        }
         setActiveTab(tab);
         setCurrentPage(1);
         setStatusFilter([]); // Reset status filter when changing tabs
@@ -152,9 +156,16 @@ export default function UserManagement() {
 
     // Sync state with URL on mount
     useEffect(() => {
-        if (tabFromUrl && tabFromUrl !== activeTab) setActiveTab(tabFromUrl);
+        if (tabFromUrl && tabFromUrl !== activeTab) {
+            // If URL forces Admin Users for non-root, fallback to Vendors
+            if (tabFromUrl === "Admin Users" && !isRootUser) {
+                setActiveTab("Vendors");
+            } else {
+                setActiveTab(tabFromUrl);
+            }
+        }
         if (pageFromUrl && pageFromUrl !== currentPage) setCurrentPage(pageFromUrl);
-    }, [tabFromUrl, pageFromUrl]);
+    }, [tabFromUrl, pageFromUrl, isRootUser]);
 
     // Close filter dropdown on outside click
     useEffect(() => {
@@ -178,7 +189,7 @@ export default function UserManagement() {
                     <p className="text-gray-500">View and manage your registered users here</p>
                 </div>
                 <div className="flex space-x-2 md:space-x-4 mt-4 md:mt-0">
-                    <CreateGuard module="userManagement">
+                    <RootUserGuard>
                         <button
                             className="flex items-center bg-[#2853A6] text-white px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base"
                             onClick={() => setIsCreateAdminModalOpen(true)}
@@ -186,7 +197,7 @@ export default function UserManagement() {
                             <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                             Add New User
                         </button>
-                    </CreateGuard>
+                    </RootUserGuard>
                     <ViewGuard module="userManagement">
                         <button onClick={() => setShowDeletedUsers(true)} className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
                             <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
@@ -206,7 +217,7 @@ export default function UserManagement() {
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-5 px-2 rounded-lg">
                         {/* Tabs - always visible, even on mobile */}
                         <div className="flex mb-4 lg:mb-0 border-1 rounded-lg border-gray-200 px-2 overflow-x-auto">
-                            {["Vendors", "Guardians", "Admin Users"].map((tab) => (
+                            {["Vendors", "Guardians", ...(isRootUser ? ["Admin Users"] : [])].map((tab) => (
                                 <button
                                     key={tab}
                                     className={`mr-4 md:mr-8 py-2 text-xs md:text-sm whitespace-nowrap ${activeTab === tab
@@ -352,7 +363,7 @@ export default function UserManagement() {
                                 dateFilter={dateFilter}
                                 mobileView={mobileView} />
                         )}
-                        {activeTab === "Admin Users" && (
+                        {activeTab === "Admin Users" && isRootUser && (
                             <AdminUsersTable
                                 key={`admin-${refreshKey}`}
                                 currentPage={currentPage}
@@ -370,13 +381,13 @@ export default function UserManagement() {
                 </div>
             </ViewGuard>
         </div>
-        <CreateGuard module="userManagement">
+        <RootUserGuard>
             <CreateAdminUserModal
                 isOpen={isCreateAdminModalOpen}
                 onClose={() => setIsCreateAdminModalOpen(false)}
                 onSuccess={handleAdminUserSuccess}
             />
-        </CreateGuard>
+        </RootUserGuard>
                  <ViewGuard module="userManagement">
                      {showDeletedUsers && (
                         <DeletedUsers
