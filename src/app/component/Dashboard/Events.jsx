@@ -78,6 +78,12 @@ export default function Events({ dateRange }) {
 
   // Max booking value for chart scaling
   const maxBooking = Math.max(...bookingData.map(item => item.bookings), 1);
+  const chartHeight = 200; // px used for bar scaling and axis
+  const yTickCount = 4; // number of segments (will render yTickCount + 1 labels incl. 0)
+  const yTicks = Array.from({ length: yTickCount + 1 }, (_, i) => Math.round((maxBooking * (yTickCount - i)) / yTickCount));
+
+  // Tooltip state
+  const [hoveredBar, setHoveredBar] = useState({ index: null, heightPx: 0 });
 
   if (isLoading) {
     return (
@@ -234,16 +240,63 @@ export default function Events({ dateRange }) {
               </button>
             </div>
           ) : hasData && bookingData.length > 0 ? (
-            <div className="h-64 flex items-end">
-              {bookingData.map((item, index) => (
-                <div key={index} className="flex flex-col items-center flex-1">
-                  <div 
-                    className="w-6 bg-blue-500 rounded-t-sm" 
-                    style={{ height: `${(item.bookings / maxBooking) * 200}px` }}
-                  ></div>
-                  <div className="text-xs mt-2 text-gray-500">{item.period}</div>
+            <div className="h-64">
+              <div className="flex">
+                {/* Y-Axis aligned with bars height */}
+                <div className="flex flex-col justify-between h-[200px] mr-4 text-xs text-gray-500">
+                  {yTicks.map((tick, i) => (
+                    <div key={i} className="flex items-center">
+                      <span className="w-8 text-right">{tick}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+                {/* Bars Area (fixed height) */}
+                <div className="flex-1">
+                  <div className="relative h-[200px] flex items-end">
+                    {/* Optional horizontal grid lines aligned with ticks */}
+                    <div className="absolute inset-0 flex flex-col justify-between">
+                      {yTicks.map((_, i) => (
+                        <div key={i} className="w-full border-t border-dashed border-gray-200"></div>
+                      ))}
+                    </div>
+                    <div className="relative flex items-end w-full">
+                      {bookingData.map((item, index) => {
+                        const barHeightPx = (item.bookings / maxBooking) * chartHeight;
+                        const isHovered = hoveredBar.index === index;
+                        return (
+                          <div key={index} className="relative flex-1 flex flex-col items-center">
+                            {/* Tooltip */}
+                            {isHovered && (
+                              <div
+                                className="absolute flex flex-col items-center z-10 px-3 text-[10px] rounded bg-[#FFFFFF] text-white shadow-[0px_0.5px_1px_0px_#00000040]"
+                                style={{ bottom: `${barHeightPx + 8}px` }}  
+                              >
+                                <h3 className="text-sm font-medium text-[#303237]">{item.bookings}</h3>
+                                <div className="font-normal text-[10px] text-[#7E8494]">{item.period}</div>
+                              </div>
+                            )}
+                            {/* Bar */}
+                            <div
+                              className="w-8 bg-[#5375B8] rounded-t-[32px] cursor-pointer"
+                              style={{ height: `${barHeightPx}px` }}
+                              onMouseEnter={() => setHoveredBar({ index, heightPx: barHeightPx })}
+                              onMouseLeave={() => setHoveredBar({ index: null, heightPx: 0 })}
+                            ></div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* X-axis labels below fixed-height bars */}
+                  <div className="mt-2 flex w-full">
+                    {bookingData.map((item, index) => (
+                      <div key={index} className="flex-1 text-center text-xs text-gray-500">
+                        {item.period}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="text-center h-64 flex items-center justify-center flex-col py-6">

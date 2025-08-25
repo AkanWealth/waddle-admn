@@ -62,11 +62,7 @@ const BookingManagement: React.FC = () => {
   };
 
   return (
-    <ViewGuard
-      module="bookingManagement"
-      fallback={null}
-      showFallback={false}
-    >
+    <ViewGuard module="bookingManagement" fallback={null} showFallback={false}>
       <div className="relative">
         <header className="p-6 border-b border-gray-200 bg-white">
           <h1 className="text-xl font-semibold text-gray-900 mb-4">

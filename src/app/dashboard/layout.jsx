@@ -6,7 +6,6 @@ import Image from "next/image";
 import { authService } from "@/utils/authService";
 import { useAuth } from "@/context/AuthContext";
 import { notificationService } from "@/utils/notificationService";
-import { usePermissions } from "@/hooks/usePermissions";
 import { 
   User,
   Settings, 
@@ -123,65 +122,17 @@ useEffect(() => {
     };
   }, [isMobile, sidebarOpen]);
 
-  // Get user permissions
-  const { canView } = usePermissions();
-
-  // Navigation items with permission checks
+  // Navigation items
   const navItems = [
-    { 
-      path: "/dashboard/analytics", 
-      icon: <BarChart className="w-5 h-5" />, 
-      label: "Analytics",
-      module: "analytics"
-    },
-    { 
-      path: "/dashboard/users", 
-      icon: <User className="w-5 h-5" />, 
-      label: "User Management",
-      module: "userManagement"
-    },
-    { 
-      path: "/dashboard/events", 
-      icon: <CalendarRange className="w-5 h-5" />, 
-      label: "Event Management",
-      module: "eventManagement"
-    },
-    { 
-      path: "/dashboard/bookings", 
-      icon: <BookText className="w-5 h-5" />, 
-      label: "Bookings Management",
-      module: "bookingManagement"
-    },
-    { 
-      path: "/dashboard/payments", 
-      icon: <BadgePoundSterlingIcon className="w-5 h-5" />, 
-      label: "Payment Management",
-      module: "payment"
-    },
-    { 
-      path: "/dashboard/recommendations", 
-      icon: <MapPin className="w-5 h-5" />, 
-      label: "Recommendations",
-      module: "recommendations"
-    },
-    { 
-      path: "/dashboard/dispute", 
-      icon: <Gavel className="w-5 h-5" />, 
-      label: "Dispute",
-      module: "dispute"
-    },
-    { 
-      path: "/dashboard/settings", 
-      icon: <Settings className="w-5 h-5" />, 
-      label: "Settings",
-      module: "settings"
-    }
+    { path: "/dashboard/analytics", icon: <BarChart className="w-5 h-5" />, label: "Analytics" },
+    { path: "/dashboard/users", icon: <User className="w-5 h-5" />, label: "User Management" },
+    { path: "/dashboard/events", icon: <CalendarRange className="w-5 h-5" />, label: "Event Management" },
+    { path: "/dashboard/bookings", icon: <BookText className="w-5 h-5" />, label: "Bookings Management" },
+    { path: "/dashboard/payments", icon: <BadgePoundSterlingIcon className="w-5 h-5" />, label: "Payment Management" },
+    { path: "/dashboard/recommendations", icon: <MapPin className="w-5 h-5" />, label: "Recommendations" },
+    { path: "/dashboard/dispute", icon: <Gavel className="w-5 h-5" />, label: "Dispute" },
+    { path: "/dashboard/settings", icon: <Settings className="w-5 h-5" />, label: "Settings" }
   ];
-
-  // Filter navigation items based on permissions, but always include settings
-  const filteredNavItems = navItems.filter(item => 
-    item.module === 'settings' || canView(item.module)
-  );
 
   return (
     <div className="flex flex-nowrap justify-center h-screen bg-gray-50">
@@ -229,36 +180,24 @@ useEffect(() => {
         
         {/* Navigation items */}
         <div className="flex-grow flex flex-col py-6 px-6">
-          {loading ? (
-            // Loading state for navigation items
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((item) => (
-                <div key={item} className="flex items-center px-2 py-3">
-                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse mr-3"></div>
-                  <div className="h-4 bg-gray-200 rounded animate-pulse flex-1"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            filteredNavItems.map((item, index) => {
-              const isActive = pathname && pathname.startsWith(item.path);
-              return (
-                <Link
-                  key={index}
-                  href={item.path}
-                  className={`
-                    flex items-center px-2 py-3 my-1 rounded-md transition-colors text-base font-medium
-                    ${isActive 
-                      ? 'text-[#2853A6] border-l-4 border-[#2853A6]' 
-                      : 'text-gray-600 hover:bg-gray-50'}
-                  `}
-                >
-                  <span className={`mr-3 ${isActive ? 'text-[#2853A6]' : 'text-gray-500'}`}>{item.icon}</span>
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })
-          )}
+          {navItems.map((item, index) => {
+            const isActive = pathname && pathname.startsWith(item.path);
+            return (
+              <Link
+                key={index}
+                href={item.path}
+                className={`
+                  flex items-center px-2 py-3 my-1 rounded-md transition-colors text-base font-medium
+                  ${isActive 
+                    ? 'text-[#2853A6] border-l-4 border-[#2853A6]' 
+                    : 'text-gray-600 hover:bg-gray-50'}
+                `}
+              >
+                <span className={`mr-3 ${isActive ? 'text-[#2853A6]' : 'text-gray-500'}`}>{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
         
         {/* Logout button at bottom of sidebar */}
