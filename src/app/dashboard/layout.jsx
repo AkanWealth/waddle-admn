@@ -133,10 +133,11 @@ useEffect(() => {
     { path: "/dashboard/payments", icon: <BadgePoundSterlingIcon className="w-5 h-5" />, label: "Payment Management", module: "payment" },
     { path: "/dashboard/recommendations", icon: <MapPin className="w-5 h-5" />, label: "Recommendations", module: "recommendations" },
     { path: "/dashboard/dispute", icon: <Gavel className="w-5 h-5" />, label: "Dispute", module: "dispute" },
-    { path: "/dashboard/settings", icon: <Settings className="w-5 h-5" />, label: "Settings", module: "settings" }
+    // Settings should always be visible regardless of permissions
+    { path: "/dashboard/settings", icon: <Settings className="w-5 h-5" />, label: "Settings" }
   ];
 
-  const navItems = allNavItems.filter(item => canView(item.module));
+  const navItems = allNavItems.filter(item => (item.module ? canView(item.module) : true));
 
   return (
     <div className="flex flex-nowrap justify-center h-screen bg-gray-50">
