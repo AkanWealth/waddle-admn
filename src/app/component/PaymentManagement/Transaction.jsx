@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import StatusBadge from "./StatusBadge";
 import { paymentService } from "@/utils/paymentService";
 import TransactionDetailsModal from "../ModalPages/Payment/PaymentDetailsModal";
+import { formatDate, formatTime } from "../UserManagement/DeletedUsers";
 
 /**
  * TransactionTable component for displaying payment transactions
@@ -290,6 +291,7 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
                                     <th className="py-3 px-6 font-medium">User Name</th>
                                     <th className="py-3 px-6 font-medium">Event Name</th>
                                     <th className="py-3 px-6 font-medium">Amount (£)</th>
+                                    <th className="py-3 px-6 font-medium">Date/Time</th>
                                     <th className="py-3 px-6 font-medium">Payment Status</th>
                                     <th className="py-3 px-6 font-medium">Booking Status</th>
                                     <th className="py-3 px-6 font-medium">Actions</th>
@@ -309,6 +311,10 @@ export default function TransactionTable({ currentPage, searchTerm, statusFilter
                                         </td>
                                         <td className="py-4 px-6 text-gray-900 font-medium">
                                             {transaction.amount}
+                                        </td>
+                                        <td className="py-4 px-6   flex flex-col">
+                                            <span className="text-nowrap text-[15px] text-black font-medium">{formatDate(transaction.transactionDate)}</span>
+                                            <span className="text-nowrap text-[12px] text-[#303237] font-normal">{formatTime(transaction.transactionDate)}</span>                                            
                                         </td>
                                         <td className="py-4 px-6">
                                             <StatusBadge status={transaction.paymentStatus} />
