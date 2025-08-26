@@ -6,6 +6,7 @@ import Image from "next/image";
 import { authService } from "@/utils/authService";
 import { useAuth } from "@/context/AuthContext";
 import { notificationService } from "@/utils/notificationService";
+import { usePermissions } from "@/hooks/usePermissions";
 import { 
   User,
   Settings, 
@@ -31,6 +32,7 @@ function Layout({ children }) {
   const [showNotification, setShowNotification] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const notificationRef = useRef(null);
+  const { canView } = usePermissions();
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (
@@ -122,17 +124,19 @@ useEffect(() => {
     };
   }, [isMobile, sidebarOpen]);
 
-  // Navigation items
-  const navItems = [
-    { path: "/dashboard/analytics", icon: <BarChart className="w-5 h-5" />, label: "Analytics" },
-    { path: "/dashboard/users", icon: <User className="w-5 h-5" />, label: "User Management" },
-    { path: "/dashboard/events", icon: <CalendarRange className="w-5 h-5" />, label: "Event Management" },
-    { path: "/dashboard/bookings", icon: <BookText className="w-5 h-5" />, label: "Bookings Management" },
-    { path: "/dashboard/payments", icon: <BadgePoundSterlingIcon className="w-5 h-5" />, label: "Payment Management" },
-    { path: "/dashboard/recommendations", icon: <MapPin className="w-5 h-5" />, label: "Recommendations" },
-    { path: "/dashboard/dispute", icon: <Gavel className="w-5 h-5" />, label: "Dispute" },
-    { path: "/dashboard/settings", icon: <Settings className="w-5 h-5" />, label: "Settings" }
+  // Navigation items (conditionally include based on permissions per module)
+  const allNavItems = [
+    { path: "/dashboard/analytics", icon: <BarChart className="w-5 h-5" />, label: "Analytics", module: "analytics" },
+    { path: "/dashboard/users", icon: <User className="w-5 h-5" />, label: "User Management", module: "userManagement" },
+    { path: "/dashboard/events", icon: <CalendarRange className="w-5 h-5" />, label: "Event Management", module: "eventManagement" },
+    { path: "/dashboard/bookings", icon: <BookText className="w-5 h-5" />, label: "Bookings Management", module: "bookingManagement" },
+    { path: "/dashboard/payments", icon: <BadgePoundSterlingIcon className="w-5 h-5" />, label: "Payment Management", module: "payment" },
+    { path: "/dashboard/recommendations", icon: <MapPin className="w-5 h-5" />, label: "Recommendations", module: "recommendations" },
+    { path: "/dashboard/dispute", icon: <Gavel className="w-5 h-5" />, label: "Dispute", module: "dispute" },
+    { path: "/dashboard/settings", icon: <Settings className="w-5 h-5" />, label: "Settings", module: "settings" }
   ];
+
+  const navItems = allNavItems.filter(item => canView(item.module));
 
   return (
     <div className="flex flex-nowrap justify-center h-screen bg-gray-50">

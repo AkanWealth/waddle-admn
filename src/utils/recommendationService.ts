@@ -31,7 +31,7 @@ class RecommendationService {
   async getAllRecommendationsPlaces() {
     try {
       const response = await authService.makeAuthenticatedRequest(
-        `/api/v1/crowd-sourcing/places/1/10000`
+        `/api/v1/crowd-sourcing/places/admin`
       );
       console.log("Testing a couple", response);
       return { success: true, data: response };
