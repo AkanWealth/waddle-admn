@@ -1,5 +1,6 @@
 import { useBookingStore } from "@/stores/useBookingStore";
 import React, { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import { ChevronDown, X } from "lucide-react";
 import clsx from "clsx";
 import { format } from "date-fns";
@@ -53,10 +54,19 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
-      if (
+      const target = event.target as HTMLElement | null;
+      const clickedInsidePanel = !!(
         filterRef.current &&
-        !filterRef.current.contains(event.target as Node)
-      ) {
+        target &&
+        filterRef.current.contains(target)
+      );
+      // Allow clicks inside react-datepicker popper without closing
+      const clickedInsideDatepicker = !!(
+        target &&
+        (target.closest(".react-datepicker") ||
+          target.closest(".react-datepicker-popper"))
+      );
+      if (!clickedInsidePanel && !clickedInsideDatepicker) {
         onClose();
       }
     };
@@ -125,8 +135,8 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
     }
   };
 
-  return (
-    <div className="min-w-[563px] absolute right-0 z-50 flex items-center justify-center">
+  const panel = (
+    <div className="min-w-[563px] fixed top-24 right-4 z-[120] flex items-center justify-center pointer-events-auto">
       <div
         ref={filterRef}
         className="bg-white w-full max-w-md p-6 rounded-lg shadow-md"
@@ -269,6 +279,12 @@ const MainBookingFilter: React.FC<MainBookingFilterProps> = ({
         </div>
       </div>
     </div>
+  );
+
+  // Render using a portal to ensure it sits above other overlays
+  return ReactDOM.createPortal(
+    panel,
+    typeof document !== "undefined" ? document.body : ({} as HTMLElement)
   );
 };
 
