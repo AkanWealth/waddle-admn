@@ -6,12 +6,14 @@ import {
   UserRound,
   CircleCheck,
   BadgeCent,
+  Mail,
 } from "lucide-react";
 import Image from "next/image";
 import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import StatusBadge from "./StatusBadge";
 import { recommendationService } from "@/utils/recommendationService";
+import { LuMoveDiagonal } from "react-icons/lu";
 type Creator = { name: string; email?: string; profile_picture?: string };
 
 type EventDetails = {
@@ -35,9 +37,16 @@ const PlacesDetailsModal = ({
   selectedPlace: EventDetails;
 }) => {
   console.log("This is the places own");
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number>(0);
   const handleImageClick = (image: ImageData, index: number) => {
-    console.log("Image clicked:", image, "at index:", index);
+    setLightboxIndex(index);
+    setIsLightboxOpen(true);
   };
+  const closeLightbox = () => setIsLightboxOpen(false);
+  const showPrev = () => setLightboxIndex((idx) => (idx > 0 ? idx - 1 : idx));
+  const showNext = (maxIndex: number) =>
+    setLightboxIndex((idx) => (idx < maxIndex ? idx + 1 : idx));
   // Define a local type for the event structure
   const {
     openShowApproveDetailsModal,
@@ -163,6 +172,7 @@ const PlacesDetailsModal = ({
               <div className="">
                 <ParentsVisited
                   id={selectedPlace.id}
+                  tag="place"
                   // parents={[
                   //   {
                   //     id: "1",
@@ -170,7 +180,6 @@ const PlacesDetailsModal = ({
                   //     avatar: submittedByAvatar,
                   //   },
                   // ]}
-                  totalCount={1}
                 />
               </div>
               <div className="">
@@ -184,11 +193,12 @@ const PlacesDetailsModal = ({
                 <div className="">
                   <h3 className="text-[#1D1D1E] font-bold">Submitted By:</h3>
                   <div className="flex items-center gap-5 text-[#1D1D1E]">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <UserRound className="h-[15px]" />
                       <p className="text-[14px]">{submittedBy}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-[15px]" />
                       <p className="text-[14px]">{submittedByEmail}</p>
                     </div>
                   </div>
@@ -225,55 +235,139 @@ const PlacesDetailsModal = ({
           </div>
         </section>
       </div>
+      {isLightboxOpen && images.length > 0 && (
+        <div className="fixed inset-0 z-[60] bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="px-5 py-4 bg-[#f5f5f5] rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-hidden relative">
+            <button
+              aria-label="Close"
+              onClick={closeLightbox}
+              className="absolute top-3 right-3 z-10 text-[#404040] hover:text-black rounded-full p-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <div className="relative z-0 w-full h-[60vh]">
+              <Image
+                src={images[lightboxIndex].src}
+                alt={images[lightboxIndex].alt}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 90vw, 700px"
+              />
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <button
+                onClick={showPrev}
+                disabled={lightboxIndex === 0}
+                className={`flex items-center gap-2 px-3 py-2 rounded border border-[#D0D0D0] text-[#404040] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Prev
+              </button>
+              <span className="text-sm text-[#7E8494]">
+                {lightboxIndex + 1} / {images.length}
+              </span>
+              <button
+                onClick={() => showNext(images.length - 1)}
+                disabled={lightboxIndex === images.length - 1}
+                className={`flex items-center gap-2 px-3 py-2 rounded border border-[#D0D0D0] text-[#404040] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Next
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default PlacesDetailsModal;
 
-interface Parent {
-  id: string;
-  name: string;
-  avatar: string;
-}
-
 interface ParentsVisitedProps {
   id: string;
-  parents?: Parent[];
-  totalCount?: number;
+  tag: "place" | "event";
 }
 
-export const ParentsVisited: React.FC<ParentsVisitedProps> = ({
-  parents = [
-    {
-      id: "1",
-      name: "John Doe",
-      avatar:
-        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      avatar:
-        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-    },
-    {
-      id: "3",
-      name: "Mike Johnson",
-      avatar:
-        "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-    },
-  ],
-  id,
-  totalCount = 23,
-}) => {
+interface ApiParent {
+  id: string;
+  user: { name: string; profile_picture?: string };
+}
+
+export const ParentsVisited: React.FC<ParentsVisitedProps> = ({ id, tag }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const fetchParents = async () => {
     try {
-      const response =
-        await recommendationService.fetchParentsWhoMadePlaceRecommendation(id);
-      console.log(response, "This is the response for parents");
+      setIsLoading(true);
+      if (tag == "event") {
+        const response =
+          await recommendationService.fetchParentsWhoMadeEventRecommendation(
+            id
+          );
+        console.log(response, "This is the response for parents on event");
+        if (response.success) {
+          console.log(
+            response.data.data.parents,
+            "This is the response for parents on place"
+          );
+          setparentVisited(response.data.data.parents);
+        }
+      } else if (tag == "place") {
+        const response =
+          await recommendationService.fetchParentsWhoMadePlaceRecommendation(
+            id
+          );
+        if (response.success) {
+          console.log(
+            response.data.data.parents,
+            "This is the response for parents on place"
+          );
+          setparentVisited(response.data.data.parents);
+        }
+      }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -281,42 +375,89 @@ export const ParentsVisited: React.FC<ParentsVisitedProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [parentVisited, setparentVisited] = useState();
-  const displayedParents = parents.slice(0, 3);
-  const remainingCount = Math.max(0, totalCount - displayedParents.length);
+  const [parentVisited, setparentVisited] = useState<ApiParent[]>([]);
+  const [parentList, setparentList] = useState<ApiParent[]>([]);
+  const [remainingCountNum, setremainingCountNum] = useState(0);
+  // const displayedParents = parentVisited.slice(0, 3);
+  // const remainingCount = Math.max(0, totalCount - displayedParents.length);
+  useEffect(() => {
+    const sortParent = () => {
+      const displayedParents = parentVisited.slice(0, 3);
+      setparentList(displayedParents);
+
+      const remainingCount = Math.max(
+        0,
+        parentVisited.length - displayedParents.length
+      );
+      setremainingCountNum(remainingCount);
+    };
+    sortParent();
+  }, [parentVisited]);
 
   return (
     <div className="flex items-center space-x-2 ">
-      <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
-        <div className="flex -space-x-2">
-          {displayedParents.map((parent, index) => (
-            <div
-              key={parent.id}
-              className="relative w-8 h-8 rounded-full border-2 border-white overflow-hidden"
-              style={{ zIndex: displayedParents.length - index }}
-            >
-              <Image
-                src={parent.avatar}
-                alt={parent.name}
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
-            </div>
-          ))}
-
-          {remainingCount > 0 && (
-            <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white text-xs font-medium rounded-full border-2 border-white">
-              +{remainingCount}
-            </div>
-          )}
+      {isLoading ? (
+        <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
+          <svg
+            className="animate-spin h-4 w-4 text-[#2853A6]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+          <span className="text-sm text-[#1D1D1E] font-medium">
+            Loading parents...
+          </span>
         </div>
+      ) : parentVisited.length > 0 ? (
+        <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
+          <div className="flex -space-x-2">
+            {parentList.map((parent, index) => (
+              <div
+                key={parent.id}
+                className="relative w-8 h-8 rounded-full border-2 border-white overflow-hidden"
+                style={{ zIndex: parentList.length - index }}
+              >
+                <Image
+                  src={parent.user.profile_picture || "/Avatar.png"}
+                  alt={parent.user.name}
+                  fill
+                  className="object-cover"
+                  sizes="32px"
+                />
+              </div>
+            ))}
+            {remainingCountNum >= 4 ? (
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white text-xs font-medium rounded-full border-2 border-white">
+                +{remainingCountNum}
+              </div>
+            ) : (
+              <p>{3}</p>
+            )}
+          </div>
 
-        <span className="text-sm text-[#1D1D1E] font-medium">
-          Parents Visited
-        </span>
-      </div>
+          <span className="text-sm text-[#1D1D1E] font-medium">
+            {parentVisited.length} Parents Visited
+          </span>
+        </div>
+      ) : (
+        <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
+          <p className="text-black">No Parent Visited</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -345,7 +486,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         {visibleImages.map((image, index) => (
           <div
             key={image.id}
-            className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 border-white shadow-sm cursor-pointer hover:scale-105 transition-transform duration-200 ${
+            className={`relative w-[120px] h-[85px] rounded-lg overflow-hidden border-2 border-white shadow-sm cursor-pointer hover:scale-105 transition-transform duration-200 ${
               index > 0 ? "-ml-4" : ""
             }`}
             style={{ zIndex: maxVisible - index }}
@@ -364,19 +505,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             {/* Camera icon overlay for first image */}
             {index === 0 && (
               <div className="absolute bottom-1 right-1 w-4 h-4 bg-black bg-opacity-50 rounded-sm flex items-center justify-center">
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                  <circle cx="12" cy="13" r="3" />
-                </svg>
+                <LuMoveDiagonal />
               </div>
             )}
           </div>

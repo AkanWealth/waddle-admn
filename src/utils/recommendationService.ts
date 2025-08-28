@@ -262,6 +262,28 @@ class RecommendationService {
       };
     }
   }
+  async fetchParentsWhoMadeEventRecommendation(eventId: string) {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        // events/:crowdSourceId/parents-list
+        `/api/v1/crowd-sourcing/event/${eventId}/parents-list`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      console.log(error, "This is error");
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch recommenndations",
+      };
+    }
+  }
 }
 
 export const recommendationService = new RecommendationService();

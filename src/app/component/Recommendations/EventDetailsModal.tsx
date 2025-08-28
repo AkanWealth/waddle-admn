@@ -1,21 +1,28 @@
-import React from "react";
+
+
+import React, { useState } from "react";
 import {
   MapPin,
   Tag,
   X,
   UserRound,
-  CircleCheck,
   BadgeCent,
+  Mail,
 } from "lucide-react";
 import Image from "next/image";
 import { ImageData } from "./sampleData";
 import { useRecommendationsStore } from "@/stores/useRecommendationStore";
 import StatusBadge from "./StatusBadge";
 import { ParentsVisited } from "./PlacesDetailsModal";
+import { LuMoveDiagonal } from "react-icons/lu";
+
 type Creator = { name: string; email?: string; profile_picture?: string };
 
 type EventDetails = {
-  id:string;
+  email: string;
+  submittedBy: string;
+  parentsTip?:string;
+  id: string;
   name: string;
   description?: string;
   address?: string;
@@ -29,14 +36,25 @@ type EventDetails = {
   isVerified?: boolean;
   isFree: boolean;
 };
+
 const EventDetailsModal = ({
   selectedEvent,
 }: {
   selectedEvent: EventDetails;
 }) => {
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number>(0);
+
   const handleImageClick = (image: ImageData, index: number) => {
-    console.log("Image clicked:", image, "at index:", index);
+    setLightboxIndex(index);
+    setIsLightboxOpen(true);
   };
+
+  const closeLightbox = () => setIsLightboxOpen(false);
+  const showPrev = () => setLightboxIndex((idx) => (idx > 0 ? idx - 1 : idx));
+  const showNext = (maxIndex: number) =>
+    setLightboxIndex((idx) => (idx < maxIndex ? idx + 1 : idx));
+
   // Define a local type for the event structure
   const {
     openShowApproveDetailsModal,
@@ -44,21 +62,6 @@ const EventDetailsModal = ({
     closeShowEventDetailsModal,
   } = useRecommendationsStore();
 
-  // if (!selectedPlace) {
-  //   return (
-  //     <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
-  //       <div className="px-5 py-4 bg-white rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-y-auto">
-  //         <div>Loading event details...</div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  console.log(selectedEvent, "This is the selectedEvent data")
-  const amenities =
-    selectedEvent?.facilities && selectedEvent?.facilities.length > 0
-      ? selectedEvent?.facilities
-      : [];
   const images: ImageData[] =
     selectedEvent?.images && selectedEvent?.images.length > 0
       ? selectedEvent.images.map((img: string, idx: number) => ({
@@ -67,21 +70,10 @@ const EventDetailsModal = ({
           alt: selectedEvent.name || "Event image",
         }))
       : [];
+      console.log(images, "This is the selected")
 
-  // Use creator for submitted by, avatar, and email
-  const creator: Creator = selectedEvent?.creator ?? {
-    name: "",
-    email: "",
-    profile_picture: "",
-  };
-  const submittedBy = creator?.name || "Unknown";
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const submittedByAvatar = creator?.profile_picture
-    ? creator.profile_picture.startsWith("http")
-      ? creator.profile_picture
-      : `https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/${creator.profile_picture}`
-    : `https://ui-avatars.com/api/?name=${encodeURIComponent(submittedBy)}`;
-  const submittedByEmail = creator?.email || "No email";
+
+  
 
   // Determine status using the same logic as in recommendations/page.tsx
   let derivedStatus: "Pending" | "Rejected" | "Approved" = "Pending";
@@ -161,17 +153,7 @@ const EventDetailsModal = ({
                 {/* No fee in Place, so skip PoundSterling/fee */}
               </div>
               <div className="">
-                <ParentsVisited
-                id={selectedEvent.id}
-                  // parents={[
-                  //   {
-                  //     id: "1",
-                  //     name: submittedBy,
-                  //     avatar: submittedByAvatar,
-                  //   },
-                  // ]}
-                  totalCount={1}
-                />
+                <ParentsVisited tag="event" id={selectedEvent.id} />
               </div>
               <div className="">
                 <ImageGallery
@@ -184,125 +166,121 @@ const EventDetailsModal = ({
                 <div className="">
                   <h3 className="text-[#1D1D1E] font-bold">Submitted By:</h3>
                   <div className="flex items-center gap-5 text-[#1D1D1E]">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <UserRound className="h-[15px]" />
-                      <p className="text-[14px]">{submittedBy}</p>
+                      <p className="text-[14px]">{selectedEvent.submittedBy}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[14px]">{submittedByEmail}</p>
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-[15px]" />
+                      <p className="text-[14px]">{selectedEvent.email}</p>
                     </div>
                   </div>
                 </div>
                 <div className="bg-[#F8F2EC] rounded-[8px] py-1.5 px-2.5">
                   <h3 className="text-[#303237] font-semibold text-[16px]">
-                    Parent’s Tip
+                    Parent&apos;s Tip
                   </h3>
+
                   <p className="text-[#565C69]">
-                    {selectedEvent?.tips
-                      ? selectedEvent?.tips
+                    {selectedEvent?.parentsTip
+                      ? selectedEvent?.parentsTip
                       : "No tips provided."}
                   </p>
-                </div>
-                <div className="">
-                  <h3 className="text-[#1D1D1E] font-bold">Facilities</h3>
-                  <div className="flex flex-wrap items-center gap-6">
-                    {amenities.length > 0 ? (
-                      amenities.map((item: string) => (
-                        <div key={item} className="flex items-center gap-2">
-                          <CircleCheck className="h-[15px] text-[#1E9A64]" />
-                          <p className="text-[15px] text-[#565C69]">{item}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-[15px] text-[#565C69]">
-                        No facilities listed.
-                      </p>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
       </div>
+
+      {/* Lightbox Modal */}
+      {isLightboxOpen && images.length > 0 && (
+        <div className="fixed inset-0 z-[60] bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="px-5 py-4 bg-[#f5f5f5] rounded-lg shadow-xl my-4 max-w-[700px] w-full max-h-screen overflow-hidden relative">
+            <button
+              aria-label="Close"
+              onClick={closeLightbox}
+              className="absolute top-3 right-3 z-10 text-[#404040] hover:text-black rounded-full p-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <div className="relative z-0 w-full h-[60vh]">
+              <Image
+                src={images[lightboxIndex].src}
+                alt={images[lightboxIndex].alt}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 90vw, 700px"
+              />
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <button
+                onClick={showPrev}
+                disabled={lightboxIndex === 0}
+                className={`flex items-center gap-2 px-3 py-2 rounded border border-[#D0D0D0] text-[#404040] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Prev
+              </button>
+              <span className="text-sm text-[#7E8494]">
+                {lightboxIndex + 1} / {images.length}
+              </span>
+              <button
+                onClick={() => showNext(images.length - 1)}
+                disabled={lightboxIndex === images.length - 1}
+                className={`flex items-center gap-2 px-3 py-2 rounded border border-[#D0D0D0] text-[#404040] hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Next
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default EventDetailsModal;
-
-// interface Parent {
-//   id: string;
-//   name: string;
-//   avatar: string;
-// }
-
-// interface ParentsVisitedProps {
-//   parents?: Parent[];
-//   totalCount?: number;
-// }
-
-// const ParentsVisited: React.FC<ParentsVisitedProps> = ({
-//   parents = [
-//     {
-//       id: "1",
-//       name: "John Doe",
-//       avatar:
-//         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-//     },
-//     {
-//       id: "2",
-//       name: "Jane Smith",
-//       avatar:
-//         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-//     },
-//     {
-//       id: "3",
-//       name: "Mike Johnson",
-//       avatar:
-//         "https://waddleapp-bucket.s3.eu-north-1.amazonaws.com/crowdsource/Screenshot_20250720_092947_Facebook.png",
-//     },
-//   ],
-
-//   totalCount = 23,
-// }) => {
-//   const displayedParents = parents.slice(0, 3);
-//   const remainingCount = Math.max(0, totalCount - displayedParents.length);
-
-//   return (
-//     <div className="flex items-center space-x-2 ">
-//       <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
-//         <div className="flex -space-x-2">
-//           {displayedParents.map((parent, index) => (
-//             <div
-//               key={parent.id}
-//               className="relative w-8 h-8 rounded-full border-2 border-white overflow-hidden"
-//               style={{ zIndex: displayedParents.length - index }}
-//             >
-//               <Image
-//                 src={parent.avatar}
-//                 alt={parent.name}
-//                 fill
-//                 className="object-cover"
-//                 sizes="32px"
-//               />
-//             </div>
-//           ))}
-
-//           {remainingCount > 0 && (
-//             <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white text-xs font-medium rounded-full border-2 border-white">
-//               +{remainingCount}
-//             </div>
-//           )}
-//         </div>
-
-//         <span className="text-sm text-[#1D1D1E] font-medium">
-//           Parents Visited
-//         </span>
-//       </div>
-//     </div>
-//   );
-// };
 
 interface ImageGalleryProps {
   images: ImageData[];
@@ -328,7 +306,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         {visibleImages.map((image, index) => (
           <div
             key={image.id}
-            className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 border-white shadow-sm cursor-pointer hover:scale-105 transition-transform duration-200 ${
+            className={`relative w-[120px] h-[85px] rounded-lg overflow-hidden border-2 border-white shadow-sm cursor-pointer hover:scale-105 transition-transform duration-200 ${
               index > 0 ? "-ml-4" : ""
             }`}
             style={{ zIndex: maxVisible - index }}
@@ -347,19 +325,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             {/* Camera icon overlay for first image */}
             {index === 0 && (
               <div className="absolute bottom-1 right-1 w-4 h-4 bg-black bg-opacity-50 rounded-sm flex items-center justify-center">
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                  <circle cx="12" cy="13" r="3" />
-                </svg>
+                <LuMoveDiagonal />
               </div>
             )}
           </div>

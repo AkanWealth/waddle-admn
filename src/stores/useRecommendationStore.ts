@@ -164,12 +164,15 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
           const events = apiEvents.map((item): Event => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const event = item as any;
+
             return {
               id: event.id,
               name: event.name,
+              address:event.address,
+              email: event.creator.email,
               submittedBy:
                 event.creator?.name || event.creatorName || "Unknown",
-              dateSubmitted: event.date || event.createdAt || "",
+              dateSubmitted: event.createdAt || "",
               //entryFee: event.fee || event.entryFee || "",
               isFree: event.isFree,
               category: event.category || "",
