@@ -8,7 +8,6 @@ import VendorApproveDetailsModal from "../ModalPages/Users/viewApprovemodal";
 import PaginationComponent from "../Element/PaginationComponent";
 import { useToastContext } from "@/context/toast";
 import { formatTime } from "./DeletedUsers";
-import { ToastContainer } from "react-toastify";
 
 export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
     const { showMessage } = useToastContext();
@@ -378,7 +377,6 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
     // Desktop view remains unchanged but with modal functionality
     return (
         <>
-        <ToastContainer/>
             <table className="min-w-full">
                 {paginatedVendors.length > 0 ? (
                     <>

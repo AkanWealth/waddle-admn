@@ -213,8 +213,8 @@ useEffect(() => {
     : "Vendor's Profile";
 
   return (
-    
-            <ToastContainer>
+    <>
+  
       <BaseModal
         isOpen={isOpen}
         onClose={onClose}
@@ -470,8 +470,7 @@ useEffect(() => {
         onClose={() => handleModalClose("enable")}
         onConfirm={handleReactivateVendor}
       />
-      </ToastContainer>
-    
+    </>
   );
 };
 
