@@ -243,7 +243,7 @@ useEffect(() => {
             <button onClick={() => setShowNotification((prev) => !prev)} className="w-9 h-9 flex items-center cursor-pointer justify-center relative p-1 rounded-full bg-[#E5E5E5] hover:bg-gray-100 focus:outline-none">
               <FaBell className="h-5 w-5 text-[#2853A6]" />
               {unreadCount > 0 && (
-                <span className="z-50 absolute top-0 right-0 bg-red-500 text-white rounded-full w-3 h-3 flex items-center justify-center text-xs">
+                <span className="z-50 absolute -top-1 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
