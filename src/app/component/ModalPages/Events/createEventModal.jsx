@@ -10,12 +10,29 @@ import "rc-slider/assets/index.css";
 import { useMessageContext } from "@/context/toast";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import dummyImages from "./dummyImages";
+import Image from "next/image";
 
 const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData: initialEventData = null, isEditMode = false }) => {
   const { showMessage } = useMessageContext();
   
   // Add loading state for image uploads
   const [imageUploading, setImageUploading] = useState(false);
+  const [showPlaceholderImages, setShowPlaceholderImages] = useState(false);
+const handlePlaceholderImageSelect = (imageUrl) => {
+  if (eventData.images.includes(imageUrl)) {
+    setEventData((prev) => ({
+      ...prev,
+      images: prev.images.filter(img => img !== imageUrl)
+    }));
+  } else {
+    setEventData((prev) => ({
+      ...prev,
+      images: [...prev.images, imageUrl]
+    }));
+  }
+};
+
   
   const [eventData, setEventData] = useState({
     name: "",
@@ -1173,7 +1190,7 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
           />
 
           {/* Upload Photo/Flyer */}
-          <div>
+          {/* <div>
             <label className="block text-base font-semibold text-[#272727] mb-1">
               Upload Event Photo/Flyer
             </label>
@@ -1254,7 +1271,208 @@ const EventCreationModal = ({ onEventEdited, isOpen, onClose, onSave, eventData:
                 disabled={imageUploading}
               />
             </div>
+          </div> */}
+
+<div>
+  <label className="block text-base font-semibold text-[#272727] mb-1">
+    Upload Event Photo/Flyer
+  </label>
+  
+  {/* Toggle buttons for upload options */}
+  <div className="flex gap-2 mb-4">
+    <button
+      type="button"
+      onClick={() => setShowPlaceholderImages(false)}
+      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+        !showPlaceholderImages 
+          ? 'bg-[#2853A6] text-white' 
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      Upload Files
+    </button>
+    <button
+      type="button"
+      onClick={() => setShowPlaceholderImages(true)}
+      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+        showPlaceholderImages 
+          ? 'bg-[#2853A6] text-white' 
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      Choose Template
+    </button>
+  </div>
+
+  {!showPlaceholderImages ? (
+    // Original upload interface
+    <div
+      className={`border-2 border-dashed border-gray-300 rounded-md p-6 text-center relative min-h-32 ${imageUploading ? 'opacity-50' : ''}`}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {imageUploading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2853A6]"></div>
+            <span className="text-[#2853A6] font-medium">Uploading images...</span>
           </div>
+        </div>
+      )}
+      
+      {eventData?.images?.length === 0 ? (
+        <div>
+          <div className="flex justify-center mb-2">
+            <Upload className="h-8 w-8 text-gray-400" />
+          </div>
+          <p className="text-sm font-medium text-gray-700">
+            Drag and drop your cover image
+          </p>
+          <p className="text-xs text-gray-500 mt-1">PNG, JPEG</p>
+          <button
+            type="button"
+            className="mt-4 px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={imageUploading}
+          >
+            Choose File
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            {eventData?.images?.map((imageUrl, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={imageUrl}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-20 object-cover rounded border"
+                  onError={(e) => {
+                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNmMtMi4yMSAwLTQtMS43OS00LTRzMS43OS00IDQtNCA0IDEuNzkgNCA0LTEuNzkgNC00IDR6TTEyIDZjLTQuNDEgMC04IDMuNTktOCA4czMuNTkgOCA4IDggOC0zLjU5IDgtOC0zLjU5LTgtOC04ek0xMiA4YzIuMjEgMCA0IDEuNzkgNCA0cy0xLjc5IDQtNCA0LTQtMS43OS00LTQgMS43OS00IDQtNHoiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  disabled={imageUploading}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="px-4 py-2 bg-[#2853A6] text-white rounded-md text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={imageUploading}
+          >
+            Add More Images
+          </button>
+        </div>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+        disabled={imageUploading}
+      />
+    </div>
+  ) : (
+    // New placeholder images interface
+    <div className="border border-gray-300 rounded-md p-4">
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 mb-2">Choose from our template images:</p>
+        {eventData.images.length > 0 && (
+          <p className="text-xs text-green-600 font-medium">
+            {eventData.images.length} image{eventData.images.length > 1 ? 's' : ''} selected
+          </p>
+        )}
+      </div>
+      
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-3 max-h-64 overflow-y-auto">
+        {dummyImages.map((imageUrl, index) => {
+          const isSelected = eventData.images.includes(imageUrl);
+          return (
+            <div
+              key={index}
+              className={`relative cursor-pointer group ${
+                isSelected ? 'ring-2 ring-[#2853A6] ring-offset-2' : ''
+              }`}
+              onClick={() => handlePlaceholderImageSelect(imageUrl)}
+            >
+              <Image
+                src={imageUrl}
+                alt={`Template ${index + 1}`}
+                className="w-full h-16 object-cover rounded border hover:opacity-80 transition-opacity"
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNmMtMi4yMSAwLTQtMS43OS00LTRzMS43OS00IDQtNCA0IDEuNzkgNCA0LTEuNzkgNC00IDR6TTEyIDZjLTQuNDEgMC04IDMuNTktOCA4czMuNTkgOCA4IDggOC0zLjU5IDgtOC0zLjU5LTgtOC04ek0xMiA4YzIuMjEgMCA0IDEuNzkgNCA0cy0xLjc5IDQtNCA0LTQtMS43OS00LTQgMS43OS00IDQtNHoiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+';
+                }}
+                width={100}
+                height={65}
+                unoptimized
+                
+              />
+              
+              {/* Selection indicator */}
+              {isSelected && (
+                <div className="absolute top-1 right-1 bg-[#2853A6] text-white rounded-full p-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+              
+              {/* Hover overlay */}
+              <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  {!isSelected ? (
+                    <div className="bg-white text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                      Select
+                    </div>
+                  ) : (
+                    <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                      Remove
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      {eventData.images.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-gray-200">
+          <p className="text-sm font-medium text-gray-700 mb-2">Selected Images:</p>
+          <div className="flex flex-wrap gap-2">
+            {eventData.images.map((imageUrl, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={imageUrl}
+                  alt={`Selected ${index + 1}`}
+                  className="w-12 h-12 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  onClick={() => handlePlaceholderImageSelect(imageUrl)}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center text-xs hover:bg-red-600"
+                >
+                  <X className="w-2 h-2" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )}
+</div>
         </div>
       )}
 
