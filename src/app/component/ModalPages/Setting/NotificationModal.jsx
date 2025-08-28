@@ -229,7 +229,7 @@ const NotificationModal = ({
             actions.sendNotification = {
                 label: "Send Notification Now",
                 onClick: handleSendNotification,
-                className: "px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                className: "px-8 py-3 bg-[#2853A6] text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
             };
         }
 
