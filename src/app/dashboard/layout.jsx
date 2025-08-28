@@ -24,6 +24,8 @@ import {
 import { FaBell } from "react-icons/fa6";
 import EmptyNotification from "../component/Notification/EmptyNotification";
 import NotificationModal from "../component/Notification/NotificationModal";
+import { ToastContext } from "@/context/toast";
+import { ToastContainer } from "react-toastify";
 
 function Layout({ children }) {
   const pathname = usePathname();
@@ -140,8 +142,12 @@ useEffect(() => {
   const navItems = allNavItems.filter(item => (item.module ? canView(item.module) : true));
 
   return (
+        
+          
+
     <div className="flex flex-nowrap justify-center h-screen bg-gray-50">
       {/* Sidebar with hidden scrollbar */}
+      <ToastContainer/>
       <nav 
         ref={sidebarRef}
         className={`
@@ -297,6 +303,7 @@ useEffect(() => {
 )}
 
     </div>
+
   );
 }
 
