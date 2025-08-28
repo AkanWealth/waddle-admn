@@ -11,6 +11,7 @@ import { userService } from "@/utils/userService";
 import formatCustomDate from "@/lib/formatDate";
 import { useToastContext } from "@/context/toast";
 import { getFileType } from "@/lib/getFileType";
+import { ToastContainer } from "react-toastify";
 
 const VendorApproveDetailsModal = ({
   vendor,
@@ -224,6 +225,7 @@ useEffect(() => {
         showDividers={false}
         
       >
+        <ToastContainer/>
         <div>
           {console.log(vendor, "This is the vendor")}
           {(vendor.status === "Approved" || vendor.status === "Active" || vendor.status === "APPROVED") && (
