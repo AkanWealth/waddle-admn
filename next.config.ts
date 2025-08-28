@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       "ui-avatars.com",
       "waddleapp-bucket.s3.eu-north-1.amazonaws.com",
       "pub-42f91b17061547449f97974510335219.r2.dev",
+      "res.cloudinary.com",
     ],
   },
   // other config options
