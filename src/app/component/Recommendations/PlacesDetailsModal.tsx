@@ -450,12 +450,15 @@ export const ParentsVisited: React.FC<ParentsVisitedProps> = ({ id, tag }) => {
           </div>
 
           <span className="text-sm text-[#1D1D1E] font-medium">
-            {parentVisited.length} Parents Visited
+            {parentVisited.length} Parents{" "}
+            {tag == "event" ? "Going" : "Visited"}
           </span>
         </div>
       ) : (
         <div className="bg-[#F8F2EC] flex items-center px-3 py-2 rounded-xl gap-2">
-          <p className="text-black">No Parent Visited</p>
+          <p className="text-black">
+            No Parent {tag == "event" ? "Going" : "Visited"}
+          </p>
         </div>
       )}
     </div>
