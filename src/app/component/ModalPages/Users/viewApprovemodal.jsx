@@ -213,7 +213,8 @@ useEffect(() => {
     : "Vendor's Profile";
 
   return (
-    <>
+    
+            <ToastContainer>
       <BaseModal
         isOpen={isOpen}
         onClose={onClose}
@@ -225,7 +226,7 @@ useEffect(() => {
         showDividers={false}
         
       >
-        <ToastContainer/>
+
         <div>
           {console.log(vendor, "This is the vendor")}
           {(vendor.status === "Approved" || vendor.status === "Active" || vendor.status === "APPROVED") && (
@@ -469,7 +470,8 @@ useEffect(() => {
         onClose={() => handleModalClose("enable")}
         onConfirm={handleReactivateVendor}
       />
-    </>
+      </ToastContainer>
+    
   );
 };
 

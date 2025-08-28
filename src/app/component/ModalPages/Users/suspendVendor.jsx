@@ -83,7 +83,6 @@ const SuspendVendorModal = ({
       className={isMobile ? "m-0 rounded-none h-full" : ""}
       showDividers={false}
     >
-      <ToastContainer/>
       <div className="flex flex-col">
         {/* Icon and Title */}
         <div className="flex flex-col-2 gap-2 items-center mb-4">
