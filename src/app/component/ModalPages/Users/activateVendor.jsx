@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BaseModal from '../../Element/BaseModal';
 import { BadgeCheck } from 'lucide-react';
+import { ToastContainer } from 'react-toastify';
 
 /**
  * ApproveVendorModal Component
@@ -77,6 +78,7 @@ const ActivateVendorModal = ({
       // Set a specific height for mobile
       mobileHeight={isMobile ? "400px" : "auto"}
     >
+      <ToastContainer/>
       <div className="flex flex-col items-center justify-center mb-6">
         {/* Green checkmark icon in circle */}
        <div className='flex flex-col-2 gap-2 items-center justify-center'>
