@@ -34,9 +34,9 @@ export default function Events({ dateRange }) {
   } = useEventAnalyticsStore();
 
   // State for chart time filter
-  const [timeFilter, setTimeFilter] = useState("7 Last Days");
+  const [timeFilter, setTimeFilter] = useState("Last 7 Days");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("7 Last Days");
+  const [selectedFilter, setSelectedFilter] = useState("Last 7 Days");
 
   // Fetch data on component mount
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function Events({ dateRange }) {
     // Map filter to period parameter
     let period;
     switch (filter) {
-      case '7 Last Days':
+      case 'Last 7 Days':
         period = '7days';
         break;
       case 'Monthly':
@@ -193,11 +193,11 @@ export default function Events({ dateRange }) {
                 <div className="absolute right-0 mt-1 text-[#1D1D1E] bg-white border border-[#E4E4E7] rounded-lg shadow-lg z-10 min-w-[150px]">
                   <div className="py-1 text-[16px">
                     <button 
-                      onClick={() => handleTimeFilterChange('7 Last Days')}
+                      onClick={() => handleTimeFilterChange('Last 7 Days')}
                       className="flex items-center w-full text-left px-4 py-3 text-sm border-b border-[#E5E5E5] hover:bg-gray-100"
                     >
-                      <div className={`w-4 h-4 border rounded-full mr-3 flex items-center justify-center ${selectedFilter === '7 Last Days' ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
-                        {selectedFilter === '7 Last Days' && <Check className="w-3 h-3 text-white" />}
+                      <div className={`w-4 h-4 border rounded-full mr-3 flex items-center justify-center ${selectedFilter === 'Last 7 Days' ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                        {selectedFilter === 'Last 7 Days' && <Check className="w-3 h-3 text-white" />}
                       </div>
                        Last 7 Days
                     </button>
