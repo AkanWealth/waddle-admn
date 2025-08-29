@@ -198,12 +198,12 @@ export default function UserManagement() {
                             Add New User
                         </button>
                     </RootUserGuard>
-                    <ViewGuard module="userManagement">
+                    <RootUserGuard>
                         <button onClick={() => setShowDeletedUsers(true)} className="flex items-center border border-red-500 text-red-500 px-2 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base">
                             <Trash2 className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                             Deleted Users
                         </button>
-                    </ViewGuard>
+                    </RootUserGuard>
                 </div>
             </div>
 
