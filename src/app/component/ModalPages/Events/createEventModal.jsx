@@ -637,8 +637,11 @@ const handlePlaceholderImageSelect = (imageUrl) => {
 
   // Check if all required fields are filled for publishing
   const isAllFieldsFilled = () => {
+
+    
     const requiredFields = [
       eventData.name,
+      eventData.safetyMeasures,
       eventData.date,
       eventData.time,
       eventData.category,
@@ -1543,7 +1546,7 @@ const handlePlaceholderImageSelect = (imageUrl) => {
                     ? 'border border-[#2853A6] text-[#2853A6] hover:bg-blue-50'
                     : 'bg-[#2853A6] text-white hover:bg-blue-600'
                 }`}
-                disabled={imageUploading}
+                disabled={imageUploading || !isAllFieldsFilled()}
               >
                 {isEditMode ? "Save Changes" : "Create Event"}
               </button>
