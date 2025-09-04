@@ -35,6 +35,7 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
                 email: guardian.email || 'N/A',
                 address: guardian.address || 'N/A',
                 date: guardian.createdAt ? new Date(guardian.createdAt).toISOString().split('T')[0] : 'N/A',
+                createdAt: guardian.createdAt,
                 status: guardian.email_verify ? 'Active' : 'Inactive',
                 profile_picture: guardian.profile_picture,
                 guardian_type: guardian.guardian_type,
@@ -85,10 +86,16 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
         }
         // Apply date filter
         if (dateFilter.from) {
-            results = results.filter(guardian => guardian.date >= dateFilter.from);
+            results = results.filter(guardian => {
+                const createdDate = new Date(guardian.createdAt);
+                return createdDate >= dateFilter.from;
+            });
         }
         if (dateFilter.to) {
-            results = results.filter(guardian => guardian.date <= dateFilter.to);
+            results = results.filter(guardian => {
+                const createdDate = new Date(guardian.createdAt);
+                return createdDate <= dateFilter.to;
+            });
         }
 
         setFilteredGuardians(results);
@@ -251,7 +258,7 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
                                     <td className="py-4 px-4">{guardian.mobile}</td>
                                     <td className="py-4 px-4">{guardian.email}</td>
                                     <td className="py-4 px-4">{guardian.date}</td>
-                                    <td className="py-4 px-4 text-nowrap">{formatTime(guardian.date)}</td>
+                                    <td className="py-4 px-4 text-nowrap">{formatTime(guardian.createdAt)}</td>
                                     <td className="py-4 px-4"><StatusBadge status={guardian.status} /></td>
                                     <td className="py-4 px-4">
                                         <a

@@ -73,6 +73,7 @@ export default function UserManagement() {
         setActiveTab(tab);
         setCurrentPage(1);
         setStatusFilter([]); // Reset status filter when changing tabs
+        setDateFilter({ from: "", to: "" }); // Reset date filter per tab
         // Update URL
         const params = new URLSearchParams(window.location.search);
         params.set('tab', tab);
