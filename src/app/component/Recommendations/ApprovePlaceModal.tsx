@@ -5,6 +5,7 @@ import { recommendationService } from "@/utils/recommendationService";
 import { CircleCheck } from "lucide-react";
 
 const ApprovePlaceModal = ({ tab }: { tab: "place" | "event" | null }) => {
+  console.log(tab, "This is the tab in ApprovePlaceModal");
   const {
     closeShowApproveDetailsModal,
     closeShowPlaceDetailsModal,

@@ -17,6 +17,7 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
   onClose,
 }) => {
   const {
+    
     selectedPlace,
     selectedEvent,
     refreshEvents,
@@ -169,9 +170,14 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
             <p className="text-gray-700 text-center">
               Are you sure you want to reject this submission?
             </p>
-            {selectedPlace && (
+            {selectedPlace && context === "place" && (
               <p className="text-sm text-gray-600 mt-1">
                 Place: <strong>{selectedPlace.name}</strong>
+              </p>
+            )}
+            {selectedEvent && context === "event" && (
+              <p className="text-sm text-gray-600 mt-1">
+                Event: <strong>{selectedEvent.name}</strong>
               </p>
             )}
           </div>

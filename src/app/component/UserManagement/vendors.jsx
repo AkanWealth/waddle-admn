@@ -110,13 +110,13 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
         // Apply date filter
         if (dateFilter.from) {
             results = results.filter(vendor => {
-                const vendorDate = new Date(vendor.createdAt).toISOString().split('T')[0];
+                const vendorDate = new Date(vendor.createdAt);
                 return vendorDate >= dateFilter.from;
             });
         }
         if (dateFilter.to) {
             results = results.filter(vendor => {
-                const vendorDate = new Date(vendor.createdAt).toISOString().split('T')[0];
+                const vendorDate = new Date(vendor.createdAt);
                 return vendorDate <= dateFilter.to;
             });
         }

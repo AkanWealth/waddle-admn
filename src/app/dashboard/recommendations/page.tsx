@@ -1481,12 +1481,14 @@ const ParentRecommendations: React.FC = () => {
           )}
 
           {showApproveDetailsModal && (
-            <ApprovePlaceModal tab={activeModalType} />
+            <ApprovePlaceModal
+              tab={activeTab === "Places" ? "place" : "event"}
+            />
           )}
 
           {showRejectDetailsModal && (
             <RejectPlaceModal
-              tab={activeModalType}
+              tab={activeTab === "Places" ? "place" : "event"}
               isOpen={showRejectDetailsModal}
               onClose={closeShowRejectDetailsModal}
               // onConfirm={handleRejectPlace}

@@ -5,6 +5,13 @@ import { Search, Bell, AlertTriangle, MessageSquare, Calendar, Mail, Phone, Filt
 import NotificationTable from "./EventCancellationTable";
 import PaginationComponent from "../Element/PaginationComponent";
 import { eventService } from "@/utils/eventService";
+import dayjs from "dayjs";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+
+const maxDate = dayjs().add(1, "day").toDate();
+
 
 export default function NotificationsPage({ 
     notificationSettings, 
@@ -44,8 +51,9 @@ export default function NotificationsPage({
                 10, // limit
                 searchTerm || undefined,
                 isCancelledParam, // true for notified, false for not notified, undefined for both
-                dateFilter.from || undefined,
-                dateFilter.to || undefined
+                dateFilter.from ? dayjs(dateFilter.from).format() : undefined,
+                dateFilter.to ? dayjs(dateFilter.to).endOf('day').format() : undefined
+
             );
 
             if (response.success && response.data) {
@@ -144,7 +152,7 @@ export default function NotificationsPage({
         id: event.id,
         eventName: event.name,
         organizer: event.organiser?.name || "Unknown",
-        date: new Date(event.date).toLocaleDateString('en-GB'),
+        date: new Date(event.requestedCancellationAt).toLocaleDateString('en-GB'),
         bookedUsers: `${event.bookings?.length || 0} Parents`,
         status: event.isCancelled ? "Notified" : "Not Notified",
         actions: event.isCancelled ? "View Details" : "View & Notify",
@@ -220,23 +228,28 @@ export default function NotificationsPage({
                                         <div className="mb-4">
                                             <h4 className="font-medium text-gray-700 mb-3">Filter by Date</h4>
                                             <div className="space-y-2">
-                                                <div>
+                                                <div className="w-full flex flex-col ">
                                                     <label className="block text-sm text-gray-600 mb-1">From</label>
-                                                    <input
-                                                        type="date"
-                                                        value={dateFilter.from}
-                                                        onChange={(e) => handleDateFilterChange("from", e.target.value)}
-                                                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
+                                                      <DatePicker
+  selected={dateFilter.from ? new Date(dateFilter.from) : null}
+  onChange={(date) => handleDateFilterChange("from", date)}
+  maxDate={maxDate}
+  dateFormat="MMM dd, yyyy"
+  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+  placeholderText="Select start date"
+/>
                                                 </div>
-                                                <div>
+                                                <div className="w-full flex flex-col">
                                                     <label className="block text-sm text-gray-600 mb-1">To</label>
-                                                    <input
-                                                        type="date"
-                                                        value={dateFilter.to}
-                                                        onChange={(e) => handleDateFilterChange("to", e.target.value)}
-                                                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
+                                                        <DatePicker
+  selected={dateFilter.to ? new Date(dateFilter.to) : null}
+  onChange={(date) => handleDateFilterChange("to", date)}
+  maxDate={maxDate}
+  dateFormat="MMM dd, yyyy"
+  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+  placeholderText="Select end date"
+/>
+                                                    
                                                 </div>
                                             </div>
                                         </div>

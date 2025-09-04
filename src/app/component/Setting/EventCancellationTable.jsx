@@ -50,22 +50,22 @@ export default function NotificationTable({
         }
 
         // Apply date filter (simple implementation - you might want to improve this)
-        if (dateFilter.from || dateFilter.to) {
-            results = results.filter(notification => {
-                const notificationDate = new Date(notification.date.split('/').reverse().join('-'));
-                const fromDate = dateFilter.from ? new Date(dateFilter.from) : null;
-                const toDate = dateFilter.to ? new Date(dateFilter.to) : null;
+        // if (dateFilter.from || dateFilter.to) {
+        //     results = results.filter(notification => {
+        //         const notificationDate = new Date(notification.date.split('/').reverse().join('-'));
+        //         const fromDate = dateFilter.from ? new Date(dateFilter.from) : null;
+        //         const toDate = dateFilter.to ? new Date(dateFilter.to) : null;
 
-                if (fromDate && toDate) {
-                    return notificationDate >= fromDate && notificationDate <= toDate;
-                } else if (fromDate) {
-                    return notificationDate >= fromDate;
-                } else if (toDate) {
-                    return notificationDate <= toDate;
-                }
-                return true;
-            });
-        }
+        //         if (fromDate && toDate) {
+        //             return notificationDate >= fromDate && notificationDate <= toDate;
+        //         } else if (fromDate) {
+        //             return notificationDate >= fromDate;
+        //         } else if (toDate) {
+        //             return notificationDate <= toDate;
+        //         }
+        //         return true;
+        //     });
+        // }
 
         setFilteredNotifications(results);
     }, [notifications, searchTerm, statusFilter, dateFilter]);
@@ -235,8 +235,8 @@ export default function NotificationTable({
                                     <tr key={notification.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{notification.eventName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{notification.organizer}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(notification.originalEvent.createdAt)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatTime(notification.originalEvent.createdAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(notification.originalEvent.requestedCancellationAt)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatTime(notification.originalEvent.requestedCancellationAt)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{notification.bookedUsers}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <div className={`flex items-center p-1 rounded-lg ${getStatusBadgeColor(notification.status)}`}>

@@ -17,6 +17,12 @@ import DeletedUsers from "./DeletedUsers";
 import { useRef } from "react";
 import { usePermissions } from "@/hooks/usePermissions";
 import { CreateGuard, ViewGuard, ManageGuard, DeleteGuard, RootUserGuard } from "@/components/PermissionGuard";
+import dayjs from "dayjs";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+const maxDate = dayjs().add(1, "day").toDate();
+
 
 export default function UserManagement() {
     // State for active tab
@@ -272,19 +278,23 @@ export default function UserManagement() {
                                         <div className="space-y-2 mb-4">
                                             <div>
                                                 <label className="block text-sm text-gray-600 mb-1">From</label>
-                                                <input
-                                                    type="date"
-                                                    value={dateFilter.from}
-                                                    onChange={(e) => handleDateChange("from", e.target.value)}
-                                                    className="w-full p-2 border border-gray-300 rounded" />
+                                                    <DatePicker
+                                                    selected={dateFilter.from ? new Date(dateFilter.from) : null}
+                                                    onChange={(date) => handleDateChange("from", date)}
+                                                    maxDate={maxDate}
+                                                    dateFormat="MMM dd, yyyy"
+                                                    placeholderText="Select start date"
+                                                    className="w-full p-2 border border-gray-300 rounded text-black" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm text-gray-600 mb-1">To</label>
-                                                <input
-                                                    type="date"
-                                                    value={dateFilter.to}
-                                                    onChange={(e) => handleDateChange("to", e.target.value)}
-                                                    className="w-full p-2 border border-gray-300 rounded" />
+                                                    <DatePicker
+                                                    selected={dateFilter.to ? new Date(dateFilter.to) : null}
+                                                    onChange={(date) => handleDateChange("to", date)}
+                                                    maxDate={maxDate}
+                                                    dateFormat="MMM dd, yyyy"
+                                                    placeholderText="Select end date"
+                                                    className="w-full p-2 border border-gray-300 rounded text-black" />
                                             </div>
                                         </div>
 
