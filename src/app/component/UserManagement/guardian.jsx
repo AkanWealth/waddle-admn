@@ -86,15 +86,20 @@ export default function GuardiansTable({ currentPage, onPageChange, searchTerm, 
         }
         // Apply date filter
         if (dateFilter.from) {
+            const fromDate = new Date(dateFilter.from);
+            fromDate.setHours(0, 0, 0, 0); // Start of day
             results = results.filter(guardian => {
                 const createdDate = new Date(guardian.createdAt);
-                return createdDate >= dateFilter.from;
+                createdDate.setHours(0, 0, 0, 0); // Start of day for comparison
+                return createdDate >= fromDate;
             });
         }
         if (dateFilter.to) {
+            const toDate = new Date(dateFilter.to);
+            toDate.setHours(23, 59, 59, 999); // End of day
             results = results.filter(guardian => {
                 const createdDate = new Date(guardian.createdAt);
-                return createdDate <= dateFilter.to;
+                return createdDate <= toDate;
             });
         }
 

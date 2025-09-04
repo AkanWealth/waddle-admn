@@ -145,14 +145,21 @@ export default function AdminUsersTable({
 
     // Apply date filter
     if (dateFilter.from) {
-      results = results.filter(
-        (admin) => admin.registrationDate >= dateFilter.from
-      );
+      const fromDate = new Date(dateFilter.from);
+      fromDate.setHours(0, 0, 0, 0); // Start of day
+      results = results.filter((admin) => {
+        const adminDate = new Date(admin.registrationDate);
+        adminDate.setHours(0, 0, 0, 0); // Start of day for comparison
+        return adminDate >= fromDate;
+      });
     }
     if (dateFilter.to) {
-      results = results.filter(
-        (admin) => admin.registrationDate <= dateFilter.to
-      );
+      const toDate = new Date(dateFilter.to);
+      toDate.setHours(23, 59, 59, 999); // End of day
+      results = results.filter((admin) => {
+        const adminDate = new Date(admin.registrationDate);
+        return adminDate <= toDate;
+      });
     }
 
     setFilteredAdmin(results);

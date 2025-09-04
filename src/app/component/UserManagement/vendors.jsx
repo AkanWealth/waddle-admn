@@ -109,15 +109,20 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
 
         // Apply date filter
         if (dateFilter.from) {
+            const fromDate = new Date(dateFilter.from);
+            fromDate.setHours(0, 0, 0, 0); // Start of day
             results = results.filter(vendor => {
                 const vendorDate = new Date(vendor.createdAt);
-                return vendorDate >= dateFilter.from;
+                vendorDate.setHours(0, 0, 0, 0); // Start of day for comparison
+                return vendorDate >= fromDate;
             });
         }
         if (dateFilter.to) {
+            const toDate = new Date(dateFilter.to);
+            toDate.setHours(23, 59, 59, 999); // End of day
             results = results.filter(vendor => {
                 const vendorDate = new Date(vendor.createdAt);
-                return vendorDate <= dateFilter.to;
+                return vendorDate <= toDate;
             });
         }
 

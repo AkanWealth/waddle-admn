@@ -277,7 +277,7 @@ export default function UserManagement() {
 
                                         <h3 className="font-medium text-gray-700 mb-3">Filter by Date</h3>
                                         <div className="space-y-2 mb-4">
-                                            <div>
+                                            <div className="flex flex-col">
                                                 <label className="block text-sm text-gray-600 mb-1">From</label>
                                                     <DatePicker
                                                     selected={dateFilter.from ? new Date(dateFilter.from) : null}
@@ -287,7 +287,7 @@ export default function UserManagement() {
                                                     placeholderText="Select start date"
                                                     className="w-full p-2 border border-gray-300 rounded text-black" />
                                             </div>
-                                            <div>
+                                            <div className="flex flex-col">
                                                 <label className="block text-sm text-gray-600 mb-1">To</label>
                                                     <DatePicker
                                                     selected={dateFilter.to ? new Date(dateFilter.to) : null}
