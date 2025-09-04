@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-// Utility to convert dashboard data to CSV
+// Utility to convert User Activity dashboard data to CSV
 function convertToCSV({ userStats, monthlyData, headings }) {
   // User Stats
   const userStatsHeader = headings.userStats.join(",");
@@ -33,15 +33,46 @@ function convertToCSV({ userStats, monthlyData, headings }) {
   );
 }
 
+// Utility to convert Events dashboard data to CSV
+function convertEventToCSV({ eventStats, topEvents, bookingData, headings }) {
+  // Event Stats
+  const eventStatsHeader = headings.eventStats.join(",");
+  const eventStatsRows = eventStats
+    .map(stat => headings.eventStats.map(h => stat[h]).join(","))
+    .join("\n");
+
+  // Top Events
+  const topEventsHeader = headings.topEvents.join(",");
+  const topEventsRows = topEvents
+    .map(row => headings.topEvents.map(h => row[h]).join(","))
+    .join("\n");
+
+  // Booking Data
+  const bookingDataHeader = headings.bookingData.join(",");
+  const bookingDataRows = bookingData
+    .map(row => headings.bookingData.map(h => row[h]).join(","))
+    .join("\n");
+
+  // Combine as three tables in one CSV (with blank lines between)
+  return (
+    eventStatsHeader + "\n" +
+    eventStatsRows + "\n\n" +
+    topEventsHeader + "\n" +
+    topEventsRows + "\n\n" +
+    bookingDataHeader + "\n" +
+    bookingDataRows
+  );
+}
+
 // Function to trigger CSV download
-function downloadCSV(data) {
+function downloadCSV(data, filename = "dashboard-data.csv", converter = convertToCSV) {
   try {
-    const csv = convertToCSV(data);
+    const csv = converter(data);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "dashboard-data.csv";
+    a.download = filename;
     a.style.display = "none";
     document.body.appendChild(a);
     a.click();
@@ -97,12 +128,12 @@ export default function Dashboard() {
       // Convert back to the format your API expects
       const formattedStartDate = dayjs(dateRange.startDate).format("MMMM D, YYYY");
       const formattedEndDate = dayjs(dateRange.endDate).format("MMMM D, YYYY");
+      if(activeTab=="User Activity"){
+        const response = await analyticsService.exportReport(formattedStartDate, formattedEndDate);
+        console.log("Export response:", response);
       
-      const response = await analyticsService.exportReport(formattedStartDate, formattedEndDate);
-      console.log("Export response:", response);
-      
-      if (response.success) {
-          const downloadSuccess = downloadCSV(response.data);
+        if (response.success) {
+          const downloadSuccess = downloadCSV(response.data, "user-dashboard-data.csv", convertToCSV);
           
           if (downloadSuccess) {
             showMessage("Report Exported", "Your report has been exported as a CSV file", "success");
@@ -116,6 +147,28 @@ export default function Dashboard() {
         showMessage("Error", response.error, "error");
       }
    
+      } else{
+        const response = await analyticsService.exportEventReport(formattedStartDate, formattedEndDate);
+      console.log("Export response:", response);
+      
+      if (response.success) {
+          const downloadSuccess = downloadCSV(response.data, "events-dashboard-data.csv", convertEventToCSV);
+          
+          if (downloadSuccess) {
+            showMessage("Report Exported", "Your report has been exported as a CSV file", "success");
+          } else {
+            showMessage("Download Failed", "The file download failed. Please try again.", "error");
+          }
+        
+
+      } else {
+        console.log("Showing error message...");
+        showMessage("Error", response.error, "error");
+      }
+   
+      }
+      
+      
     } catch(error) {
       console.log("Caught error:", error);
       showMessage("Error", error.message, "error");
