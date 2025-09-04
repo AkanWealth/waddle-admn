@@ -317,6 +317,8 @@ export const useBookingStore = create<BookingStore>()(
           case "Failed":
             console.log("Shoulf run this one");
             return `${baseClasses} bg-[#FFDEDE] text-[#CB1A14]`;
+          case "Cancelled":
+            return `${baseClasses} bg-blue-100 text-blue-800`;
           default:
             return `${baseClasses} bg-gray-100 text-gray-800`;
         }
