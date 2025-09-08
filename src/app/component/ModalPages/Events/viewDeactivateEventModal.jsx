@@ -67,16 +67,16 @@ const EventApproveDetailsModal = ({
           className:
             "bg-[#CC0000] cursor-pointer text-white font-medium py-2 px-4 rounded w-full",
         },
-        cancel: {
-          label: "Edit Event",
-          onClick: () => {
-            setEventToEdit(event);
-            setEditModalOpen(true);
-            onClose();
-          },
-          className:
-            "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full",
-        },
+        // cancel: {
+        //   label: "Edit Event",
+        //   onClick: () => {
+        //     setEventToEdit(event);
+        //     setEditModalOpen(true);
+        //     onClose();
+        //   },
+        //   className:
+        //     "border border-blue-600 text-blue-600  font-medium py-2 px-4 rounded w-full",
+        // },
       };
     } else {
       return {
