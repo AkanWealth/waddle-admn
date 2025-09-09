@@ -13,7 +13,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Waddle",
-  description: "",
+  description:
+    "Waddle is your local parenting companion. We help you discover nearby kid-friendly things to do—like parks, cafés, activities, and events—without the endless scroll.",
   icons: {
     icon: "/HomeLogo.svg",
   },
