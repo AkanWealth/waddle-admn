@@ -3,6 +3,14 @@ import Link from "next/link";
 import Header from "../component/component/Headers/Headers";
 import Footer from "../component/component/Homepage/Footer";
 
+export const metadata = {
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+};
+
 const CookiePolicyPage = () => {
   return (
     <section className="bg-white min-h-screen">

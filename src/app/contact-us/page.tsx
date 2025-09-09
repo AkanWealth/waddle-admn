@@ -1,4 +1,12 @@
-"use client";
+export const metadata = {
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+};
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+("use client");
 import React, { useState } from "react";
 import Header from "../component/component/Headers/Headers";
 import Footer from "../component/component/Homepage/Footer";

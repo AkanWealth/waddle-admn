@@ -90,6 +90,14 @@ const exampleFAQs = [
   },
 ];
 
+export const metadata = {
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+}
+
 const HomePage = () => {
   return (
     <section className="bg-white min-h-screen">

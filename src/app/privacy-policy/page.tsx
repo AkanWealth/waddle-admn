@@ -4,6 +4,14 @@ import Link from "next/link";
 import Header from "../component/component/Headers/Headers";
 import Footer from "../component/component/Homepage/Footer";
 
+export const metadata = {
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+};
+
 const PrivacyPolicyPage = () => {
   return (
     <section className="bg-white min-h-screen">
@@ -114,8 +122,8 @@ const PrivacyPolicyPage = () => {
                     Website. It does not extend to any other websites linked.
                   </p>
                   <p className="text-gray-700">
-                    Weddle App Ltd is the &quot;data controller&quot; for applicable Data
-                    Protection Laws.
+                    Weddle App Ltd is the &quot;data controller&quot; for
+                    applicable Data Protection Laws.
                   </p>
                 </div>
 
@@ -147,8 +155,8 @@ const PrivacyPolicyPage = () => {
                     <li>Cookies and tracking</li>
                   </ul>
                   <p className="text-gray-700 mt-2">
-                    We process data under &quot;legitimate interests&quot; or as needed
-                    for contracts.
+                    We process data under &quot;legitimate interests&quot; or as
+                    needed for contracts.
                   </p>
                 </div>
 
