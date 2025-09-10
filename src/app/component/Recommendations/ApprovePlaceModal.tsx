@@ -7,8 +7,8 @@ import { CircleCheck } from "lucide-react";
 const ApprovePlaceModal = ({ tab }: { tab: "place" | "event" | null }) => {
   console.log(tab, "This is the tab in ApprovePlaceModal");
   const {
-    closeShowApproveDetailsModal,
     closeShowPlaceDetailsModal,
+    closeShowApproveDetailsModal,
     closeShowEventDetailsModal,
     refreshEvents,
     selectedPlace,
@@ -46,8 +46,8 @@ const ApprovePlaceModal = ({ tab }: { tab: "place" | "event" | null }) => {
         "success"
       );
       await refreshEvents("Places");
-      closeShowApproveDetailsModal();
       closeShowPlaceDetailsModal();
+      closeShowApproveDetailsModal();
     } else {
       console.error("Error approving place:", result.error);
     }

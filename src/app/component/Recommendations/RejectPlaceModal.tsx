@@ -17,7 +17,8 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
   onClose,
 }) => {
   const {
-    
+    closeShowEventDetailsModal,
+    closeShowPlaceDetailsModal,
     selectedPlace,
     selectedEvent,
     refreshEvents,
@@ -71,6 +72,7 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
         // Optimistically update store status
         updatePlaceStatus(selectedPlace.id, "Rejected");
         refreshEvents("Places");
+        closeShowPlaceDetailsModal();
         onClose();
         showMessage("Place Rejected!", "Place has been rejected", "success");
       }
@@ -91,6 +93,8 @@ const RejectPlaceModal: React.FC<RejectPlaceModalProps> = ({
         // Optimistically update store status
         updateEventStatus(selectedEvent.id, "Rejected");
         refreshEvents("Events");
+        closeShowEventDetailsModal();
+
         onClose();
         showMessage("Event Rejected!", "Event has been rejected", "success");
       }

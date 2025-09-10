@@ -135,7 +135,7 @@ const handleSearchChange = (e) => {
             let mappedBookingStatus;
             switch (bookingStatus) {
                 case "No Booking":
-                    mappedBookingStatus = "NO_BOOKING";
+                    mappedBookingStatus = "FAILED";
                     break;
                 case "Successful":
                     mappedBookingStatus = "SUCCESSFUL";
