@@ -48,6 +48,7 @@ export default function RevenueChart() {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload }: any) => {
+
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#2853A6] text-white px-7 py-3 rounded-[12px] shadow">
@@ -55,7 +56,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <p className="text-2xl font-bold">
           £{payload[0].value.toLocaleString()}
         </p>
-        <p className="text-xs text-center">03 June</p>
+        <p className="text-xs text-center">{payload[0].label}</p>
       </div>
     );
   }
