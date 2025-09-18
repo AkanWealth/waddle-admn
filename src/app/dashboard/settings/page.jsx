@@ -7,8 +7,8 @@ import { ToastContext } from "@/context/toast";
 
 export default function Page() {
   return (
-      <ToastContext>
+      
       <SettingsPage />
-      </ToastContext>
+
   );
 }
