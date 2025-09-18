@@ -206,6 +206,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                 }, 1500);
             } else {
                 setError(result.error || 'Failed to create admin user');
+                            showMessage("Failed", result.error, "error");
+
             }
         } catch (error) {
             setError('An unexpected error occurred. Please try again.');
@@ -237,6 +239,8 @@ const CreateAdminUserModal = ({ isOpen, onClose, editData = null, mode = 'create
                 }, 1500);
             } else {
                 setError(result.error || 'Failed to update admin user');
+                            showMessage("Failed", "The admin user details could not be updated. Please try again later.", "error");
+
             }
         } catch (error) {
             setError('An unexpected error occurred. Please try again.');
