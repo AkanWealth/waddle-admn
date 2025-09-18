@@ -177,7 +177,6 @@ export default function Dashboard() {
 
   return (
     <div className="font-inter flex flex-col">
-      <ToastContainer />
       {/* Dashboard header */}
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center justify-between mb-6 gap-4">
         <div>

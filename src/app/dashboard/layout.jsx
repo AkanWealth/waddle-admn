@@ -150,7 +150,7 @@ useEffect(() => {
 
     <div className="flex flex-nowrap justify-center h-screen bg-gray-50">
       {/* Sidebar with hidden scrollbar */}
-      <ToastContainer/>
+    
       <nav 
         ref={sidebarRef}
         className={`
