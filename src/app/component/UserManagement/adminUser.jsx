@@ -21,6 +21,7 @@ import PaginationComponent from "../Element/PaginationComponent";
 import { usePermissions } from "@/hooks/usePermissions";
 import { ManageGuard, DeleteGuard } from "@/components/PermissionGuard";
 import { formatTime } from "./DeletedUsers";
+import { userService } from "@/utils/userService";
 
 export default function AdminUsersTable({
   currentPage,
