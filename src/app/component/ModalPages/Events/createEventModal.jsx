@@ -1566,7 +1566,6 @@ const TagsDropdown = ({ tags = [], onChange, placeholder = "Select tags", disabl
 
   // Available tag options
   const availableTags = [
-    "Waddle Approved",
     "Creative",
     "Musical",
     "Adventurous",

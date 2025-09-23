@@ -175,6 +175,40 @@ class UserService {
     }
   }
 
+  async grantOrRemoveWaddleApprovedTag(
+    vendorId: string,
+    isApproved: boolean
+  ): Promise<{
+    success: boolean;
+    data?: unknown;
+    error?: string;
+  }> {
+    try {
+      const response = await authService.makeAuthenticatedRequest(
+        `/api/v1/host/vendor/${vendorId}/waddle-approved`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            isWaddleApproved: isApproved,
+          }),
+        }
+      );
+
+      return { success: true, data: response };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred while granting or revoking Waddle Approved tag",
+      };
+    }
+  }
+
   // You can add more user-related methods here, e.g., getUsers(), updateUser(), etc.
 }
 
