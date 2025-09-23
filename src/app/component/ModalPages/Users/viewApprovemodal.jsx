@@ -12,6 +12,7 @@
   import { useToastContext } from "@/context/toast";
   import { getFileType } from "@/lib/getFileType";
   import { ToastContainer } from "react-toastify";
+import Image from "next/image";
 
   const VendorApproveDetailsModal = ({
     vendor,
@@ -271,6 +272,14 @@
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold text-[#303237]">{vendor.business_name}</h3>
+                {isWaddleApproved && <div className="border-[#E5E7EF] border flex items-center gap-[8px] px-2 py-1 rounded-[8px]">
+                  <div className="bg-[#EAEEF6] h-[28px] w-[28px] rounded-[32px] flex items-center justify-center">
+
+
+                  <Image src="/WaddleImg.png" className="" width={20} height={20}  />
+                                    </div>
+                  <span className="text-[#303237] font-medium text-base">Waddle Approved</span>
+                  </div>}
                 <StatusBadge status={vendor.status} />
               </div>
               {
@@ -509,7 +518,7 @@
                 <div>
                   <h3 className="text-xl font-semibold text-[#303237]">Grant Waddle Approved</h3>
                   <p className="text-sm text-gray-600">
-                    You are about to grant the Waddle Approved badge to {selectedVendor?.business_name || selectedVendor?.name}.
+                    This organizer will receive the Waddle Approved badge. It will display on their events as a mark of trust and quality for parents.
                   </p>
                 </div>
               </div>
@@ -520,7 +529,7 @@
                   onClick={() => { handleGrantWaddleApproveTag(vendor.id) }} 
                   className="cursor-pointer flex-1 px-4 py-2 bg-[#2853A6] text-white rounded-[12px] font-semibold transition"
                 >
-                  Confirm
+                  Grant
                 </button>
                 <button 
                   type="button" 
@@ -549,10 +558,9 @@
                   <svg xmlns="http://www.w3.org/2000/svg" className="text-red-600" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-[#303237]">Revoke Waddle Approved</h3>
+                  <h3 className="text-xl font-semibold text-[#303237]">Remove Waddle Approved Badge</h3>
                   <p className="text-sm text-gray-600">
-                    You are about to revoke the Waddle Approved badge from {selectedVendor?.business_name || selectedVendor?.name}.
-                  </p>
+Are you sure you want to remove this badge? It will no longer show on the organizer’s events.                  </p>
                 </div>
               </div>
 
@@ -562,7 +570,7 @@
                   onClick={() => { handleRevokeWaddleApproveTag(vendor.id) }} 
                   className="cursor-pointer flex-1 px-4 py-2 bg-[#CC0000] text-white rounded-[12px] font-semibold transition"
                 >
-                  Confirm
+                  Remove Badge
                 </button>
                 <button 
                   type="button" 
