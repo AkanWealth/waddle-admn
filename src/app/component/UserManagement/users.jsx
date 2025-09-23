@@ -42,6 +42,7 @@ export default function UserManagement() {
     const [filterOpen, setFilterOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState([]);
     const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
+    const [waddleApprovedOnly, setWaddleApprovedOnly] = useState(false);
     const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const { showMessage } = useToastContext();
@@ -132,6 +133,7 @@ export default function UserManagement() {
     const resetFilters = () => {
         setStatusFilter([]);
         setDateFilter({ from: "", to: "" });
+        setWaddleApprovedOnly(false);
     };
 // useEffect(() => {
 //         // Call the API when the component mounts
@@ -331,6 +333,19 @@ export default function UserManagement() {
                                             ))}
                                         </div>
 
+                                        {/* Waddle Approved filter - relies on isWaddleApproved only */}
+                                        <div className="px-4 pb-3">
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={waddleApprovedOnly}
+                                                    onChange={(e) => setWaddleApprovedOnly(e.target.checked)}
+                                                    className="rounded text-blue-600"
+                                                />
+                                                <span className="text-gray-700">Waddle Approved</span>
+                                            </label>
+                                        </div>
+
                                         <div className="flex justify-between items-center gap-5 rounded-[12px] px-5 pb-5">
                                                                                        <button
                                                 onClick={applyFilters}
@@ -362,6 +377,7 @@ export default function UserManagement() {
                                 searchTerm={searchTerm}
                                 statusFilter={statusFilter}
                                 dateFilter={dateFilter}
+                                    waddleApprovedOnly={waddleApprovedOnly}
                                 mobileView={mobileView} />
                         )}
                         {activeTab === "Guardians" && (

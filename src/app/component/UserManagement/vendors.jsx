@@ -9,7 +9,7 @@ import PaginationComponent from "../Element/PaginationComponent";
 import { useToastContext } from "@/context/toast";
 import { formatTime } from "./DeletedUsers";
 
-export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, mobileView }) {
+export default function VendorsTable({ currentPage, onPageChange, searchTerm, statusFilter, dateFilter, waddleApprovedOnly = false, mobileView }) {
     const { showMessage } = useToastContext();
     const [allVendors, setAllVendors] = useState([]);
     const [filteredVendors, setFilteredVendors] = useState([]);
@@ -107,6 +107,11 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
             });
         }
 
+        // Apply Waddle Approved filter (only when selected)
+        if (waddleApprovedOnly) {
+            results = results.filter(vendor => vendor?.isWaddleApproved === true);
+        }
+
         // Apply date filter
         if (dateFilter.from) {
             const fromDate = new Date(dateFilter.from);
@@ -127,7 +132,7 @@ export default function VendorsTable({ currentPage, onPageChange, searchTerm, st
         }
 
         setFilteredVendors(results);
-    }, [allVendors, searchTerm, statusFilter, dateFilter]);
+    }, [allVendors, searchTerm, statusFilter, dateFilter, waddleApprovedOnly]);
 
     // Pagination logic
     const itemsPerPage = 7;
