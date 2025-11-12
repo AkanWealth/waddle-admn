@@ -46,7 +46,7 @@ const PrivacyPolicyPage = () => {
                 <strong>Effective Date:</strong> 13 March 2025
               </p>
               <p className="text-base text-gray-700">
-                <strong>Company:</strong> Weddle App Ltd
+                <strong>Company:</strong> Waddle App Ltd
               </p>
             </header>
 
@@ -65,8 +65,8 @@ const PrivacyPolicyPage = () => {
                   </h3>
                   <p className="text-gray-700 mb-2">
                     This Privacy Policy applies between you, the User of this
-                    Website, and <strong>Weddle App Ltd</strong>, the owner and
-                    provider of this Website. <strong>Weddle App Ltd</strong>{" "}
+                    Website, and <strong>Waddle App Ltd</strong>, the owner and
+                    provider of this Website. <strong>Waddle App Ltd</strong>{" "}
                     takes the privacy of your information very seriously. This
                     Privacy Policy applies to any data collected by us or
                     provided by you when using the Website.
@@ -83,7 +83,7 @@ const PrivacyPolicyPage = () => {
                   </h3>
                   <ul className="text-gray-700 space-y-2 list-disc list-inside">
                     <li>
-                      <strong>Data:</strong> any information submitted to Weddle
+                      <strong>Data:</strong> any information submitted to Waddle
                       App Ltd via the Website, including personal data
                     </li>
                     <li>
@@ -118,11 +118,11 @@ const PrivacyPolicyPage = () => {
                     1.3 Scope of This Privacy Policy
                   </h3>
                   <p className="text-gray-700 mb-2">
-                    This applies only to Weddle App Ltd and Users regarding this
+                    This applies only to Waddle App Ltd and Users regarding this
                     Website. It does not extend to any other websites linked.
                   </p>
                   <p className="text-gray-700">
-                    Weddle App Ltd is the &quot;data controller&quot; for
+                    Waddle App Ltd is the &quot;data controller&quot; for
                     applicable Data Protection Laws.
                   </p>
                 </div>
@@ -195,7 +195,7 @@ const PrivacyPolicyPage = () => {
                     <li>Security audits</li>
                   </ul>
                   <p className="text-gray-700 mt-2">
-                    Report any suspected misuse to hello@weddleapp.io.
+                    Report any suspected misuse to hello@waddleapp.io.
                   </p>
                 </div>
 
@@ -225,10 +225,10 @@ const PrivacyPolicyPage = () => {
                   <p className="text-gray-700 mt-2">
                     Contact{" "}
                     <a
-                      href="mailto:hello@weddleapp.io"
+                      href="mailto:hello@waddleapp.io"
                       className="text-[#2853A6] underline"
                     >
-                      hello@weddleapp.io
+                      hello@waddleapp.io
                     </a>{" "}
                     or the UK ICO to exercise your rights.
                   </p>
@@ -252,16 +252,16 @@ const PrivacyPolicyPage = () => {
                   CHANGES TO THIS POLICY
                 </h2>
                 <p className="text-gray-700 mb-2">
-                  Weddle App Ltd may change this Privacy & Cookies Policy.
+                  Waddle App Ltd may change this Privacy & Cookies Policy.
                   Updates will be posted here.
                 </p>
                 <p className="text-gray-700">
                   Contact:{" "}
                   <a
-                    href="mailto:hello@weddleapp.io"
+                    href="mailto:hello@waddleapp.io"
                     className="text-[#2853A6] underline"
                   >
-                    hello@weddleapp.io
+                    hello@waddleapp.io
                   </a>
                 </p>
               </div>

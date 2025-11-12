@@ -38,7 +38,7 @@ const CookiePolicyPage = () => {
                 <strong>Effective Date:</strong> 13 March 2025
               </p>
               <p className="text-base text-gray-700">
-                <strong>Company:</strong> Weddle App Ltd
+                <strong>Company:</strong> Waddle App Ltd
               </p>
             </header>
 
@@ -161,7 +161,7 @@ const CookiePolicyPage = () => {
                   CHANGES TO THIS POLICY
                 </h2>
                 <p className="text-gray-700 mb-2">
-                  Weddle App Ltd reserves the right to update this Privacy &
+                  Waddle App Ltd reserves the right to update this Privacy &
                   Cookies Policy from time to time. Any changes will be posted
                   on this page, and continued use of the Website will be deemed
                   acceptance of the updated terms.
@@ -169,10 +169,10 @@ const CookiePolicyPage = () => {
                 <p className="text-gray-700">
                   For any inquiries, contact us at{" "}
                   <Link
-                    href="mailto:hello@weddleapp.io"
+                    href="mailto:hello@waddleapp.io"
                     className="text-[#303237] font-semibold"
                   >
-                    hello@weddleapp.io
+                    hello@waddleapp.io
                   </Link>
                 </p>
               </div>
