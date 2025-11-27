@@ -1,23 +1,21 @@
 import SVGAssets from "@/assets/assets/svg";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  FaFacebook,
-  FaInstagram
-} from "react-icons/fa6";
+import { FaFacebook, FaInstagram } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
 import { FaTiktok } from "react-icons/fa6";
-const FooterLinksOne =[
-  {id:1, href:"", name:"Home"},
-  {id:2, href:"#about", name:"About Us"},
-  {id:3, href:"/contact-us", name:"Contact Us"},
-  {id:4, href:"#faq", name:"FAQs"}
-]
+const FooterLinksOne = [
+  { id: 1, href: "", name: "Home" },
+  { id: 2, href: "#about", name: "About Us" },
+  { id: 3, href: "/contact-us", name: "Contact Us" },
+  { id: 4, href: "#faq", name: "FAQs" },
+];
 
 const FooterLinksTwo = [
   { id: 1, href: "/privacy-policy", name: "Privacy Policy" },
   { id: 2, href: "/cookie-policy", name: "Cookie Policy" },
-  {id:3, href:"/terms-of-use", name:"Terms Of Use"}
+  { id: 3, href: "/terms-of-use", name: "Terms Of Use" },
+  { id: 4, href: "/community-guideline", name: "Community Guideline" },
 ];
 
 const FooterSocialMediaLinks = [

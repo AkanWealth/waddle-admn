@@ -18,7 +18,8 @@ const FooterLinksOne =[
 const FooterLinksTwo = [
   { id: 1, href: "/privacy-policy", name: "Privacy Policy" },
   { id: 2, href: "/cookie-policy", name: "Cookie Policy" },
-  {id:3, href:"/terms-of-use", name:"Terms Of Use"}
+  { id: 3, href: "/terms-of-use", name: "Terms Of Use" },
+  // { id: 4, href: "/terms-of-use", name: "Terms Of Use" },
 ];
 
 const Footer = () => {

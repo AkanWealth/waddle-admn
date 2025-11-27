@@ -19,7 +19,8 @@ import {
   MapPin,
   Gavel,
   X,
-  BarChart
+  BarChart,
+  BadgeInfo
 } from "lucide-react";
 import { FaBell } from "react-icons/fa6";
 import EmptyNotification from "../component/Notification/EmptyNotification";
@@ -138,6 +139,7 @@ useEffect(() => {
     { path: "/dashboard/payments", icon: <BadgePoundSterlingIcon className="w-5 h-5" />, label: "Payment Management", module: "payment" },
     { path: "/dashboard/recommendations", icon: <MapPin className="w-5 h-5" />, label: "Recommendations", module: "recommendations" },
     { path: "/dashboard/dispute", icon: <Gavel className="w-5 h-5" />, label: "Dispute", module: "dispute" },
+    { path: "/dashboard/reports", icon: <BadgeInfo className="w-5 h-5" />, label: "Reports" },
     // Settings should always be visible regardless of permissions
     { path: "/dashboard/settings", icon: <Settings className="w-5 h-5" />, label: "Settings" }
   ];
