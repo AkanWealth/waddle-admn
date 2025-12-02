@@ -10,6 +10,8 @@ import { FAQSection } from "../../src/app/component/component/Homepage/Faq";
 import Footer from "../../src/app/component/component/Homepage/Footer";
 import SVGAssets from "@/assets/assets/svg";
 import ImageFiles from "@/assets/assets/images";
+import { useDeviceType } from "@/hooks/useDeviceType";
+import DeviceDownloadButtons from "./DeviceDownloadButtons";
 
 const exampleFAQs = [
   {
@@ -116,24 +118,9 @@ const HomePage = () => {
           </p>
 
 <section className="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-none">
-  <button className="h-[60px] w-[200px]" type="button">
-    <Image
-      src={SVGAssets.DownloadViaApple}
-      alt="Download via Apple"
-      height={60}
-      width={200}
-      className="h-[60px] w-[200px] object-contain"
-    />
-  </button>
-  <button className="h-[60px] w-[200px]" type="button">
-    <Image
-      src={SVGAssets.DownloadViaGoogle}
-      alt="Download via Google"
-      height={60}
-      width={200}
-      className="h-[60px] w-[200px] object-contain"
-    />
-  </button>
+<DeviceDownloadButtons/>
+
+
 </section>
 
 
@@ -336,20 +323,7 @@ const HomePage = () => {
               Join thousands of parents making days out easier and more fun.
             </p>
             <section className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-              <button className="h-[60px] w-[200px]" type="button">
-                <Image
-                  src={SVGAssets.DownloadViaApple}
-                  alt="Download via Apple"
-                  className="h-full w-full object-contain"
-                />
-              </button>
-              <button className="h-[60px] w-[200px]" type="button">
-                <Image
-                  src={SVGAssets.DownloadViaGoogle}
-                  alt="Download via Google"
-                  className="h-full w-full object-contain"
-                />
-              </button>
+              <DeviceDownloadButtons/>
             </section>
           </div>
 

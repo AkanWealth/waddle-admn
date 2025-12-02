@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FaFacebook, FaInstagram } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
 import { FaTiktok } from "react-icons/fa6";
+import DeviceDownloadButtons from "@/app/DeviceDownloadButtons";
 const FooterLinksOne = [
   { id: 1, href: "", name: "Home" },
   { id: 2, href: "#about", name: "About Us" },
@@ -40,20 +41,7 @@ const Footer = () => {
 
           {/* App Buttons */}
           <div className="flex items-center gap-4">
-            <button className="h-[36px] w-[108px]" type="button">
-              <Image
-                src={SVGAssets.DownloadViaApple}
-                alt="Download via Apple"
-                className="h-full w-full object-contain"
-              />
-            </button>
-            <button className="h-[36px] w-[108px]" type="button">
-              <Image
-                src={SVGAssets.DownloadViaGoogle}
-                alt="Download via Google"
-                className="h-full w-full object-contain"
-              />
-            </button>
+            <DeviceDownloadButtons />
           </div>
 
           {/* Contact */}
